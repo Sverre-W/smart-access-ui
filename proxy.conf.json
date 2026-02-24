@@ -1,0 +1,7 @@
+{
+  "/api/settings": {
+    "target": "https://dev.axxession.local",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

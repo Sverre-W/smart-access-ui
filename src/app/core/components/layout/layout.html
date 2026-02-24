@@ -1,0 +1,10 @@
+@if(isAuthenticated)
+{
+Hello, {{ userName }}!
+}
+@else {
+  <button class="btn btn-primary" (click)="login()">Login</button>
+}
+
+
+<router-outlet/>
