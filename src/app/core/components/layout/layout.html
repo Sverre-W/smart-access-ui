@@ -1,10 +1,76 @@
-@if(isAuthenticated)
-{
-Hello, {{ userName }}!
-}
-@else {
-  <button class="btn btn-primary" (click)="login()">Login</button>
-}
+<nav class="sticky top-0 z-50 w-full bg-[#f8f9fb]/95 backdrop-blur-md border-b border-zinc-200">
+  <div class="w-full px-4 sm:px-6 lg:px-10">
+    <div class="flex h-16 items-center justify-between">
 
+      <!-- Left: Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-[#238cff] flex items-center justify-center text-white font-semibold shadow-sm">
+          U
+        </div>
+        <span class="text-lg font-semibold tracking-tight text-zinc-800">
+          Univisit
+        </span>
+      </div>
 
+      <!-- Right: Desktop Auth -->
+      <div class="hidden sm:flex items-center gap-4">
+
+        @if (isAuthenticated) {
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-[#238cff]/10 text-[#238cff] flex items-center justify-center text-sm font-semibold">
+              {{ userName.length > 0 ? userName.charAt(0) : '?' }}
+            </div>
+            <span class="text-sm font-medium text-zinc-700">
+              {{ userName }}
+            </span>
+          </div>
+        } @else {
+          <button
+            class="px-4 py-2 text-sm font-medium rounded-xl bg-[#238cff] text-white hover:brightness-110 active:scale-[0.98] transition shadow-sm"
+            (click)="login()">
+            Login
+          </button>
+        }
+
+      </div>
+
+      <!-- Mobile menu button -->
+      <button
+        class="sm:hidden p-2 rounded-lg text-zinc-700 hover:bg-zinc-200/60 transition"
+        (click)="mobileMenuOpen = !mobileMenuOpen">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+
+    </div>
+
+    <!-- Mobile dropdown -->
+    @if (mobileMenuOpen) {
+      <div class="sm:hidden pb-4 pt-2 space-y-3 border-t border-zinc-200">
+
+        @if (isAuthenticated) {
+          <div class="flex items-center gap-3 px-1">
+            <div class="w-9 h-9 rounded-full bg-[#238cff]/10 text-[#238cff] flex items-center justify-center text-sm font-semibold">
+              {{ userName.length > 0 ? userName.charAt(0) : '?' }}
+            </div>
+            <span class="text-sm font-medium text-zinc-700">
+              {{ userName }}
+            </span>
+          </div>
+        } @else {
+          <button
+            class="w-full text-left px-4 py-2 text-sm font-medium rounded-xl bg-[#238cff] text-white hover:brightness-110 transition"
+            (click)="login()">
+            Login
+          </button>
+        }
+
+      </div>
+    }
+
+  </div>
+</nav>
 <router-outlet/>

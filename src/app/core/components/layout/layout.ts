@@ -11,6 +11,8 @@ import { PermissionsService } from '../../services/permissions-service';
 })
 export class Layout {
 
+  mobileMenuOpen = false;
+
   constructor(private oauthService: OAuthService, private permmisionsService: PermissionsService) {
     if (this.oauthService.hasValidAccessToken()) {
       permmisionsService.loadPermissions();

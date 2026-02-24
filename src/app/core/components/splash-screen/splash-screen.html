@@ -1,15 +1,27 @@
-<div class="splash-container">
-  <div class="splash-card">
-    <div class="logo">
-      <div class="logo-ring"></div>
-      <div class="logo-core"></div>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-200 dark:from-zinc-950 dark:to-zinc-900">
+
+  <div class="w-full max-w-sm text-center bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-xl p-10">
+
+    <!-- Logo -->
+    <div class="relative mx-auto w-20 h-20 mb-6">
+      <div class="absolute inset-0 rounded-full border-4 border-indigo-500/40 animate-spin"></div>
+      <div class="absolute inset-3 rounded-full bg-indigo-600 shadow-lg"></div>
     </div>
 
-    <h1 class="title">Univisit</h1>
-    <p class="subtitle">Initializing secure session...</p>
+    <!-- Title -->
+    <h1 class="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+      Univisit
+    </h1>
 
-    <div class="progress-bar">
-      <div class="progress-indicator"></div>
+    <!-- Subtitle -->
+    <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+      Initializing secure session…
+    </p>
+
+    <!-- Progress bar -->
+    <div class="mt-8 h-2 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+      <div class="h-full w-2/3 bg-indigo-600 animate-pulse rounded-full"></div>
     </div>
+
   </div>
 </div>

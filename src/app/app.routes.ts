@@ -4,7 +4,7 @@ export const routes: Routes = [
   {
     path: 'visitors',
     loadChildren: () =>
-      import('./features/visitors/visitors-module')
-        .then(m => m.VisitorsModule)
+      import('./features/visitors/visitors.routes')
+        .then(m => m.visitorsRoutes)
   },
 ];

@@ -25,6 +25,7 @@ export class StartupService {
     try {
       await this.config.load();
 
+      //await this.delay(6000); // Simulate some startup delay
       const auth = this.config.auth;
 
       this.oauth.configure({
