@@ -6,6 +6,9 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@a
 import { ApiAuthInterceptor } from './core/auth-api-interceptor';
 import { provideOAuthClient } from 'angular-oauth2-oidc';
 
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeuix/themes/aura';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -15,6 +18,9 @@ export const appConfig: ApplicationConfig = {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiAuthInterceptor,
       multi: true
-    }
+    },
+    providePrimeNG({
+      theme: { preset: Aura }
+    })
   ]
 };

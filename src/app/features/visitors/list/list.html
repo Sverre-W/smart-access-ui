@@ -1,0 +1,31 @@
+<div class="p-8">
+  <div class="mb-6">
+    <h1 class="text-2xl font-semibold text-zinc-800">Visitors</h1>
+    <p class="text-sm text-zinc-500 mt-1">Manage pre-registrations, walk-ins, and visit history.</p>
+  </div>
+
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+      <h2 class="text-sm font-semibold text-zinc-700">All visitors</h2>
+      <div class="flex items-center gap-2">
+        <div class="w-32 h-8 rounded-lg bg-zinc-100 animate-pulse"></div>
+        <div class="w-24 h-8 rounded-lg bg-zinc-100 animate-pulse"></div>
+      </div>
+    </div>
+    <div class="divide-y divide-zinc-100">
+      @for (row of placeholderRows; track row) {
+        <div class="flex items-center gap-4 px-6 py-4">
+          <div class="w-8 h-8 rounded-full bg-zinc-100 shrink-0"></div>
+          <div class="flex-1 space-y-1.5">
+            <div class="h-3.5 w-40 rounded bg-zinc-100"></div>
+            <div class="h-3 w-24 rounded bg-zinc-50"></div>
+          </div>
+          <div class="h-6 w-16 rounded-full bg-zinc-100"></div>
+        </div>
+      }
+    </div>
+    <div class="px-6 py-5 text-center">
+      <p class="text-sm text-zinc-400 italic">Visitor data will appear here once connected.</p>
+    </div>
+  </div>
+</div>

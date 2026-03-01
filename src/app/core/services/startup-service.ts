@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { ConfigService } from './config-service';
 import { OAuthService } from 'angular-oauth2-oidc';
 
@@ -14,7 +15,8 @@ export class StartupService {
 
   constructor(
     private config: ConfigService,
-    private oauth: OAuthService
+    private oauth: OAuthService,
+    private router: Router,
   ) { }
 
   private delay(ms: number) {
@@ -25,7 +27,6 @@ export class StartupService {
     try {
       await this.config.load();
 
-      //await this.delay(6000); // Simulate some startup delay
       const auth = this.config.auth;
 
       this.oauth.configure({
@@ -40,6 +41,8 @@ export class StartupService {
       });
 
       await this.oauth.loadDiscoveryDocumentAndTryLogin();
+
+      await this.router.navigateByUrl('/', { replaceUrl: true });
 
       this._status.set('ready');
     } catch (err) {
