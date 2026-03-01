@@ -1,0 +1,344 @@
+<div class="p-8 max-w-2xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-6 flex items-center gap-3">
+    <button
+      (click)="goBack()"
+      class="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+    </button>
+    <div class="flex-1 min-w-0">
+      @if (loading()) {
+        <div class="h-7 w-48 rounded bg-zinc-100 animate-pulse mb-1"></div>
+        <div class="h-4 w-32 rounded bg-zinc-100 animate-pulse"></div>
+      } @else if (visit()) {
+        <h1 class="text-2xl font-semibold text-zinc-800 truncate">{{ visit()!.summary || 'Visit' }}</h1>
+        <div class="flex items-center gap-2 mt-0.5">
+          <app-visit-state-badge [state]="visit()!.state" />
+          <span class="text-xs text-zinc-400">{{ totalInvitations() }} visitor{{ totalInvitations() !== 1 ? 's' : '' }}</span>
+        </div>
+      } @else {
+        <h1 class="text-2xl font-semibold text-zinc-800">Edit Visit</h1>
+      }
+    </div>
+  </div>
+
+  <!-- Load error -->
+  @if (error()) {
+    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error() }}
+    </div>
+  }
+
+  @if (!loading() && visit()) {
+
+    <!-- Past-visit read-only banner -->
+    @if (isPast()) {
+      <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 flex items-center gap-2">
+        <i class="pi pi-lock"></i>
+        This visit has ended and is read-only.
+      </div>
+    }
+
+    <!-- Save feedback -->
+    @if (saveError()) {
+      <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle"></i>
+        {{ saveError() }}
+      </div>
+    }
+    @if (saveSuccess()) {
+      <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600 flex items-center gap-2">
+        <i class="pi pi-check-circle"></i>
+        Changes saved successfully.
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+
+      <!-- Details card -->
+      <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-5">
+
+        <div class="px-6 py-5 border-b border-zinc-100">
+          <h2 class="text-sm font-semibold text-zinc-700">Visit details</h2>
+        </div>
+
+        <div class="px-6 py-5 flex flex-col gap-5">
+
+          <!-- Summary -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700" for="summary">
+              Summary <span class="text-red-400">*</span>
+            </label>
+            <input
+              pInputText
+              id="summary"
+              type="text"
+              formControlName="summary"
+              placeholder="e.g. Interview with Jane Doe"
+              [fluid]="true"
+              [invalid]="isInvalid('summary')"
+            />
+            @if (isInvalid('summary')) {
+              <p class="text-xs text-red-500">Summary is required.</p>
+            }
+          </div>
+
+          <!-- Start / End row -->
+          <div class="grid grid-cols-2 gap-4">
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700" for="start">
+                Start <span class="text-red-400">*</span>
+              </label>
+              <p-datepicker
+                inputId="start"
+                formControlName="start"
+                [showTime]="true"
+                hourFormat="24"
+                dateFormat="dd/mm/yy"
+                placeholder="DD/MM/YYYY HH:MM"
+                [showIcon]="true"
+                [fluid]="true"
+                [invalid]="isInvalid('start')"
+              />
+              @if (isInvalid('start')) {
+                <p class="text-xs text-red-500">Start time is required.</p>
+              }
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700" for="end">
+                End <span class="text-red-400">*</span>
+              </label>
+              <p-datepicker
+                inputId="end"
+                formControlName="end"
+                [showTime]="true"
+                hourFormat="24"
+                dateFormat="dd/mm/yy"
+                placeholder="DD/MM/YYYY HH:MM"
+                [showIcon]="true"
+                [fluid]="true"
+                [invalid]="isInvalid('end')"
+              />
+              @if (isInvalid('end')) {
+                <p class="text-xs text-red-500">End time is required.</p>
+              }
+            </div>
+
+          </div>
+
+          <!-- Location autocomplete -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">Location</label>
+            <p-autocomplete
+              formControlName="location"
+              [suggestions]="locationSuggestions()"
+              optionLabel="name"
+              placeholder="Search by location name…"
+              [dropdown]="false"
+              [forceSelection]="true"
+              [minQueryLength]="1"
+              [fluid]="true"
+              [showClear]="true"
+              (completeMethod)="searchLocations($event)"
+            >
+              <ng-template #item let-loc>
+                <div class="flex flex-col gap-0.5 py-0.5">
+                  <span class="text-sm font-medium text-zinc-800">{{ loc.name }}</span>
+                  <span class="text-xs text-zinc-400">{{ locationMeta(loc) }}</span>
+                  @if (loc.parent) {
+                    <span class="text-xs text-zinc-300">
+                      <i class="pi pi-map-marker mr-0.5"></i>{{ loc.parent.name }}
+                    </span>
+                  }
+                </div>
+              </ng-template>
+            </p-autocomplete>
+          </div>
+
+        </div>
+
+        <!-- Form footer -->
+        @if (isPast()) {
+          <div class="px-6 py-4 border-t border-zinc-100 flex items-center gap-2 text-sm text-zinc-400 italic">
+            <i class="pi pi-lock text-xs"></i>
+            This visit is read-only.
+          </div>
+        } @else {
+          <div class="px-6 py-4 border-t border-zinc-100 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              (click)="goBack()"
+              class="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              type="submit"
+              [disabled]="saving()"
+              class="inline-flex items-center gap-2 rounded-lg bg-[#238cff] px-4 py-2 text-sm font-semibold text-white shadow-xs
+                hover:bg-[#1a7ae0] active:bg-[#1570cc] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            >
+              @if (saving()) {
+                <i class="pi pi-spin pi-spinner text-xs"></i>
+                Saving…
+              } @else {
+                <i class="pi pi-check text-xs"></i>
+                Save Changes
+              }
+            </button>
+          </div>
+        }
+
+      </div>
+
+    </form>
+
+    <!-- People card -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+      <div class="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-zinc-700">People</h2>
+        <span class="text-xs text-zinc-400">{{ organizers().length + totalInvitations() }} total</span>
+      </div>
+
+      <!-- Empty state -->
+      @if (organizers().length === 0 && totalInvitations() === 0) {
+        <div class="px-6 py-8 text-center">
+          <i class="pi pi-users text-2xl text-zinc-300 mb-2 block"></i>
+          <p class="text-sm text-zinc-400">No participants added yet.</p>
+        </div>
+      }
+
+      <!-- ── Organizers ──────────────────────────────────────────────────── -->
+      @if (organizers().length > 0 || invitedOrganizers().length > 0) {
+        <div class="px-6 pt-4 pb-2">
+          <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+            Organizers
+            <span class="ml-1 rounded-full bg-purple-50 px-1.5 py-0.5 text-purple-600">
+              {{ organizers().length + invitedOrganizers().length }}
+            </span>
+          </p>
+        </div>
+        <ul class="divide-y divide-zinc-100">
+
+          <!-- System organizers (OrganizerDto) -->
+          @for (o of organizers(); track o.id) {
+            <li class="px-6 py-3 flex items-center gap-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-zinc-800 truncate">{{ organizerFullName(o) }}</p>
+                <p class="text-xs text-zinc-400 truncate">{{ o.email }}</p>
+                @if (o.company) {
+                  <p class="text-xs text-zinc-400 truncate">{{ o.company }}</p>
+                }
+              </div>
+              @if (o.phone) {
+                <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
+                  <i class="pi pi-phone"></i>{{ o.phone }}
+                </span>
+              }
+              <span class="rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-600 shrink-0">
+                Organizer
+              </span>
+            </li>
+          }
+
+          <!-- Invited organizers (VisitorInvitationDto with role Organizer) -->
+          @for (inv of invitedOrganizers(); track inv.visitor.id) {
+            <li class="px-6 py-3 flex items-center gap-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-zinc-800 truncate">
+                  {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
+                </p>
+                <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
+                @if (inv.visitor.company) {
+                  <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+                }
+              </div>
+              @if (inv.visitor.licensePlate) {
+                <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
+                  <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
+                </span>
+              }
+              <app-checkin-status-badge [status]="inv.checkInStatus" />
+            </li>
+          }
+
+        </ul>
+      }
+
+      <!-- ── Visitors ────────────────────────────────────────────────────── -->
+      @if (invitedVisitors().length > 0) {
+        <div class="px-6 pt-4 pb-2 border-t border-zinc-100">
+          <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+            Visitors
+            <span class="ml-1 rounded-full bg-blue-50 px-1.5 py-0.5 text-blue-600">
+              {{ invitedVisitors().length }}
+            </span>
+          </p>
+        </div>
+        <ul class="divide-y divide-zinc-100">
+          @for (inv of invitedVisitors(); track inv.visitor.id) {
+            <li class="px-6 py-3 flex items-center gap-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-zinc-800 truncate">
+                  {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
+                </p>
+                <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
+                @if (inv.visitor.company) {
+                  <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+                }
+              </div>
+              @if (inv.visitor.licensePlate) {
+                <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
+                  <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
+                </span>
+              }
+              <app-checkin-status-badge [status]="inv.checkInStatus" />
+            </li>
+          }
+        </ul>
+      }
+
+      <!-- ── Participants ────────────────────────────────────────────────── -->
+      @if (invitedParticipants().length > 0) {
+        <div class="px-6 pt-4 pb-2 border-t border-zinc-100">
+          <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+            Participants
+            <span class="ml-1 rounded-full bg-zinc-100 px-1.5 py-0.5 text-zinc-500">
+              {{ invitedParticipants().length }}
+            </span>
+          </p>
+        </div>
+        <ul class="divide-y divide-zinc-100">
+          @for (inv of invitedParticipants(); track inv.visitor.id) {
+            <li class="px-6 py-3 flex items-center gap-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-zinc-800 truncate">
+                  {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
+                </p>
+                <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
+                @if (inv.visitor.company) {
+                  <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+                }
+              </div>
+              @if (inv.visitor.licensePlate) {
+                <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
+                  <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
+                </span>
+              }
+              <app-checkin-status-badge [status]="inv.checkInStatus" />
+            </li>
+          }
+        </ul>
+      }
+
+    </div>
+
+  }
+
+</div>

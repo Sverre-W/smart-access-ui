@@ -1,0 +1,245 @@
+<div class="p-8 max-w-2xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-6 flex items-center gap-3">
+    <button
+      (click)="goBack()"
+      class="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+    </button>
+    <div class="flex-1 min-w-0">
+      @if (loading()) {
+        <div class="h-7 w-48 rounded bg-zinc-100 animate-pulse mb-1"></div>
+        <div class="h-4 w-32 rounded bg-zinc-100 animate-pulse"></div>
+      } @else if (visitor()) {
+        <h1 class="text-2xl font-semibold text-zinc-800 truncate">{{ fullName(visitor()!) }}</h1>
+        <p class="text-sm text-zinc-400 mt-0.5">{{ visitor()!.email }}</p>
+      } @else {
+        <h1 class="text-2xl font-semibold text-zinc-800">Visitor</h1>
+      }
+    </div>
+    @if (!loading() && visitor()?.blacklisted) {
+      <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-50 text-red-500 shrink-0">
+        Blacklisted
+      </span>
+    }
+  </div>
+
+  <!-- Load error -->
+  @if (error()) {
+    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error() }}
+    </div>
+  }
+
+  @if (!loading() && visitor()) {
+
+    <!-- Save feedback -->
+    @if (saveError()) {
+      <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle"></i>
+        {{ saveError() }}
+      </div>
+    }
+    @if (saveSuccess()) {
+      <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600 flex items-center gap-2">
+        <i class="pi pi-check-circle"></i>
+        Changes saved successfully.
+      </div>
+    }
+
+    <!-- ── Edit form card ───────────────────────────────────────────────── -->
+    <form [formGroup]="form" (ngSubmit)="save()" class="mb-5">
+      <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+        <div class="px-6 py-5 border-b border-zinc-100">
+          <h2 class="text-sm font-semibold text-zinc-700">Visitor details</h2>
+        </div>
+
+        <div class="px-6 py-5 flex flex-col gap-5">
+
+          <!-- First / Last name row -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700" for="firstName">First name</label>
+              <input
+                pInputText
+                id="firstName"
+                type="text"
+                formControlName="firstName"
+                placeholder="First name"
+                [fluid]="true"
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700" for="lastName">Last name</label>
+              <input
+                pInputText
+                id="lastName"
+                type="text"
+                formControlName="lastName"
+                placeholder="Last name"
+                [fluid]="true"
+              />
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700" for="email">Email</label>
+            <input
+              pInputText
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="email@example.com"
+              [fluid]="true"
+            />
+          </div>
+
+          <!-- Company -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700" for="company">Company</label>
+            <input
+              pInputText
+              id="company"
+              type="text"
+              formControlName="company"
+              placeholder="Company name"
+              [fluid]="true"
+            />
+          </div>
+
+          <!-- Phone / License plate row -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700" for="phone">Phone</label>
+              <input
+                pInputText
+                id="phone"
+                type="tel"
+                formControlName="phone"
+                placeholder="+1 234 567 890"
+                [fluid]="true"
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700" for="licensePlate">License plate</label>
+              <input
+                pInputText
+                id="licensePlate"
+                type="text"
+                formControlName="licensePlate"
+                placeholder="AB-123-CD"
+                [fluid]="true"
+              />
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Form footer -->
+        <div class="px-6 py-4 border-t border-zinc-100 flex items-center justify-end gap-3">
+          <button
+            type="submit"
+            [disabled]="saving()"
+            class="inline-flex items-center gap-2 rounded-lg bg-[#238cff] px-4 py-2 text-sm font-semibold text-white shadow-xs
+              hover:bg-[#1a7ae0] active:bg-[#1570cc] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          >
+            @if (saving()) {
+              <i class="pi pi-spin pi-spinner text-xs"></i>
+              Saving…
+            } @else {
+              <i class="pi pi-check text-xs"></i>
+              Save Changes
+            }
+          </button>
+        </div>
+
+      </div>
+    </form>
+
+    <!-- ── Visit history card ───────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+      <div class="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-zinc-700">Visit history</h2>
+        @if (!visitsLoading()) {
+          <span class="text-xs text-zinc-400">{{ visitsTotalRecords() }} visit{{ visitsTotalRecords() !== 1 ? 's' : '' }}</span>
+        }
+      </div>
+
+      <!-- Loading skeleton -->
+      @if (visitsLoading()) {
+        <div class="divide-y divide-zinc-100">
+          @for (n of [1, 2, 3]; track n) {
+            <div class="flex items-center gap-4 px-6 py-4 animate-pulse">
+              <div class="flex-1 space-y-2">
+                <div class="h-3.5 w-48 rounded bg-zinc-100"></div>
+                <div class="h-3 w-32 rounded bg-zinc-50"></div>
+              </div>
+              <div class="h-5 w-16 rounded-full bg-zinc-100"></div>
+              <div class="w-4 h-4 rounded bg-zinc-100"></div>
+            </div>
+          }
+        </div>
+
+      <!-- Empty state -->
+      } @else if (!hasVisits()) {
+        <div class="px-6 py-12 text-center">
+          <i class="pi pi-calendar text-2xl text-zinc-300 mb-2 block"></i>
+          <p class="text-sm text-zinc-400">No visits found for this visitor.</p>
+        </div>
+
+      <!-- Visit rows -->
+      } @else {
+        <ul class="divide-y divide-zinc-100">
+          @for (visit of visits(); track visit.id) {
+            <li>
+              <a
+                [routerLink]="['/visitors/edit', visit.id]"
+                class="flex items-center gap-4 px-6 py-4 hover:bg-zinc-50 transition-colors"
+              >
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-zinc-800 truncate">
+                    {{ visit.summary || 'Visit' }}
+                  </p>
+                  <p class="text-xs text-zinc-400 mt-0.5">
+                    {{ formatDate(visit.start) }}
+                    @if (visit.end) {
+                      <span class="mx-1 text-zinc-300">→</span>{{ formatDate(visit.end) }}
+                    }
+                  </p>
+                  @if (visit.location) {
+                    <p class="text-xs text-zinc-400 flex items-center gap-1 mt-0.5">
+                      <i class="pi pi-map-marker text-[10px]"></i>{{ visit.location.name }}
+                    </p>
+                  }
+                </div>
+                <app-visit-state-badge [state]="visit.state" />
+                <i class="pi pi-chevron-right text-xs text-zinc-300 shrink-0"></i>
+              </a>
+            </li>
+          }
+        </ul>
+      }
+
+      <!-- Visits paginator (always visible) -->
+      <div class="border-t border-zinc-100">
+        <p-paginator
+          [first]="visitsFirst()"
+          [rows]="visitsPageSize"
+          [totalRecords]="visitsTotalRecords()"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} visits"
+          (onPageChange)="onVisitsPageChange($event)"
+        />
+      </div>
+
+    </div>
+
+  }
+
+</div>

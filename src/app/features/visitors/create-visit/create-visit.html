@@ -1,0 +1,161 @@
+<div class="p-8 max-w-2xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-6 flex items-center gap-3">
+    <button
+      (click)="cancel()"
+      class="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+    </button>
+    <div>
+      <h1 class="text-2xl font-semibold text-zinc-800">New Visit</h1>
+      <p class="text-sm text-zinc-500 mt-0.5">Schedule a visit and add visitors on the next screen.</p>
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  @if (error()) {
+    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Form card -->
+  <form [formGroup]="form" (ngSubmit)="submit()" class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+    <div class="px-6 py-5 border-b border-zinc-100">
+      <h2 class="text-sm font-semibold text-zinc-700">Visit details</h2>
+    </div>
+
+    <div class="px-6 py-5 flex flex-col gap-5">
+
+      <!-- Summary -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium text-zinc-700" for="summary">
+          Summary <span class="text-red-400">*</span>
+        </label>
+        <input
+          pInputText
+          id="summary"
+          type="text"
+          formControlName="summary"
+          placeholder="e.g. Interview with Jane Doe"
+          [fluid]="true"
+          [invalid]="isInvalid('summary')"
+        />
+        @if (isInvalid('summary')) {
+          <p class="text-xs text-red-500">Summary is required.</p>
+        }
+      </div>
+
+      <!-- Start / End row -->
+      <div class="grid grid-cols-2 gap-4">
+
+        <!-- Start -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-zinc-700" for="start">
+            Start <span class="text-red-400">*</span>
+          </label>
+          <p-datepicker
+            inputId="start"
+            formControlName="start"
+            [showTime]="true"
+            hourFormat="24"
+            dateFormat="dd/mm/yy"
+            placeholder="DD/MM/YYYY HH:MM"
+            [showIcon]="true"
+            [fluid]="true"
+            [minDate]="today"
+            [invalid]="isInvalid('start')"
+          />
+          @if (isInvalid('start')) {
+            <p class="text-xs text-red-500">Start time is required.</p>
+          }
+        </div>
+
+        <!-- End -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-zinc-700" for="end">
+            End <span class="text-red-400">*</span>
+          </label>
+          <p-datepicker
+            inputId="end"
+            formControlName="end"
+            [showTime]="true"
+            hourFormat="24"
+            dateFormat="dd/mm/yy"
+            placeholder="DD/MM/YYYY HH:MM"
+            [showIcon]="true"
+            [fluid]="true"
+            [invalid]="isInvalid('end')"
+          />
+          @if (isInvalid('end')) {
+            <p class="text-xs text-red-500">End time is required.</p>
+          }
+        </div>
+
+      </div>
+
+      <!-- Location autocomplete -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium text-zinc-700">Location</label>
+        <p-autocomplete
+          formControlName="location"
+          [suggestions]="locationSuggestions()"
+          optionLabel="name"
+          placeholder="Search by location name…"
+          [dropdown]="false"
+          [forceSelection]="true"
+          [minQueryLength]="1"
+          [fluid]="true"
+          [showClear]="true"
+          (completeMethod)="searchLocations($event)"
+        >
+          <!-- Dropdown item: name + metadata row -->
+          <ng-template #item let-loc>
+            <div class="flex flex-col gap-0.5 py-0.5">
+              <span class="text-sm font-medium text-zinc-800">{{ loc.name }}</span>
+              <span class="text-xs text-zinc-400">{{ locationMeta(loc) }}</span>
+              @if (loc.parent) {
+                <span class="text-xs text-zinc-300">
+                  <i class="pi pi-map-marker mr-0.5"></i>{{ loc.parent.name }}
+                </span>
+              }
+            </div>
+          </ng-template>
+        </p-autocomplete>
+        <p class="text-xs text-zinc-400">Optional — you can set or change this later.</p>
+      </div>
+
+    </div>
+
+    <!-- Footer actions -->
+    <div class="px-6 py-4 border-t border-zinc-100 flex items-center justify-end gap-3">
+      <button
+        type="button"
+        (click)="cancel()"
+        class="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 transition-colors"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        [disabled]="saving()"
+        class="inline-flex items-center gap-2 rounded-lg bg-[#238cff] px-4 py-2 text-sm font-semibold text-white shadow-xs
+          hover:bg-[#1a7ae0] active:bg-[#1570cc] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+      >
+        @if (saving()) {
+          <i class="pi pi-spin pi-spinner text-xs"></i>
+          Creating…
+        } @else {
+          <i class="pi pi-check text-xs"></i>
+          Create Visit
+        }
+      </button>
+    </div>
+
+  </form>
+
+</div>

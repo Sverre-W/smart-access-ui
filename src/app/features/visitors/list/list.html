@@ -1,31 +1,129 @@
 <div class="p-8">
+
+  <!-- Page header -->
   <div class="mb-6">
     <h1 class="text-2xl font-semibold text-zinc-800">Visitors</h1>
-    <p class="text-sm text-zinc-500 mt-1">Manage pre-registrations, walk-ins, and visit history.</p>
+    <p class="text-sm text-zinc-500 mt-1">Browse and manage all registered visitors.</p>
   </div>
 
+  <!-- Error banner -->
+  @if (error()) {
+    <div class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Card -->
   <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+    <!-- Card header -->
     <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
       <h2 class="text-sm font-semibold text-zinc-700">All visitors</h2>
-      <div class="flex items-center gap-2">
-        <div class="w-32 h-8 rounded-lg bg-zinc-100 animate-pulse"></div>
-        <div class="w-24 h-8 rounded-lg bg-zinc-100 animate-pulse"></div>
-      </div>
+
+      <p-iconfield>
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          pInputText
+          type="text"
+          [formControl]="searchControl"
+          placeholder="Search visitors…"
+          class="text-sm w-56"
+        />
+      </p-iconfield>
     </div>
-    <div class="divide-y divide-zinc-100">
-      @for (row of placeholderRows; track row) {
-        <div class="flex items-center gap-4 px-6 py-4">
-          <div class="w-8 h-8 rounded-full bg-zinc-100 shrink-0"></div>
-          <div class="flex-1 space-y-1.5">
-            <div class="h-3.5 w-40 rounded bg-zinc-100"></div>
-            <div class="h-3 w-24 rounded bg-zinc-50"></div>
+
+    <!-- Loading skeleton -->
+    @if (loading()) {
+      <div class="divide-y divide-zinc-100">
+        @for (n of [1, 2, 3, 4, 5]; track n) {
+          <div class="flex items-center gap-4 px-6 py-4 animate-pulse">
+            <div class="w-9 h-9 rounded-full bg-zinc-100 shrink-0"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3.5 w-44 rounded bg-zinc-100"></div>
+              <div class="h-3 w-28 rounded bg-zinc-50"></div>
+            </div>
+            <div class="h-3 w-20 rounded bg-zinc-50"></div>
+            <div class="w-4 h-4 rounded bg-zinc-100"></div>
           </div>
-          <div class="h-6 w-16 rounded-full bg-zinc-100"></div>
-        </div>
-      }
+        }
+      </div>
+
+    <!-- Empty state -->
+    } @else if (!hasVisitors()) {
+      <div class="px-6 py-16 text-center">
+        <i class="pi pi-users text-3xl text-zinc-300 mb-3 block"></i>
+        <p class="text-sm font-medium text-zinc-500">No visitors found</p>
+        <p class="text-xs text-zinc-400 mt-1">Try adjusting your search.</p>
+      </div>
+
+    <!-- Data rows -->
+    } @else {
+      <ul class="divide-y divide-zinc-100">
+        @for (v of visitors(); track v.id) {
+          <li>
+            <a
+              [routerLink]="['/visitors/visitor', v.id]"
+              class="flex items-center gap-4 px-6 py-4 hover:bg-zinc-50 transition-colors cursor-pointer"
+            >
+              <!-- Avatar -->
+              <div
+                class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold select-none"
+                [style.background]="avatarColor(v)"
+                [style.color]="avatarTextColor(v)"
+              >
+                {{ initials(v) }}
+              </div>
+
+              <!-- Name / email / company -->
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-zinc-800 truncate">{{ fullName(v) }}</p>
+                <p class="text-xs text-zinc-400 truncate">{{ v.email }}</p>
+                @if (v.company) {
+                  <p class="text-xs text-zinc-400 truncate">{{ v.company }}</p>
+                }
+              </div>
+
+              <!-- Right metadata -->
+              <div class="flex items-center gap-3 shrink-0">
+                @if (v.phone) {
+                  <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400">
+                    <i class="pi pi-phone text-[10px]"></i>{{ v.phone }}
+                  </span>
+                }
+                @if (v.licensePlate) {
+                  <span class="hidden md:flex items-center gap-1 text-xs text-zinc-400">
+                    <i class="pi pi-car text-[10px]"></i>{{ v.licensePlate }}
+                  </span>
+                }
+                @if (v.blacklisted) {
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-500">
+                    Blacklisted
+                  </span>
+                }
+                <i class="pi pi-chevron-right text-xs text-zinc-300"></i>
+              </div>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+
+    <!-- Paginator (always visible) -->
+    <div class="border-t border-zinc-100">
+      <p-paginator
+        [first]="first()"
+        [rows]="pageSize()"
+        [totalRecords]="totalRecords()"
+        [rowsPerPageOptions]="pageSizeOptions"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} visitors"
+        (onPageChange)="onPageChange($event)"
+      />
     </div>
-    <div class="px-6 py-5 text-center">
-      <p class="text-sm text-zinc-400 italic">Visitor data will appear here once connected.</p>
-    </div>
+
   </div>
+
 </div>
