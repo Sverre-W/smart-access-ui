@@ -2,8 +2,8 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { ApiAuthInterceptor } from './core/auth-api-interceptor';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './core/auth-api-interceptor';
 import { provideOAuthClient } from 'angular-oauth2-oidc';
 
 import { providePrimeNG } from 'primeng/config';
@@ -14,13 +14,18 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideOAuthClient(),
-    provideHttpClient(withInterceptorsFromDi()), {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ApiAuthInterceptor,
-      multi: true
-    },
+    provideHttpClient(withInterceptors([authInterceptor])),
     providePrimeNG({
-      theme: { preset: Aura }
+      theme: {
+        preset: Aura,
+        options: {
+          // Disable PrimeNG's dark mode entirely — the app uses a light theme only.
+          // Without this, PrimeNG follows the OS prefers-color-scheme and renders dark
+          // components on machines with system dark mode enabled.
+          darkModeSelector: false,
+        },
+      },
     })
   ]
 };
+

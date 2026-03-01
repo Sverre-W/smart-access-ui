@@ -2,12 +2,13 @@
 
   <!-- Header -->
   <div class="mb-6 flex items-center gap-3">
-    <button
+    <p-button
       (click)="goBack()"
-      class="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors"
-    >
-      <i class="pi pi-arrow-left text-xs"></i>
-    </button>
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      [text]="true"
+      [rounded]="true"
+    />
     <div class="flex-1 min-w-0">
       @if (loading()) {
         <div class="h-7 w-48 rounded bg-zinc-100 animate-pulse mb-1"></div>
@@ -170,27 +171,20 @@
           </div>
         } @else {
           <div class="px-6 py-4 border-t border-zinc-100 flex items-center justify-end gap-3">
-            <button
+            <p-button
               type="button"
               (click)="goBack()"
-              class="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 transition-colors"
-            >
-              Back
-            </button>
-            <button
+              label="Back"
+              severity="secondary"
+            />
+            <p-button
               type="submit"
               [disabled]="saving()"
-              class="inline-flex items-center gap-2 rounded-lg bg-[#238cff] px-4 py-2 text-sm font-semibold text-white shadow-xs
-                hover:bg-[#1a7ae0] active:bg-[#1570cc] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-            >
-              @if (saving()) {
-                <i class="pi pi-spin pi-spinner text-xs"></i>
-                Saving…
-              } @else {
-                <i class="pi pi-check text-xs"></i>
-                Save Changes
-              }
-            </button>
+              [loading]="saving()"
+              icon="pi pi-check"
+              label="Save Changes"
+              loadingIcon="pi pi-spin pi-spinner"
+            />
           </div>
         }
 
@@ -203,8 +197,165 @@
 
       <div class="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
         <h2 class="text-sm font-semibold text-zinc-700">People</h2>
-        <span class="text-xs text-zinc-400">{{ organizers().length + totalInvitations() }} total</span>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-zinc-400">{{ organizers().length + totalInvitations() }} total</span>
+          @if (!isPast() && !addPersonOpen()) {
+            <p-button
+              type="button"
+              (click)="openAddPerson()"
+              icon="pi pi-user-plus"
+              label="Add person"
+              severity="secondary"
+              size="small"
+            />
+          }
+        </div>
       </div>
+
+      <!-- ── Add-person inline panel ─────────────────────────────────────── -->
+      @if (addPersonOpen()) {
+        <div [formGroup]="addPersonForm" class="border-b border-zinc-100 bg-zinc-50 px-6 py-5">
+
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">Add person</p>
+            @if (addPersonKnown()) {
+              <span class="rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-600">
+                <i class="pi pi-check mr-1"></i>Existing visitor
+              </span>
+            }
+          </div>
+
+          @if (addPersonError()) {
+            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+              <i class="pi pi-exclamation-circle"></i>
+              {{ addPersonError() }}
+            </div>
+          }
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+
+            <!-- Email autocomplete — spans full width -->
+            <div class="flex flex-col gap-1 sm:col-span-2">
+              <label class="text-xs font-medium text-zinc-500">
+                Email <span class="text-red-400">*</span>
+              </label>
+              <p-autocomplete
+                formControlName="email"
+                [suggestions]="addPersonSuggestions()"
+                [minQueryLength]="2"
+                [dropdown]="false"
+                [fluid]="true"
+                [showClear]="true"
+                placeholder="Search by name or email…"
+                (completeMethod)="searchVisitors($event)"
+                (onSelect)="selectVisitor($event.value)"
+                (onClear)="addPersonKnown.set(false)"
+              >
+                <ng-template #item let-v>
+                  <div class="flex flex-col gap-0.5 py-0.5">
+                    <span class="text-sm font-medium text-zinc-800">
+                      {{ v.firstName }} {{ v.lastName }}
+                    </span>
+                    <span class="text-xs text-zinc-400">{{ v.email }}</span>
+                    @if (v.company) {
+                      <span class="text-xs text-zinc-300">{{ v.company }}</span>
+                    }
+                  </div>
+                </ng-template>
+              </p-autocomplete>
+              @if (isAddPersonInvalid('email')) {
+                <p class="text-xs text-red-500">Valid email is required.</p>
+              }
+            </div>
+
+            <!-- First name -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-zinc-500">
+                First name <span class="text-red-400">*</span>
+              </label>
+              <input
+                pInputText
+                type="text"
+                formControlName="firstName"
+                placeholder="First name"
+                [fluid]="true"
+                [invalid]="isAddPersonInvalid('firstName')"
+              />
+              @if (isAddPersonInvalid('firstName')) {
+                <p class="text-xs text-red-500">First name is required.</p>
+              }
+            </div>
+
+            <!-- Last name -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-zinc-500">Last name</label>
+              <input
+                pInputText
+                type="text"
+                formControlName="lastName"
+                placeholder="Last name"
+                [fluid]="true"
+              />
+            </div>
+
+            <!-- Company -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-zinc-500">Company</label>
+              <input
+                pInputText
+                type="text"
+                formControlName="company"
+                placeholder="Company"
+                [fluid]="true"
+              />
+            </div>
+
+            <!-- License plate -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-zinc-500">License plate</label>
+              <input
+                pInputText
+                type="text"
+                formControlName="licensePlate"
+                placeholder="License plate"
+                [fluid]="true"
+              />
+            </div>
+
+          </div>
+
+          <!-- Role select button -->
+          <div class="mb-4">
+            <p class="text-xs font-medium text-zinc-500 mb-2">Role</p>
+            <p-selectbutton
+              formControlName="role"
+              [options]="roleOptions"
+              optionLabel="label"
+              optionValue="value"
+            />
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center justify-end gap-2">
+            <p-button
+              type="button"
+              (click)="closeAddPerson()"
+              label="Cancel"
+              severity="secondary"
+            />
+            <p-button
+              type="button"
+              (click)="addPerson()"
+              [disabled]="addPersonSaving()"
+              [loading]="addPersonSaving()"
+              icon="pi pi-check"
+              label="Add"
+              loadingIcon="pi pi-spin pi-spinner"
+            />
+          </div>
+
+        </div>
+      }
 
       <!-- Empty state -->
       @if (organizers().length === 0 && totalInvitations() === 0) {
@@ -283,22 +434,31 @@
         </div>
         <ul class="divide-y divide-zinc-100">
           @for (inv of invitedVisitors(); track inv.visitor.id) {
-            <li class="px-6 py-3 flex items-center gap-3">
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-zinc-800 truncate">
-                  {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
-                </p>
-                <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
-                @if (inv.visitor.company) {
-                  <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+            <li
+              class="px-6 py-4 flex flex-col gap-3 cursor-pointer hover:bg-zinc-50 transition-colors group"
+              (click)="navigateToOnboarding(inv)"
+              title="View onboarding details"
+            >
+              <!-- Top row: name + navigate hint -->
+              <div class="flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-zinc-800 truncate group-hover:text-[#238cff] transition-colors">
+                    {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
+                    <i class="pi pi-arrow-right text-[10px] ml-1 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                  </p>
+                  <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
+                  @if (inv.visitor.company) {
+                    <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+                  }
+                </div>
+                @if (inv.visitor.licensePlate) {
+                  <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
+                    <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
+                  </span>
                 }
               </div>
-              @if (inv.visitor.licensePlate) {
-                <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
-                  <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
-                </span>
-              }
-              <app-checkin-status-badge [status]="inv.checkInStatus" />
+              <!-- Timeline stepper -->
+              <app-visitor-timeline [invitation]="inv" />
             </li>
           }
         </ul>

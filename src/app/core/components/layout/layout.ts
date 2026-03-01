@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -41,6 +41,7 @@ export class Layout {
   constructor(
     private oauthService: OAuthService,
     private permmisionsService: PermissionsService,
+    private router: Router,
   ) {
     if (this.oauthService.hasValidAccessToken()) {
       permmisionsService.loadPermissions();
@@ -56,7 +57,7 @@ export class Layout {
   }
 
   login(): void {
-    this.oauthService.initLoginFlow();
+    this.oauthService.initLoginFlow(undefined, { state: this.router.url });
   }
 
   logout(): void {

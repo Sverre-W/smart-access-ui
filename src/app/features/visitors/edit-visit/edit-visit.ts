@@ -3,23 +3,30 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import type { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
+import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import {
   VisitorService,
   VisitDto,
+  VisitorDto,
   VisitorInvitationDto,
+  VisitorInputDto,
+  VisitorRole,
   OrganizerDto,
   LocationDto,
   buildFilter,
 } from '../services/visitor-service';
+import { toLocalIso, fromServerDate } from '../../../shared/utils/date-utils';
 import { VisitStateBadge } from '../../../shared/components/visit-state-badge/visit-state-badge';
 import { CheckinStatusBadge } from '../../../shared/components/checkin-status-badge/checkin-status-badge';
+import { VisitorTimeline } from '../../../shared/components/visitor-timeline/visitor-timeline';
 
 @Component({
   selector: 'app-edit-visit',
   standalone: true,
-  imports: [ReactiveFormsModule, AutoCompleteModule, DatePickerModule, InputTextModule, VisitStateBadge, CheckinStatusBadge],
+  imports: [ReactiveFormsModule, AutoCompleteModule, ButtonModule, DatePickerModule, InputTextModule, SelectButtonModule, VisitStateBadge, CheckinStatusBadge, VisitorTimeline],
   templateUrl: './edit-visit.html',
 })
 export class EditVisit implements OnInit {
@@ -38,6 +45,22 @@ export class EditVisit implements OnInit {
   readonly locationSuggestions = signal<LocationDto[]>([]);
 
   form!: FormGroup;
+
+  // ── Add-person panel state ────────────────────────────────────────────────
+
+  readonly addPersonOpen = signal(false);
+  readonly addPersonSaving = signal(false);
+  readonly addPersonError = signal<string | null>(null);
+  readonly addPersonKnown = signal(false);
+  readonly addPersonSuggestions = signal<VisitorDto[]>([]);
+
+  addPersonForm!: FormGroup;
+
+  readonly roleOptions: { label: string; value: VisitorRole }[] = [
+    { label: 'Organizer',    value: 'Organizer' },
+    { label: 'Visitor',      value: 'Visitor' },
+    { label: 'Participant',  value: 'Participant' },
+  ];
 
   // ── Derived state ────────────────────────────────────────────────────────
 
@@ -77,6 +100,15 @@ export class EditVisit implements OnInit {
       start: [null as Date | null, Validators.required],
       end: [null as Date | null, Validators.required],
       location: [null],
+    });
+
+    this.addPersonForm = this.fb.group({
+      email:        ['', [Validators.required, Validators.email]],
+      firstName:    ['', Validators.required],
+      lastName:     [''],
+      company:      [''],
+      licensePlate: [''],
+      role:         ['Visitor' as VisitorRole],
     });
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -119,8 +151,8 @@ export class EditVisit implements OnInit {
       location: LocationDto | null;
     };
 
-    const startIso = start.toISOString();
-    const endIso = end.toISOString();
+    const startIso = toLocalIso(start);
+    const endIso = toLocalIso(end);
     const locationId = location?.id ?? null;
 
     try {
@@ -180,6 +212,116 @@ export class EditVisit implements OnInit {
     this.router.navigate(['/visitors']);
   }
 
+  navigateToOnboarding(inv: VisitorInvitationDto): void {
+    const visitId = this.visit()?.id;
+    if (!visitId) return;
+    this.router.navigate(['/visitors/onboarding', visitId, inv.visitor.id]);
+  }
+
+  // ── Add-person actions ───────────────────────────────────────────────────
+
+  openAddPerson(): void {
+    this.addPersonForm.reset({ role: 'Visitor' });
+    this.addPersonError.set(null);
+    this.addPersonKnown.set(false);
+    this.addPersonSuggestions.set([]);
+    this.addPersonOpen.set(true);
+  }
+
+  closeAddPerson(): void {
+    this.addPersonOpen.set(false);
+    this.addPersonError.set(null);
+    this.addPersonKnown.set(false);
+    this.addPersonSuggestions.set([]);
+    this.addPersonForm.reset({ role: 'Visitor' });
+  }
+
+  async searchVisitors(event: AutoCompleteCompleteEvent): Promise<void> {
+    const query = event.query.trim();
+    if (query.length < 2) {
+      this.addPersonSuggestions.set([]);
+      return;
+    }
+
+    try {
+      const result = await this.visitorService.getAllVisitors({
+        Filter: buildFilter({ op: 'or', filters: [
+          { key: 'Email',     op: 'contains', value: query },
+          { key: 'FirstName', op: 'contains', value: query },
+          { key: 'LastName',  op: 'contains', value: query },
+        ]}),
+        PageSize: 10,
+      });
+      this.addPersonSuggestions.set(result.items);
+    } catch {
+      this.addPersonSuggestions.set([]);
+    }
+  }
+
+  selectVisitor(visitor: VisitorDto): void {
+    this.addPersonKnown.set(true);
+    this.addPersonForm.patchValue({
+      email:        visitor.email,
+      firstName:    visitor.firstName ?? '',
+      lastName:     visitor.lastName ?? '',
+      company:      visitor.company ?? '',
+      licensePlate: visitor.licensePlate ?? '',
+    });
+  }
+
+  visitorSuggestionLabel(v: VisitorDto): string {
+    const name = [v.firstName, v.lastName].filter(Boolean).join(' ');
+    return name ? `${name} (${v.email})` : v.email;
+  }
+
+  isAddPersonInvalid(field: string): boolean {
+    const ctrl = this.addPersonForm.get(field);
+    return !!(ctrl?.invalid && ctrl.touched);
+  }
+
+  async addPerson(): Promise<void> {
+    this.addPersonForm.markAllAsTouched();
+    if (this.addPersonForm.invalid) return;
+
+    const v = this.visit();
+    if (!v) return;
+
+    this.addPersonSaving.set(true);
+    this.addPersonError.set(null);
+
+    const { email, firstName, lastName, company, licensePlate, role } =
+      this.addPersonForm.value as {
+        email: string; firstName: string; lastName: string;
+        company: string; licensePlate: string; role: VisitorRole;
+      };
+
+    const payload: VisitorInputDto = {
+      email:        email.trim(),
+      firstName:    firstName.trim(),
+      lastName:     lastName?.trim() || null,
+      company:      company?.trim() || null,
+      licensePlate: licensePlate?.trim() || null,
+      phone:        null,
+      visitorId:    null,
+      tenantId:     null,
+      attributes:   null,
+      role,
+    };
+
+    try {
+      const updated = await this.visitorService.addRemoveVisitors(v.id, {
+        visitorsToAdd: [payload],
+        visitorsToRemoveEmails: [],
+      });
+      this.visit.set(updated);
+      this.closeAddPerson();
+    } catch {
+      this.addPersonError.set('Failed to add person. Please try again.');
+    } finally {
+      this.addPersonSaving.set(false);
+    }
+  }
+
   locationMeta(loc: LocationDto): string {
     const parts: string[] = [loc.type];
     if (loc.floorLabel) parts.push(loc.floorLabel);
@@ -202,8 +344,8 @@ export class EditVisit implements OnInit {
   private patchForm(v: VisitDto): void {
     this.form.patchValue({
       summary: v.summary ?? '',
-      start: v.start ? new Date(v.start) : null,
-      end: v.end ? new Date(v.end) : null,
+      start: v.start ? fromServerDate(v.start) : null,
+      end: v.end ? fromServerDate(v.end) : null,
       location: v.location ?? null,
     });
 

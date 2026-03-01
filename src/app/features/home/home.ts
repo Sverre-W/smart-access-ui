@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { ButtonModule } from 'primeng/button';
+import { APPS, AppSwitcherService } from '../../core/services/app-switcher-service';
 
 @Component({
   selector: 'app-home',
@@ -8,7 +10,9 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './home.html',
 })
 export class Home {
-  constructor(private oauthService: OAuthService) {}
+  private oauthService = inject(OAuthService);
+  private appSwitcher = inject(AppSwitcherService);
+  private router = inject(Router);
 
   readonly features = [
     'Role-based access control',
@@ -19,12 +23,7 @@ export class Home {
     'Single sign-on',
   ];
 
-  readonly placeholderCards = [
-    { label: 'Univisit', icon: 'pi pi-home' },
-    { label: 'Contractors', icon: 'pi pi-wrench' },
-    { label: 'Security', icon: 'pi pi-shield' },
-    { label: 'Reception', icon: 'pi pi-inbox' },
-  ];
+  readonly apps = APPS;
 
   get isAuthenticated(): boolean {
     return this.oauthService.hasValidAccessToken();
@@ -35,6 +34,10 @@ export class Home {
   }
 
   login(): void {
-    this.oauthService.initLoginFlow();
+    this.oauthService.initLoginFlow(undefined, { state: this.router.url });
+  }
+
+  selectApp(id: string): void {
+    this.appSwitcher.switchApp(id);
   }
 }

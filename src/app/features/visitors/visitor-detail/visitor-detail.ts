@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
 import { PaginatorModule } from 'primeng/paginator';
 import type { PaginatorState } from 'primeng/paginator';
 import {
@@ -10,13 +11,14 @@ import {
   VisitDto,
 } from '../services/visitor-service';
 import { VisitStateBadge } from '../../../shared/components/visit-state-badge/visit-state-badge';
+import { formatLocalDateTime } from '../../../shared/utils/date-utils';
 
 const VISITS_PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-visitor-detail',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, InputTextModule, PaginatorModule, VisitStateBadge],
+  imports: [ReactiveFormsModule, RouterLink, InputTextModule, ButtonModule, PaginatorModule, VisitStateBadge],
   templateUrl: './visitor-detail.html',
 })
 export class VisitorDetail implements OnInit {
@@ -125,11 +127,7 @@ export class VisitorDetail implements OnInit {
   }
 
   formatDate(iso: string | null): string {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleString(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    });
+    return formatLocalDateTime(iso);
   }
 
   private patchForm(v: VisitorDto): void {

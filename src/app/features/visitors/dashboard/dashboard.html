@@ -1,4 +1,4 @@
-<div class="p-8">
+<div class="p-4 sm:p-8">
 
   <!-- Header -->
   <div class="mb-6 flex items-center justify-between">
@@ -6,13 +6,18 @@
       <h1 class="text-2xl font-semibold text-zinc-800">Dashboard</h1>
       <p class="text-sm text-zinc-500 mt-1">Overview of visitor activity for today and this week.</p>
     </div>
-    <button
+    <p-button
       (click)="navigateToCreate()"
-      class="inline-flex items-center gap-2 rounded-lg bg-[#238cff] px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#1a7ae0] active:bg-[#1570cc] transition-colors"
-    >
-      <i class="pi pi-plus text-xs"></i>
-      New Visit
-    </button>
+      icon="pi pi-plus"
+      label="New Visit"
+      class="hidden sm:inline-flex"
+    />
+    <p-button
+      (click)="navigateToCreate()"
+      icon="pi pi-plus"
+      label="New"
+      class="sm:hidden"
+    />
   </div>
 
   <!-- Error banner -->
@@ -24,7 +29,7 @@
   }
 
   <!-- Stat Cards — today only -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+  <div class="grid grid-cols-2 gap-4 mb-8">
 
     <!-- Expected today -->
     <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs">
@@ -63,21 +68,76 @@
   <!-- Weekly Calendar -->
   <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-hidden">
 
-    <!-- Calendar header -->
-    <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
-      <div class="flex items-center gap-2">
-        <i class="pi pi-calendar text-zinc-400"></i>
-        <h2 class="text-sm font-semibold text-zinc-700">This week's visits</h2>
+    <!-- Calendar header with week picker -->
+    <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+
+      <!-- Week label -->
+      <div class="flex items-center gap-2 min-w-0">
+        <i class="pi pi-calendar text-zinc-400 shrink-0"></i>
+        <h2 class="text-sm font-semibold text-zinc-700 truncate">{{ weekLabel() }}</h2>
+        @if (!isCurrentWeek()) {
+          <span class="hidden sm:inline text-xs text-zinc-400 italic">
+            ({{ weekVisits().length }} visit{{ weekVisits().length !== 1 ? 's' : '' }})
+          </span>
+        }
       </div>
-      @if (loading()) {
-        <span class="text-xs text-zinc-400 animate-pulse">Loading…</span>
-      } @else {
-        <span class="text-xs text-zinc-400">{{ weekVisits().length }} visit{{ weekVisits().length !== 1 ? 's' : '' }} total</span>
-      }
+
+      <!-- Week navigation controls -->
+      <div class="flex items-center gap-1 shrink-0">
+
+        <!-- Previous week -->
+        <p-button
+          type="button"
+          (click)="previousWeek()"
+          [disabled]="weekLoading()"
+          icon="pi pi-chevron-left"
+          severity="secondary"
+          [text]="true"
+          title="Previous week"
+          size="small"
+        />
+
+        <!-- Today button — only shown when not on current week -->
+        @if (!isCurrentWeek()) {
+          <p-button
+            type="button"
+            (click)="goToCurrentWeek()"
+            [disabled]="weekLoading()"
+            label="Today"
+            severity="info"
+            [text]="true"
+            size="small"
+          />
+        }
+
+        <!-- Next week -->
+        <p-button
+          type="button"
+          (click)="nextWeek()"
+          [disabled]="weekLoading()"
+          icon="pi pi-chevron-right"
+          severity="secondary"
+          [text]="true"
+          title="Next week"
+          size="small"
+        />
+
+        <!-- Loading spinner / visit count (current week) -->
+        @if (weekLoading()) {
+          <span class="ml-1 text-xs text-zinc-400 flex items-center gap-1">
+            <i class="pi pi-spin pi-spinner text-[10px]"></i>
+          </span>
+        } @else if (isCurrentWeek()) {
+          <span class="ml-1 text-xs text-zinc-400">
+            {{ weekVisits().length }} visit{{ weekVisits().length !== 1 ? 's' : '' }}
+          </span>
+        }
+
+      </div>
     </div>
 
-    <!-- Day columns -->
-    <div class="grid grid-cols-7 divide-x divide-zinc-100">
+    <!-- ── Desktop: 7-column grid (sm and above) ───────────────────────── -->
+    <div class="hidden sm:grid grid-cols-7 divide-x divide-zinc-100">
 
       <!-- Day header row -->
       @for (day of weekDays(); track day.label) {
@@ -99,8 +159,9 @@
       <!-- Visit cells per day -->
       @for (day of weekDays(); track day.label) {
         <div
-          class="px-2 py-3 min-h-[160px] flex flex-col gap-1.5 align-top"
+          class="px-2 py-3 min-h-[160px] flex flex-col gap-1.5 transition-opacity"
           [class]="day.isToday ? 'bg-[#238cff]/[0.02]' : ''"
+          [style.opacity]="weekLoading() ? '0.4' : '1'"
         >
           @if (loading()) {
             <div class="h-8 rounded bg-zinc-100 animate-pulse"></div>
@@ -109,29 +170,23 @@
           } @else {
             @for (visit of day.visits; track visit.id) {
               <div
-                class="rounded-lg border border-zinc-100 bg-white px-2 py-1.5 shadow-xs hover:border-zinc-200 transition-colors cursor-default"
+                class="rounded-lg border border-zinc-100 bg-white px-2 py-1.5 shadow-xs hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors cursor-pointer"
                 [title]="visit.summary ?? 'Visit'"
+                (click)="navigateToVisit(visit.id)"
               >
-                <!-- Time range -->
                 <p class="text-[10px] text-zinc-400 font-medium leading-tight">
                   {{ visitTime(visit) }}
-                  @if (visitEndTime(visit)) {
-                    – {{ visitEndTime(visit) }}
-                  }
+                  @if (visitEndTime(visit)) { – {{ visitEndTime(visit) }} }
                 </p>
-
-                <!-- Summary -->
                 <p class="text-xs font-semibold text-zinc-700 leading-snug mt-0.5 truncate">
                   {{ visit.summary || 'Visit' }}
                 </p>
-
-                  <!-- Visitor count + state badge -->
-                  <div class="flex items-center justify-between mt-1 gap-1">
-                    <span class="text-[10px] text-zinc-400">
-                      <i class="pi pi-users mr-0.5"></i>{{ visitorCount(visit) }}
-                    </span>
-                    <app-visit-state-badge [state]="visit.state" />
-                  </div>
+                <div class="flex items-center justify-between mt-1 gap-1">
+                  <span class="text-[10px] text-zinc-400">
+                    <i class="pi pi-users mr-0.5"></i>{{ visitorCount(visit) }}
+                  </span>
+                  <app-visit-state-badge [state]="visit.state" />
+                </div>
               </div>
             }
           }
@@ -139,6 +194,67 @@
       }
 
     </div>
+
+    <!-- ── Mobile: stacked day list (below sm) ─────────────────────────── -->
+    <div class="sm:hidden divide-y divide-zinc-100" [style.opacity]="weekLoading() ? '0.4' : '1'">
+      @if (loading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="flex items-start gap-3 px-4 py-3">
+            <div class="h-10 w-10 rounded-lg bg-zinc-100 animate-pulse shrink-0"></div>
+            <div class="flex-1 space-y-2 pt-1">
+              <div class="h-3 w-24 rounded bg-zinc-100 animate-pulse"></div>
+              <div class="h-8 rounded bg-zinc-100 animate-pulse"></div>
+            </div>
+          </div>
+        }
+      } @else {
+        @for (day of weekDays(); track day.label) {
+          <div
+            class="flex items-start gap-3 px-4 py-3"
+            [class]="day.isToday ? 'bg-[#238cff]/[0.03]' : ''"
+          >
+            <!-- Day label + number -->
+            <div
+              class="shrink-0 w-11 flex flex-col items-center justify-center rounded-lg py-1.5"
+              [class]="day.isToday ? 'bg-[#238cff] text-white' : 'bg-zinc-100 text-zinc-500'"
+            >
+              <span class="text-[10px] font-semibold uppercase tracking-wide leading-none">{{ day.label }}</span>
+              <span class="text-lg font-bold leading-tight">{{ day.dayNum }}</span>
+            </div>
+
+            <!-- Visits or empty state -->
+            <div class="flex-1 min-w-0 flex flex-col gap-1.5 pt-0.5">
+              @if (day.visits.length === 0) {
+                <p class="text-xs text-zinc-300 italic pt-2">No visits</p>
+              } @else {
+                @for (visit of day.visits; track visit.id) {
+                  <div class="rounded-lg border border-zinc-100 bg-white px-3 py-2 shadow-xs hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors cursor-pointer"
+                    (click)="navigateToVisit(visit.id)"
+                  >
+                    <div class="flex items-start justify-between gap-2">
+                      <p class="text-sm font-semibold text-zinc-700 leading-snug truncate">
+                        {{ visit.summary || 'Visit' }}
+                      </p>
+                      <app-visit-state-badge [state]="visit.state" />
+                    </div>
+                    <div class="flex items-center gap-3 mt-1">
+                      <span class="text-xs text-zinc-400">
+                        <i class="pi pi-clock mr-0.5"></i>{{ visitTime(visit) }}
+                        @if (visitEndTime(visit)) { – {{ visitEndTime(visit) }} }
+                      </span>
+                      <span class="text-xs text-zinc-400">
+                        <i class="pi pi-users mr-0.5"></i>{{ visitorCount(visit) }}
+                      </span>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+
   </div>
 
 </div>

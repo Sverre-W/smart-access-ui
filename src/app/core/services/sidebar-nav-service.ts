@@ -9,9 +9,10 @@ export interface NavItem {
 
 const APP_NAV: Record<string, NavItem[]> = {
   univisit: [
-    { label: 'Dashboard', icon: 'pi pi-home',       route: '/visitors'          },
-    { label: 'Visitors',  icon: 'pi pi-users',      route: '/visitors/list'     },
-    { label: 'Settings',  icon: 'pi pi-cog',        route: '/visitors/settings' },
+    { label: 'Dashboard', icon: 'pi pi-home',        route: '/visitors'          },
+    { label: 'Visitors',  icon: 'pi pi-users',       route: '/visitors/list'     },
+    { label: 'Reports',   icon: 'pi pi-chart-bar',   route: '/visitors/reports'  },
+    { label: 'Settings',  icon: 'pi pi-cog',         route: '/visitors/settings' },
   ],
   contractors: [],
   security: [],
@@ -23,8 +24,9 @@ export class SidebarNavService {
   constructor(private appSwitcher: AppSwitcherService) {}
 
   readonly navItems = computed<NavItem[]>(() => {
-    const id = this.appSwitcher.activeApp().id;
-    return APP_NAV[id] ?? [];
+    const app = this.appSwitcher.activeApp();
+    if (!app) return [];
+    return APP_NAV[app.id] ?? [];
   });
 
   readonly hasSidebar = computed<boolean>(() => this.navItems().length > 0);

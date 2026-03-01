@@ -1,18 +1,336 @@
-<div class="p-8">
+<div class="p-4 sm:p-8 max-w-3xl">
+
   <div class="mb-6">
     <h1 class="text-2xl font-semibold text-zinc-800">Settings</h1>
     <p class="text-sm text-zinc-500 mt-1">Configure Univisit preferences and integrations.</p>
   </div>
 
   <div class="space-y-4">
-    @for (section of sections; track section.title) {
-      <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-xs">
-        <div class="flex items-center gap-2 mb-1">
-          <i [class]="section.icon + ' text-zinc-400'"></i>
-          <h2 class="text-sm font-semibold text-zinc-700">{{ section.title }}</h2>
-        </div>
-        <p class="text-sm text-zinc-400">{{ section.description }}</p>
+
+    <!-- ── Notifications ─────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+      <!-- Header -->
+      <div class="flex items-center gap-2 px-6 py-4 border-b border-zinc-100">
+        <i class="pi pi-bell text-zinc-400"></i>
+        <h2 class="text-sm font-semibold text-zinc-700">Notifications</h2>
       </div>
-    }
+
+      <!-- Body -->
+      <div class="px-6 py-5 space-y-3">
+
+        <label class="flex items-start gap-3 cursor-pointer">
+          <p-checkbox
+            [ngModel]="notifyOrganizerOnConfirmation()"
+            (ngModelChange)="notifyOrganizerOnConfirmation.set($event)"
+            [binary]="true"
+          />
+          <span class="text-sm text-zinc-700 leading-snug">Notify organizer when visitor confirmed</span>
+        </label>
+
+        <label class="flex items-start gap-3 cursor-pointer">
+          <p-checkbox
+            [ngModel]="notifyOrganizerOnArrival()"
+            (ngModelChange)="notifyOrganizerOnArrival.set($event)"
+            [binary]="true"
+          />
+          <span class="text-sm text-zinc-700 leading-snug">Notify organizer when visitor has arrived</span>
+        </label>
+
+        <label class="flex items-start gap-3 cursor-pointer">
+          <p-checkbox
+            [ngModel]="sendConfirmationEmailOnQrAvailable()"
+            (ngModelChange)="sendConfirmationEmailOnQrAvailable.set($event)"
+            [binary]="true"
+          />
+          <span class="text-sm text-zinc-700 leading-snug">Send confirmation email after QR token is available</span>
+        </label>
+
+      </div>
+    </div>
+
+    <!-- ── Access Control ─────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-shield text-zinc-400"></i>
+          <h2 class="text-sm font-semibold text-zinc-700">Access Control</h2>
+        </div>
+        @if (!loading()) {
+          <p-toggleswitch
+            [ngModel]="acEnabled()"
+            (ngModelChange)="onToggleChange($event)"
+          />
+        }
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-5">
+
+        @if (loading()) {
+          <p class="text-sm text-zinc-400">Loading…</p>
+        } @else if (loadError()) {
+          <p class="text-sm text-red-500">{{ loadError() }}</p>
+        } @else if (!acEnabled()) {
+          <p class="text-sm text-zinc-400">
+            No access control system linked. Enable the toggle to connect a system and configure badge and access level assignments.
+          </p>
+        } @else {
+          <div class="space-y-5">
+
+            <!-- System -->
+            <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
+              <label class="text-sm font-medium text-zinc-600">System</label>
+              <p-select
+                [options]="acSystems()"
+                [ngModel]="selectedSystemId()"
+                (ngModelChange)="onSystemChange($event)"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Select a system…"
+                [showClear]="true"
+                [fluid]="true"
+              />
+            </div>
+
+            @if (systemSelected()) {
+
+              <!-- Badge Type -->
+              <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
+                <label class="text-sm font-medium text-zinc-600">Badge type</label>
+                <p-select
+                  [options]="badgeTypes()"
+                  [ngModel]="selectedBadgeType()"
+                  (ngModelChange)="selectedBadgeType.set($event)"
+                  optionLabel="name"
+                  optionValue="id"
+                  placeholder="Select a badge type…"
+                  [showClear]="true"
+                  [fluid]="true"
+                />
+              </div>
+
+              <!-- Access levels -->
+              <div class="border-t border-zinc-100 pt-4 space-y-4">
+                <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Access levels</p>
+
+                <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
+                  <label class="text-sm font-medium text-zinc-600">On visitor creation</label>
+                  <p-select
+                    [options]="accessLevels()"
+                    [ngModel]="selectedAccessLevelCreation()"
+                    (ngModelChange)="selectedAccessLevelCreation.set($event)"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="None"
+                    [showClear]="true"
+                    [fluid]="true"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
+                  <label class="text-sm font-medium text-zinc-600">On confirmation</label>
+                  <p-select
+                    [options]="accessLevels()"
+                    [ngModel]="selectedAccessLevelConfirmation()"
+                    (ngModelChange)="selectedAccessLevelConfirmation.set($event)"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="None"
+                    [showClear]="true"
+                    [fluid]="true"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
+                  <label class="text-sm font-medium text-zinc-600">On onboarding</label>
+                  <p-select
+                    [options]="accessLevels()"
+                    [ngModel]="selectedAccessLevelOnboarding()"
+                    (ngModelChange)="selectedAccessLevelOnboarding.set($event)"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="None"
+                    [showClear]="true"
+                    [fluid]="true"
+                  />
+                </div>
+              </div>
+
+            }
+
+          </div>
+        }
+
+      </div>
+    </div>
+
+    <!-- ── Onboarding ─────────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+      <!-- Header -->
+      <div class="flex items-center gap-2 px-6 py-4 border-b border-zinc-100">
+        <i class="pi pi-id-card text-zinc-400"></i>
+        <h2 class="text-sm font-semibold text-zinc-700">Onboarding</h2>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-5 space-y-6">
+
+        <!-- Onboarding types -->
+        <div>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-4">Onboarding types</p>
+          <div class="space-y-4">
+
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm font-medium text-zinc-700">Self onboarding</p>
+                <p class="text-xs text-zinc-400 mt-0.5">Visitor completes onboarding on their own device.</p>
+              </div>
+              <p-toggleswitch
+                [ngModel]="selfOnboardingEnabled()"
+                (ngModelChange)="selfOnboardingEnabled.set($event)"
+              />
+            </div>
+
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm font-medium text-zinc-700">Guided onboarding</p>
+                <p class="text-xs text-zinc-400 mt-0.5">A receptionist guides the visitor through onboarding.</p>
+              </div>
+              <p-toggleswitch
+                [ngModel]="guidedOnboardingEnabled()"
+                (ngModelChange)="guidedOnboardingEnabled.set($event)"
+              />
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Label printing -->
+        <div class="border-t border-zinc-100 pt-5 space-y-4">
+
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-medium text-zinc-700">Label printing</p>
+              <p class="text-xs text-zinc-400 mt-0.5">Print a visitor badge label on arrival.</p>
+            </div>
+            <p-toggleswitch
+              [ngModel]="labelPrintingEnabled()"
+              (ngModelChange)="onLabelPrintingChange($event)"
+            />
+          </div>
+
+          @if (labelPrintingEnabled()) {
+            <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
+              <label class="text-sm font-medium text-zinc-600">Printer</label>
+              <p-select
+                [options]="printers()"
+                [ngModel]="selectedPrinterId()"
+                (ngModelChange)="selectedPrinterId.set($event)"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Select a printer…"
+                [showClear]="true"
+                [fluid]="true"
+              />
+            </div>
+          }
+
+        </div>
+
+        <!-- Onboarding data -->
+        <div class="border-t border-zinc-100 pt-5 space-y-3">
+
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Onboarding data</p>
+            <p-button
+              label="Add field"
+              icon="pi pi-plus"
+              size="small"
+              severity="secondary"
+              (onClick)="addOnboardingDataItem()"
+            />
+          </div>
+
+          @if (onboardingDataItems().length === 0) {
+            <p class="text-sm text-zinc-400">No onboarding data fields configured.</p>
+          }
+
+          @for (item of onboardingDataItems(); track $index) {
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 rounded-lg border border-zinc-100 bg-zinc-50 p-3">
+
+              <!-- Name -->
+              <input
+                pInputText
+                type="text"
+                [ngModel]="item.label"
+                (ngModelChange)="updateOnboardingDataItem($index, { label: $event })"
+                placeholder="Field name…"
+                class="flex-1 min-w-0 text-sm"
+              />
+
+              <!-- Type -->
+              <p-select
+                [options]="dataTypeOptions"
+                [ngModel]="item.dataType"
+                (ngModelChange)="updateOnboardingDataItem($index, { dataType: $event })"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Type"
+                styleClass="w-full sm:w-36"
+              />
+
+              <!-- Required toggle -->
+              <label class="flex items-center gap-2 shrink-0 cursor-pointer">
+                <p-toggleswitch
+                  [ngModel]="item.required"
+                  (ngModelChange)="updateOnboardingDataItem($index, { required: $event })"
+                />
+                <span class="text-xs text-zinc-500">Required</span>
+              </label>
+
+              <!-- Remove -->
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                [text]="true"
+                [rounded]="true"
+                size="small"
+                (onClick)="removeOnboardingDataItem($index)"
+              />
+
+            </div>
+          }
+
+        </div>
+
+      </div>
+    </div>
+
   </div>
+
+  <!-- ── Single save bar ────────────────────────────────────────────────────── -->
+  <div class="mt-6 flex items-center justify-between gap-4 rounded-xl border border-zinc-200 bg-white px-6 py-4 shadow-xs">
+    <div class="text-sm">
+      @if (saveSuccess()) {
+        <span class="text-green-600 flex items-center gap-1.5">
+          <i class="pi pi-check-circle"></i> Settings saved
+        </span>
+      } @else if (saveError()) {
+        <span class="text-red-500">{{ saveError() }}</span>
+      } @else {
+        <span class="text-zinc-400">Unsaved changes will be lost on navigation.</span>
+      }
+    </div>
+    <p-button
+      label="Save"
+      icon="pi pi-save"
+      [loading]="saving()"
+      (onClick)="save()"
+    />
+  </div>
+
 </div>

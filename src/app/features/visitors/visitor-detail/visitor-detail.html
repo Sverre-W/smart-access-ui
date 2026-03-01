@@ -2,12 +2,13 @@
 
   <!-- Header -->
   <div class="mb-6 flex items-center gap-3">
-    <button
+    <p-button
       (click)="goBack()"
-      class="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors"
-    >
-      <i class="pi pi-arrow-left text-xs"></i>
-    </button>
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      [text]="true"
+      [rounded]="true"
+    />
     <div class="flex-1 min-w-0">
       @if (loading()) {
         <div class="h-7 w-48 rounded bg-zinc-100 animate-pulse mb-1"></div>
@@ -142,20 +143,14 @@
 
         <!-- Form footer -->
         <div class="px-6 py-4 border-t border-zinc-100 flex items-center justify-end gap-3">
-          <button
+          <p-button
             type="submit"
             [disabled]="saving()"
-            class="inline-flex items-center gap-2 rounded-lg bg-[#238cff] px-4 py-2 text-sm font-semibold text-white shadow-xs
-              hover:bg-[#1a7ae0] active:bg-[#1570cc] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-          >
-            @if (saving()) {
-              <i class="pi pi-spin pi-spinner text-xs"></i>
-              Saving…
-            } @else {
-              <i class="pi pi-check text-xs"></i>
-              Save Changes
-            }
-          </button>
+            [loading]="saving()"
+            icon="pi pi-check"
+            label="Save Changes"
+            loadingIcon="pi pi-spin pi-spinner"
+          />
         </div>
 
       </div>

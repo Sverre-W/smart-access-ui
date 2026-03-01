@@ -25,4 +25,12 @@ export const visitorsRoutes: Routes = [
     path: 'visitor/:id',
     loadComponent: () => import('./visitor-detail/visitor-detail').then(m => m.VisitorDetail),
   },
+  {
+    path: 'onboarding/:visitId/:visitorId',
+    loadComponent: () => import('./onboarding-detail/onboarding-detail').then(m => m.OnboardingDetail),
+  },
+  {
+    path: 'reports',
+    loadComponent: () => import('./reports/reports').then(m => m.Reports),
+  },
 ];

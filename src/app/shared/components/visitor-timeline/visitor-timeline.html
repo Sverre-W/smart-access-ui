@@ -1,0 +1,70 @@
+<div class="flex items-start gap-0">
+  @for (step of steps(); track step.key; let last = $last; let i = $index) {
+    <div class="flex flex-col items-center" [style.flex]="last ? 'none' : '1'">
+
+      <!-- Node + connector row -->
+      <div class="flex items-center w-full">
+
+        <!-- Step node -->
+        <div
+          class="flex items-center justify-center w-7 h-7 rounded-full shrink-0 ring-2 transition-colors"
+          [class]="
+            step.status === 'completed' ? 'bg-[#238cff] ring-[#238cff] text-white' :
+            step.status === 'active'    ? 'bg-white ring-[#238cff] text-[#238cff]' :
+            step.status === 'warning'   ? 'bg-amber-50 ring-amber-400 text-amber-500' :
+            step.status === 'skipped'   ? 'bg-zinc-100 ring-zinc-200 text-zinc-300' :
+                                          'bg-white ring-zinc-200 text-zinc-300'
+          "
+        >
+          <i class="pi text-xs font-bold" [class]="step.icon"></i>
+        </div>
+
+        <!-- Connector line (not after last step) -->
+        @if (!last) {
+          <div
+            class="h-0.5 flex-1 transition-colors"
+            [class]="
+              steps()[i + 1].status === 'completed' || steps()[i + 1].status === 'active'
+                ? 'bg-[#238cff]'
+                : step.status === 'skipped'
+                  ? 'bg-zinc-100'
+                  : 'bg-zinc-200'
+            "
+          ></div>
+        }
+
+      </div>
+
+      <!-- Label below node -->
+      <div class="mt-2 text-center max-w-[80px]">
+        <p
+          class="text-xs font-semibold leading-tight"
+          [class]="
+            step.status === 'completed' ? 'text-[#238cff]' :
+            step.status === 'active'    ? 'text-[#238cff]' :
+            step.status === 'warning'   ? 'text-amber-500' :
+            step.status === 'skipped'   ? 'text-zinc-300' :
+                                          'text-zinc-400'
+          "
+        >{{ step.label }}</p>
+
+        @if (step.timestamp) {
+          <p class="text-[10px] text-zinc-400 mt-0.5 leading-tight">
+            {{ step.timestamp | date: 'dd MMM, HH:mm' }}
+          </p>
+        } @else if (step.sublabel) {
+          <p
+            class="text-[10px] mt-0.5 leading-tight"
+            [class]="
+              step.status === 'skipped' ? 'text-red-400' :
+              step.status === 'active'  ? 'text-amber-500' :
+              step.status === 'warning' ? 'text-amber-500' :
+                                          'text-zinc-400'
+            "
+          >{{ step.sublabel }}</p>
+        }
+      </div>
+
+    </div>
+  }
+</div>

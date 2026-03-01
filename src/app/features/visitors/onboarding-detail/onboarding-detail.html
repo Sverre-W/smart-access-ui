@@ -1,0 +1,246 @@
+<div class="p-8 max-w-2xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-6 flex items-center gap-3">
+    <p-button
+      (click)="goBack()"
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      [text]="true"
+      [rounded]="true"
+    />
+    <div class="flex-1 min-w-0">
+      @if (loading()) {
+        <div class="h-7 w-48 rounded bg-zinc-100 animate-pulse mb-1"></div>
+        <div class="h-4 w-32 rounded bg-zinc-100 animate-pulse"></div>
+      } @else if (invitation()) {
+        <h1 class="text-2xl font-semibold text-zinc-800 truncate">{{ visitorFullName() }}</h1>
+        <p class="text-sm text-zinc-400 mt-0.5 truncate">{{ invitation()!.visitor.email }}</p>
+      } @else {
+        <h1 class="text-2xl font-semibold text-zinc-800">Onboarding Details</h1>
+      }
+    </div>
+    @if (visit()) {
+      <app-visit-state-badge [state]="visit()!.state" />
+    }
+  </div>
+
+  <!-- Load error -->
+  @if (error()) {
+    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error() }}
+    </div>
+  }
+
+  @if (!loading() && invitation() && visit()) {
+
+    <!-- ── Timeline card ───────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-5">
+      <div class="px-6 py-5 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">Visitor journey</h2>
+      </div>
+      <div class="px-6 py-6">
+        <app-visitor-timeline [invitation]="invitation()!" />
+      </div>
+    </div>
+
+    <!-- ── Visitor details card ────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-5">
+      <div class="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-zinc-700">Visitor details</h2>
+        <a
+          [routerLink]="['/visitors/visitor', invitation()!.visitor.id]"
+          class="inline-flex items-center gap-1 text-xs text-[#238cff] hover:underline"
+        >
+          <i class="pi pi-external-link text-[10px]"></i>
+          View profile
+        </a>
+      </div>
+      <dl class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+
+        <div>
+          <dt class="text-xs font-medium text-zinc-400">Full name</dt>
+          <dd class="mt-0.5 text-sm text-zinc-800">{{ visitorFullName() || '—' }}</dd>
+        </div>
+
+        <div>
+          <dt class="text-xs font-medium text-zinc-400">Email</dt>
+          <dd class="mt-0.5 text-sm text-zinc-800 break-all">{{ invitation()!.visitor.email || '—' }}</dd>
+        </div>
+
+        @if (invitation()!.visitor.company) {
+          <div>
+            <dt class="text-xs font-medium text-zinc-400">Company</dt>
+            <dd class="mt-0.5 text-sm text-zinc-800">{{ invitation()!.visitor.company }}</dd>
+          </div>
+        }
+
+        @if (invitation()!.visitor.phone) {
+          <div>
+            <dt class="text-xs font-medium text-zinc-400">Phone</dt>
+            <dd class="mt-0.5 text-sm text-zinc-800">{{ invitation()!.visitor.phone }}</dd>
+          </div>
+        }
+
+        @if (invitation()!.visitor.licensePlate) {
+          <div>
+            <dt class="text-xs font-medium text-zinc-400">License plate</dt>
+            <dd class="mt-0.5 text-sm text-zinc-800 font-mono">{{ invitation()!.visitor.licensePlate }}</dd>
+          </div>
+        }
+
+        <div>
+          <dt class="text-xs font-medium text-zinc-400">Parking required</dt>
+          <dd class="mt-0.5 text-sm text-zinc-800">{{ invitation()!.parkingRequired ? 'Yes' : 'No' }}</dd>
+        </div>
+
+      </dl>
+    </div>
+
+    <!-- ── Visit details card ─────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-5">
+      <div class="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-zinc-700">Visit details</h2>
+        <a
+          [routerLink]="['/visitors/edit', visit()!.id]"
+          class="inline-flex items-center gap-1 text-xs text-[#238cff] hover:underline"
+        >
+          <i class="pi pi-external-link text-[10px]"></i>
+          Edit visit
+        </a>
+      </div>
+      <dl class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+
+        <div class="sm:col-span-2">
+          <dt class="text-xs font-medium text-zinc-400">Summary</dt>
+          <dd class="mt-0.5 text-sm text-zinc-800">{{ visit()!.summary || '—' }}</dd>
+        </div>
+
+        <div>
+          <dt class="text-xs font-medium text-zinc-400">Scheduled</dt>
+          <dd class="mt-0.5 text-sm text-zinc-800">{{ visitDateRange() }}</dd>
+        </div>
+
+        @if (visit()!.actualStart || visit()!.actualEnd) {
+          <div>
+            <dt class="text-xs font-medium text-zinc-400">Actual</dt>
+            <dd class="mt-0.5 text-sm text-zinc-800">
+              {{ formatDate(visit()!.actualStart) }}
+              @if (visit()!.actualEnd) { – {{ formatDate(visit()!.actualEnd) }} }
+            </dd>
+          </div>
+        }
+
+        @if (visit()!.location) {
+          <div>
+            <dt class="text-xs font-medium text-zinc-400">Location</dt>
+            <dd class="mt-0.5 text-sm text-zinc-800">{{ visit()!.location!.name }}</dd>
+          </div>
+        }
+
+        @if (invitation()!.onboardedOn) {
+          <div>
+            <dt class="text-xs font-medium text-zinc-400">Onboarded</dt>
+            <dd class="mt-0.5 text-sm text-zinc-800">{{ formatDate(invitation()!.onboardedOn) }}</dd>
+          </div>
+        }
+
+        @if (invitation()!.arrivedOn) {
+          <div>
+            <dt class="text-xs font-medium text-zinc-400">Arrived</dt>
+            <dd class="mt-0.5 text-sm text-zinc-800">{{ formatDate(invitation()!.arrivedOn) }}</dd>
+          </div>
+        }
+
+        @if (invitation()!.leftOn) {
+          <div>
+            <dt class="text-xs font-medium text-zinc-400">Left</dt>
+            <dd class="mt-0.5 text-sm text-zinc-800">{{ formatDate(invitation()!.leftOn) }}</dd>
+          </div>
+        }
+
+      </dl>
+    </div>
+
+    <!-- ── Gathered documents / onboarding images ─────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+      <div class="px-6 py-5 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">
+          Gathered documents
+          @if (!imagesLoading() && onboardingImages().length > 0) {
+            <span class="ml-1.5 rounded-full bg-zinc-100 px-1.5 py-0.5 text-xs font-medium text-zinc-500">
+              {{ onboardingImages().length }}
+            </span>
+          }
+        </h2>
+      </div>
+
+      @if (imagesLoading()) {
+        <div class="px-6 py-8 flex items-center gap-3 text-sm text-zinc-400">
+          <i class="pi pi-spin pi-spinner"></i>
+          Loading documents…
+        </div>
+      } @else if (onboardingImages().length === 0) {
+        <div class="px-6 py-8 text-center">
+          <i class="pi pi-file text-2xl text-zinc-300 mb-2 block"></i>
+          <p class="text-sm text-zinc-400">No documents gathered yet.</p>
+        </div>
+      } @else {
+        <div class="p-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
+          @for (img of onboardingImages(); track img.id) {
+            <button
+              type="button"
+              (click)="openPreview(img)"
+              class="group relative rounded-lg overflow-hidden border border-zinc-200 bg-zinc-50 aspect-[4/3] flex flex-col items-center justify-center hover:border-[#238cff] transition-colors"
+            >
+              <img
+                [src]="'data:image/jpeg;base64,' + img.base64ImageData"
+                [alt]="imageLabel(img)"
+                class="w-full h-full object-cover"
+              />
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-end justify-start p-2">
+                <span class="rounded bg-black/50 text-white text-[10px] px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {{ imageLabel(img) }}
+                </span>
+              </div>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+  }
+
+</div>
+
+<!-- ── Image preview overlay ─────────────────────────────────────────────── -->
+@if (previewImage()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+    (click)="closePreview()"
+  >
+    <div
+      class="relative max-w-2xl w-full mx-4 rounded-xl overflow-hidden shadow-2xl bg-zinc-900"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
+        <span class="text-sm font-medium text-white">{{ imageLabel(previewImage()!) }}</span>
+        <p-button
+          type="button"
+          (click)="closePreview()"
+          icon="pi pi-times"
+          severity="secondary"
+          [text]="true"
+          [rounded]="true"
+          size="small"
+        />
+      </div>
+      <img
+        [src]="'data:image/jpeg;base64,' + previewImage()!.base64ImageData"
+        [alt]="imageLabel(previewImage()!)"
+        class="w-full object-contain max-h-[80vh]"
+      />
+    </div>
+  </div>
+}
