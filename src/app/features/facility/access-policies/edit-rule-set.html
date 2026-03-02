@@ -1,0 +1,390 @@
+<div class="px-4 py-6 sm:p-8 max-w-3xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-6 flex items-center gap-3">
+    <p-button
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      [text]="true"
+      [rounded]="true"
+      (click)="goBack()"
+    />
+    <div class="flex-1 min-w-0">
+      @if (loading()) {
+        <div class="h-7 w-52 rounded bg-zinc-100 animate-pulse mb-1"></div>
+        <div class="h-4 w-36 rounded bg-zinc-100 animate-pulse"></div>
+      } @else if (ruleSet()) {
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <h1 class="text-2xl font-semibold text-zinc-800 truncate">{{ ruleSet()!.name }}</h1>
+          <p-tag
+            [value]="ruleSet()!.isActive ? 'Active' : 'Inactive'"
+            [severity]="activeSeverity(ruleSet()!.isActive)"
+          />
+        </div>
+        <p class="text-sm text-zinc-400 mt-0.5">{{ ruleSet()!.system.name }}</p>
+      } @else {
+        <h1 class="text-2xl font-semibold text-zinc-800">Edit Rule Set</h1>
+      }
+    </div>
+  </div>
+
+  <!-- Hard load error -->
+  @if (error()) {
+    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (!loading() && ruleSet()) {
+
+    <!-- ── Details card ──────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-6">
+
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">Details</h2>
+        <p class="text-xs text-zinc-400 mt-0.5">Name and active status for this rule set.</p>
+      </div>
+
+      <div class="px-4 sm:px-6 py-5" [formGroup]="detailsForm">
+
+        @if (detailsSaveError()) {
+          <div class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ detailsSaveError() }}</span>
+          </div>
+        }
+        @if (detailsSaveSuccess()) {
+          <div class="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600 flex items-center gap-2">
+            <i class="pi pi-check-circle shrink-0"></i>
+            <span>Details saved.</span>
+          </div>
+        }
+
+        <div class="flex flex-col sm:flex-row gap-5 items-start">
+
+          <!-- Name -->
+          <div class="flex flex-col gap-1.5 flex-1 w-full sm:w-auto">
+            <label class="text-sm font-medium text-zinc-700">
+              Name <span class="text-red-400">*</span>
+            </label>
+            <input
+              pInputText
+              type="text"
+              formControlName="name"
+              placeholder="e.g. Visitor Day Pass"
+              [fluid]="true"
+              [invalid]="detailsForm.get('name')!.invalid && detailsForm.get('name')!.touched"
+            />
+            @if (detailsForm.get('name')!.invalid && detailsForm.get('name')!.touched) {
+              <p class="text-xs text-red-500">Name is required.</p>
+            }
+          </div>
+
+          <!-- Active toggle -->
+          <div class="flex flex-col gap-1.5 shrink-0 sm:pt-6">
+            <div class="flex items-center gap-2.5">
+              <p-checkbox
+                formControlName="isActive"
+                [binary]="true"
+                inputId="isActive"
+              />
+              <label for="isActive" class="text-sm font-medium text-zinc-700 cursor-pointer select-none">
+                Active
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex justify-end border-t border-zinc-100 pt-4 mt-5">
+          <p-button
+            icon="pi pi-check"
+            label="Save Details"
+            [loading]="detailsSaving()"
+            [disabled]="detailsSaving()"
+            loadingIcon="pi pi-spin pi-spinner"
+            (click)="saveDetails()"
+          />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Rules card ────────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-semibold text-zinc-700">
+            Rules
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ rulesForm.length }})</span>
+          </h2>
+          <p class="text-xs text-zinc-400 mt-0.5">Define which subjects get access and under what conditions.</p>
+        </div>
+        <p-button
+          icon="pi pi-plus"
+          label="Add Rule"
+          size="small"
+          (click)="addRule()"
+        />
+      </div>
+
+      <div class="px-4 sm:px-6 py-5">
+
+        @if (rulesSaveError()) {
+          <div class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ rulesSaveError() }}</span>
+          </div>
+        }
+        @if (rulesSaveSuccess()) {
+          <div class="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600 flex items-center gap-2">
+            <i class="pi pi-check-circle shrink-0"></i>
+            <span>Rules saved.</span>
+          </div>
+        }
+
+        @if (rulesForm.length === 0) {
+          <div class="py-10 text-center">
+            <i class="pi pi-filter text-3xl text-zinc-300 mb-3 block"></i>
+            <p class="text-sm font-medium text-zinc-500">No rules defined</p>
+            <p class="text-xs text-zinc-400 mt-1">Add a rule to define which subjects receive access.</p>
+          </div>
+        } @else {
+          <div class="space-y-5">
+
+            @for (ruleCtrl of rulesForm.controls; track $index) {
+              @let ruleIndex = $index;
+
+              <div [formGroup]="asGroup(ruleCtrl)" class="rounded-lg border border-zinc-200 bg-zinc-50 overflow-hidden">
+
+                <!-- Rule header -->
+                <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-200 bg-white">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                    Rule {{ ruleIndex + 1 }}
+                  </p>
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [text]="true"
+                    [rounded]="true"
+                    size="small"
+                    title="Remove rule"
+                    (click)="removeRule(ruleIndex)"
+                  />
+                </div>
+
+                <!-- Rule fields -->
+                <div class="px-4 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                  <!-- Name -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-medium text-zinc-500">
+                      Rule name <span class="text-red-400">*</span>
+                    </label>
+                    <input
+                      pInputText
+                      type="text"
+                      formControlName="name"
+                      placeholder="e.g. Visitor access"
+                      [fluid]="true"
+                      [invalid]="asGroup(ruleCtrl).get('name')!.invalid && asGroup(ruleCtrl).get('name')!.touched"
+                    />
+                    @if (asGroup(ruleCtrl).get('name')!.invalid && asGroup(ruleCtrl).get('name')!.touched) {
+                      <p class="text-xs text-red-500">Required.</p>
+                    }
+                  </div>
+
+                  <!-- Subject type -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-medium text-zinc-500">
+                      Subject type <span class="text-red-400">*</span>
+                    </label>
+                    <p-select
+                      formControlName="subjectType"
+                      [options]="subjectTypeOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      [fluid]="true"
+                      (onChange)="onSubjectTypeChange(ruleIndex)"
+                    />
+                  </div>
+
+                </div>
+
+                <!-- ── Conditions ────────────────────────────────────────── -->
+                <div class="px-4 pb-4">
+
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                      Conditions
+                      <span class="ml-1 font-normal normal-case">({{ conditionsOf(ruleCtrl).length }})</span>
+                    </p>
+                    <p-button
+                      icon="pi pi-plus"
+                      label="Add Condition"
+                      size="small"
+                      severity="secondary"
+                      [disabled]="isConditionDefsLoading(asGroup(ruleCtrl).get('subjectType')!.value)"
+                      (click)="addCondition(ruleIndex)"
+                    />
+                  </div>
+
+                  @if (isConditionDefsLoading(asGroup(ruleCtrl).get('subjectType')!.value)) {
+                    <div class="flex items-center gap-2 py-2 text-xs text-zinc-400">
+                      <i class="pi pi-spin pi-spinner"></i>
+                      Loading conditions…
+                    </div>
+                  } @else if (conditionsOf(ruleCtrl).length === 0) {
+                    <p class="text-sm text-zinc-400 italic py-1">No conditions — access is always granted for this subject type.</p>
+                  } @else {
+                    <div class="space-y-3">
+
+                      @for (condCtrl of conditionsOf(ruleCtrl).controls; track $index) {
+                        @let condIndex = $index;
+
+                        <div [formGroup]="asGroup(condCtrl)" class="rounded-lg border border-zinc-200 bg-white p-4">
+
+                          <!-- Condition type selector + remove -->
+                          <div class="flex items-end gap-3 mb-3">
+
+                            <div class="flex flex-col gap-1.5 flex-1">
+                              <label class="text-xs font-medium text-zinc-500">
+                                Condition <span class="text-red-400">*</span>
+                              </label>
+                              <p-select
+                                formControlName="canonicalName"
+                                [options]="conditionOptions(asGroup(ruleCtrl).get('subjectType')!.value)"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Select condition"
+                                [fluid]="true"
+                                [invalid]="asGroup(condCtrl).get('canonicalName')!.invalid && asGroup(condCtrl).get('canonicalName')!.touched"
+                                (onChange)="onConditionTypeChange(ruleIndex, condIndex)"
+                              />
+                              @if (asGroup(condCtrl).get('canonicalName')!.invalid && asGroup(condCtrl).get('canonicalName')!.touched) {
+                                <p class="text-xs text-red-500">Required.</p>
+                              }
+                            </div>
+
+                            <p-button
+                              icon="pi pi-trash"
+                              severity="danger"
+                              [text]="true"
+                              [rounded]="true"
+                              size="small"
+                              (click)="removeCondition(ruleIndex, condIndex)"
+                            />
+                          </div>
+
+                          <!-- ── Dynamic parameters ───────────────────────── -->
+                          @let subjectType = asGroup(ruleCtrl).get('subjectType')!.value;
+                          @let canonicalName = asGroup(condCtrl).get('canonicalName')!.value;
+                          @let params = parameterDefs(subjectType, canonicalName);
+                          @let paramsGroup = asGroup(asGroup(condCtrl).get('parameters')!);
+
+                          @if (params.length > 0) {
+                            <div [formGroup]="paramsGroup" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+
+                              @for (param of params; track param.name) {
+                                <div class="flex flex-col gap-1.5">
+                                  <label class="text-xs font-medium text-zinc-500">
+                                    {{ param.name }}
+                                    @if (param.type !== ParameterType.BooleanValue) {
+                                      <span class="text-red-400">*</span>
+                                    }
+                                    @if (param.isList) {
+                                      <span class="ml-1 text-zinc-400 font-normal">(comma-separated)</span>
+                                    }
+                                  </label>
+
+                                  @if (param.type === ParameterType.BooleanValue) {
+                                    <!-- Boolean: checkbox -->
+                                    <div class="flex items-center gap-2 pt-1">
+                                      <p-checkbox
+                                        [formControlName]="param.name"
+                                        [binary]="true"
+                                        [inputId]="'param-' + param.name + '-' + ruleIndex + '-' + condIndex"
+                                      />
+                                      <label
+                                        [for]="'param-' + param.name + '-' + ruleIndex + '-' + condIndex"
+                                        class="text-sm text-zinc-700 cursor-pointer"
+                                      >
+                                        {{ param.name }}
+                                      </label>
+                                    </div>
+                                  } @else if (isProviderBacked(param)) {
+                                    <!-- Provider-backed: dropdown -->
+                                    <p-select
+                                      [formControlName]="param.name"
+                                      [options]="providerOptions(ruleSet()!.id, param.fixedValueProvider!)"
+                                      optionLabel="name"
+                                      optionValue="id"
+                                      placeholder="Select value"
+                                      [fluid]="true"
+                                      [invalid]="paramsGroup.get(param.name)!.invalid && paramsGroup.get(param.name)!.touched"
+                                    />
+                                  } @else if (param.type === ParameterType.IntegerValue && !param.isList) {
+                                    <!-- Integer (single): number input -->
+                                    <p-inputnumber
+                                      [formControlName]="param.name"
+                                      [fluid]="true"
+                                      [invalid]="paramsGroup.get(param.name)!.invalid && paramsGroup.get(param.name)!.touched"
+                                    />
+                                  } @else {
+                                    <!-- String or list: text input -->
+                                    <input
+                                      pInputText
+                                      type="text"
+                                      [formControlName]="param.name"
+                                      [placeholder]="param.isList ? 'value1, value2, …' : ''"
+                                      [fluid]="true"
+                                      [invalid]="paramsGroup.get(param.name)!.invalid && paramsGroup.get(param.name)!.touched"
+                                    />
+                                  }
+
+                                  @if (paramsGroup.get(param.name)?.invalid && paramsGroup.get(param.name)?.touched) {
+                                    <p class="text-xs text-red-500">Required.</p>
+                                  }
+                                </div>
+                              }
+
+                            </div>
+                          }
+
+                        </div>
+
+                      }
+                    </div>
+                  }
+
+                </div>
+
+              </div>
+
+            }
+
+          </div>
+        }
+
+        <!-- Save rules button -->
+        @if (rulesForm.length > 0) {
+          <div class="flex justify-end border-t border-zinc-100 pt-4 mt-5">
+            <p-button
+              icon="pi pi-check"
+              label="Save Rules"
+              [loading]="rulesSaving()"
+              [disabled]="rulesSaving()"
+              loadingIcon="pi pi-spin pi-spinner"
+              (click)="saveRules()"
+            />
+          </div>
+        }
+
+      </div>
+    </div>
+
+  }
+
+</div>

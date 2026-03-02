@@ -1,0 +1,114 @@
+<div class="flex flex-col gap-3">
+  <label class="text-sm font-medium text-zinc-700">Location</label>
+
+  @if (loading()) {
+    <!-- Skeleton while fetching all locations -->
+    <div class="flex flex-wrap gap-2">
+      @for (_ of [1,2,3]; track $index) {
+        <div class="h-8 w-24 rounded-full bg-zinc-100 animate-pulse"></div>
+      }
+    </div>
+  } @else {
+
+    <!-- Site buttons -->
+    <div class="flex flex-col gap-1.5">
+      <span class="text-xs font-medium text-zinc-400 uppercase tracking-wide">Site</span>
+      @if (sites().length === 0) {
+        <p class="text-xs text-zinc-400 italic">No sites available.</p>
+      } @else {
+        <div class="flex flex-wrap gap-2">
+          @for (site of sites(); track site.id) {
+            <button
+              type="button"
+              [disabled]="disabled()"
+              (click)="selectSite(site)"
+              class="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              [class]="selectedSite()?.id === site.id
+                ? 'bg-zinc-800 text-white border-zinc-800'
+                : 'bg-white text-zinc-700 border-zinc-300 hover:border-zinc-400 hover:bg-zinc-50'"
+            >
+              <i class="pi pi-building mr-1.5 text-xs"></i>{{ site.name }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Building buttons -->
+    @if (selectedSite()) {
+      <div class="flex flex-col gap-1.5 pl-3 border-l-2 border-zinc-100">
+        <span class="text-xs font-medium text-zinc-400 uppercase tracking-wide">Building</span>
+        @if (buildings().length === 0) {
+          <p class="text-xs text-zinc-400 italic">No buildings in this site.</p>
+        } @else {
+          <div class="flex flex-wrap gap-2">
+            @for (building of buildings(); track building.id) {
+              <button
+                type="button"
+                [disabled]="disabled()"
+                (click)="selectBuilding(building)"
+                class="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                [class]="selectedBuilding()?.id === building.id
+                  ? 'bg-zinc-800 text-white border-zinc-800'
+                  : 'bg-white text-zinc-700 border-zinc-300 hover:border-zinc-400 hover:bg-zinc-50'"
+              >
+                <i class="pi pi-home mr-1.5 text-xs"></i>{{ building.name }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Room dropdown -->
+    @if (selectedBuilding()) {
+      <div class="flex flex-col gap-1.5 pl-6 border-l-2 border-zinc-100">
+        <span class="text-xs font-medium text-zinc-400 uppercase tracking-wide">Room</span>
+        @if (rooms().length === 0) {
+          <p class="text-xs text-zinc-400 italic">No rooms in this building.</p>
+        } @else {
+          <p-select
+            [options]="rooms()"
+            [(ngModel)]="selectedRoomModel"
+            [ngModelOptions]="{standalone: true}"
+            [disabled]="disabled()"
+            optionLabel="name"
+            placeholder="Select a room (optional)"
+            [showClear]="true"
+            [fluid]="true"
+          >
+            <ng-template #selectedItem let-room>
+              <span>{{ roomLabel(room) }}</span>
+            </ng-template>
+            <ng-template #item let-room>
+              <div class="flex flex-col gap-0.5 py-0.5">
+                <span class="text-sm font-medium text-zinc-800">{{ room.name }}</span>
+                @if (room.floorLabel || room.floorNumber != null || room.capacity != null) {
+                  <span class="text-xs text-zinc-400">
+                    {{ room.floorLabel || (room.floorNumber != null ? 'Floor ' + room.floorNumber : '') }}
+                    @if (room.capacity != null) { · Cap. {{ room.capacity }} }
+                  </span>
+                }
+              </div>
+            </ng-template>
+          </p-select>
+        }
+      </div>
+    }
+
+    <!-- Selected location breadcrumb -->
+    @if (selectedLocation()) {
+      <div class="flex items-center gap-1.5 text-xs text-zinc-500 pt-0.5">
+        <i class="pi pi-map-marker text-zinc-400"></i>
+        <span>
+          @if (selectedSite()) { {{ selectedSite()!.name }} }
+          @if (selectedBuilding()) { <span class="text-zinc-300 mx-1">›</span> {{ selectedBuilding()!.name }} }
+          @if (selectedRoom()) { <span class="text-zinc-300 mx-1">›</span> {{ selectedRoom()!.name }} }
+        </span>
+      </div>
+    }
+
+  }
+
+  <p class="text-xs text-zinc-400">Optional — you can set or change this later.</p>
+</div>

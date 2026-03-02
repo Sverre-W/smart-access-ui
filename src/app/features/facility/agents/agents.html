@@ -1,0 +1,888 @@
+<div class="p-4 sm:p-8">
+
+  <!-- Header -->
+  <div class="mb-6 flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-semibold text-zinc-800">Agents</h1>
+      <p class="text-sm text-zinc-500 mt-1">On-premises Smart Access agents and their current status.</p>
+    </div>
+
+    <!-- Refresh button + last-updated indicator + New Agent -->
+    <div class="flex items-center gap-3 shrink-0">
+      @if (lastUpdatedLabel()) {
+        <span class="hidden sm:block text-xs text-zinc-400">
+          Updated {{ lastUpdatedLabel() }}
+        </span>
+      }
+      <p-button
+        icon="pi pi-refresh"
+        severity="secondary"
+        [text]="true"
+        [loading]="refreshing()"
+        title="Refresh now"
+        (click)="refresh()"
+      />
+      <p-button
+        icon="pi pi-plus"
+        label="New Agent"
+        (click)="openCreate()"
+      />
+    </div>
+  </div>
+
+  <!-- ── Create-agent panel ────────────────────────────────────────────────── -->
+  @if (createOpen()) {
+    <div class="mb-6 rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+      <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-zinc-700">New Agent</h2>
+        <p-button
+          icon="pi pi-times"
+          severity="secondary"
+          [text]="true"
+          [rounded]="true"
+          size="small"
+          (click)="closeCreate()"
+        />
+      </div>
+
+      <div [formGroup]="createForm" class="px-6 py-5">
+
+        @if (createError()) {
+          <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ createError() }}</span>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+
+          <!-- Name -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              Name <span class="text-red-400">*</span>
+            </label>
+            <input
+              pInputText
+              type="text"
+              formControlName="name"
+              placeholder="e.g. Reception Kiosk"
+              [fluid]="true"
+              [invalid]="createForm.get('name')!.invalid && createForm.get('name')!.touched"
+            />
+            @if (createForm.get('name')!.invalid && createForm.get('name')!.touched) {
+              <p class="text-xs text-red-500">Name is required.</p>
+            }
+          </div>
+
+          <!-- Type -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              Type <span class="text-red-400">*</span>
+            </label>
+            <p-select
+              formControlName="type"
+              [options]="agentTypeOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select type"
+              [fluid]="true"
+            />
+          </div>
+
+        </div>
+
+        <div class="flex items-center justify-end gap-2">
+          <p-button
+            type="button"
+            label="Cancel"
+            severity="secondary"
+            (click)="closeCreate()"
+          />
+          <p-button
+            type="button"
+            icon="pi pi-check"
+            label="Create Agent"
+            [loading]="createSaving()"
+            [disabled]="createSaving()"
+            loadingIcon="pi pi-spin pi-spinner"
+            (click)="saveCreate()"
+          />
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- Stale-data warning banner -->
+  @if (stale()) {
+    <div class="mb-6 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+      <i class="pi pi-exclamation-triangle shrink-0"></i>
+      <span>
+        Live refresh failed — showing data from <strong>{{ lastUpdatedLabel() }}</strong>.
+        Data may be out of date.
+      </span>
+    </div>
+  }
+
+  <!-- Initial load error -->
+  @if (error()) {
+    <div class="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- ── Stat tiles ──────────────────────────────────────────────────────────── -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
+
+    <!-- Operational -->
+    <div class="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-xs">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Operational</span>
+        <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+          <i class="pi pi-check-circle text-sm text-green-500"></i>
+        </div>
+      </div>
+      <div class="flex items-end justify-between">
+        <div>
+          @if (loading()) {
+            <div class="h-8 w-10 rounded bg-zinc-100 animate-pulse mb-1"></div>
+          } @else {
+            <p
+              class="text-3xl font-bold transition-opacity"
+              [class]="stale() ? 'text-zinc-400' : 'text-zinc-800'"
+            >{{ operationalCount() }}</p>
+          }
+          <p class="text-xs text-zinc-400 mt-1">Connected &amp; healthy</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disconnected -->
+    <div class="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-xs">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Disconnected</span>
+        <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
+          <i class="pi pi-times-circle text-sm text-red-500"></i>
+        </div>
+      </div>
+      <div class="flex items-end justify-between">
+        <div>
+          @if (loading()) {
+            <div class="h-8 w-10 rounded bg-zinc-100 animate-pulse mb-1"></div>
+          } @else {
+            <p
+              class="text-3xl font-bold transition-opacity"
+              [class]="stale() ? 'text-zinc-400' : (disconnectedCount() > 0 ? 'text-red-600' : 'text-zinc-800')"
+            >{{ disconnectedCount() }}</p>
+          }
+          <p class="text-xs text-zinc-400 mt-1">Not connected to server</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Config Error -->
+    <div class="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-xs">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Config Error</span>
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+          <i class="pi pi-exclamation-triangle text-sm text-amber-500"></i>
+        </div>
+      </div>
+      <div class="flex items-end justify-between">
+        <div>
+          @if (loading()) {
+            <div class="h-8 w-10 rounded bg-zinc-100 animate-pulse mb-1"></div>
+          } @else {
+            <p
+              class="text-3xl font-bold transition-opacity"
+              [class]="stale() ? 'text-zinc-400' : (configErrorCount() > 0 ? 'text-amber-600' : 'text-zinc-800')"
+            >{{ configErrorCount() }}</p>
+          }
+          <p class="text-xs text-zinc-400 mt-1">Invalid configuration</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Agent list ──────────────────────────────────────────────────────────── -->
+  <div
+    class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-hidden transition-opacity"
+    [class]="stale() ? 'opacity-75' : ''"
+  >
+
+    <!-- Table header -->
+    <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <h2 class="text-sm font-semibold text-zinc-700">
+        All Agents
+        @if (!loading()) {
+          <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ agents().length }})</span>
+        }
+      </h2>
+
+      <!-- Live indicator / stale pill -->
+      @if (!loading()) {
+        @if (stale()) {
+          <span class="flex items-center gap-1.5 text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">
+            <i class="pi pi-exclamation-triangle text-[10px]"></i>
+            Stale data
+          </span>
+        } @else {
+          <span class="flex items-center gap-1.5 text-xs font-medium text-green-600">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            Live
+          </span>
+        }
+      }
+    </div>
+
+    <!-- Delete error banner (shared) -->
+    @if (deleteError()) {
+      <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteError() }}
+      </div>
+    }
+
+    <!-- ── Desktop table (sm+) ──────────────────────────────────────────────── -->
+    <div class="hidden sm:block">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Name</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Type</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Status</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Details</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Last Reported</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (loading()) {
+            @for (i of [1, 2, 3, 4, 5]; track i) {
+              <tr class="border-b border-zinc-100">
+                <td class="px-6 py-4"><div class="h-4 w-36 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-24 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-6 w-20 rounded-full bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-48 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-28 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"></td>
+              </tr>
+            }
+          } @else if (agents().length === 0) {
+            <tr>
+              <td colspan="6" class="px-6 py-16 text-center">
+                <i class="pi pi-server text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">No agents registered</p>
+                <p class="text-xs text-zinc-400 mt-1">Agents will appear here once connected.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (agent of agents(); track agent.id) {
+
+              <!-- Main row -->
+              <tr
+                class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors cursor-pointer"
+                [class.bg-zinc-50]="expandedAgentId() === agent.id"
+                (click)="toggleExpand(agent)"
+              >
+
+                <!-- Name -->
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0">
+                      <i class="pi pi-server text-xs text-zinc-500"></i>
+                    </div>
+                    <span class="font-medium text-zinc-800">{{ agent.name }}</span>
+                  </div>
+                </td>
+
+                <!-- Type -->
+                <td class="px-4 py-4 text-zinc-500">
+                  {{ agentTypeLabel(agent.type) }}
+                </td>
+
+                <!-- Status badge -->
+                <td class="px-4 py-4">
+                  <p-tag
+                    [value]="statusLabel(agent.latestStatus?.status)"
+                    [severity]="statusSeverity(agent.latestStatus?.status)"
+                    [icon]="statusIcon(agent.latestStatus?.status)"
+                  />
+                </td>
+
+                <!-- Status details -->
+                <td class="px-4 py-4 text-zinc-500 max-w-xs truncate">
+                  {{ agent.latestStatus?.details || '—' }}
+                </td>
+
+                <!-- Last reported -->
+                <td class="px-4 py-4 text-zinc-400 text-xs whitespace-nowrap">
+                  @if (agent.latestStatus?.reportedAt) {
+                    {{ agent.latestStatus?.reportedAt | date: 'dd MMM y, HH:mm' }}
+                  } @else {
+                    —
+                  }
+                </td>
+
+                <!-- Actions -->
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-1 justify-end" (click)="$event.stopPropagation()">
+                    <p-button
+                      icon="pi pi-cog"
+                      severity="secondary"
+                      [text]="true"
+                      [rounded]="true"
+                      size="small"
+                      title="Edit configuration"
+                      (click)="toggleExpand(agent)"
+                    />
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [text]="true"
+                      [rounded]="true"
+                      size="small"
+                      title="Delete agent"
+                      (click)="confirmDelete(agent.id)"
+                    />
+                  </div>
+                </td>
+
+              </tr>
+
+              <!-- Delete confirmation row -->
+              @if (deleteConfirmingId() === agent.id) {
+                <tr class="border-b border-zinc-100 bg-red-50">
+                  <td colspan="6" class="px-6 py-3">
+                    <div class="flex items-center justify-between gap-4">
+                      <p class="text-sm text-red-700 font-medium">
+                        <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                        Delete <strong>{{ agent.name }}</strong>? This cannot be undone.
+                      </p>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <p-button
+                          type="button"
+                          label="Keep"
+                          severity="secondary"
+                          size="small"
+                          (click)="abortDelete()"
+                        />
+                        <p-button
+                          type="button"
+                          label="Yes, delete"
+                          severity="danger"
+                          size="small"
+                          [loading]="deletingId() === agent.id"
+                          [disabled]="deletingId() === agent.id"
+                          loadingIcon="pi pi-spin pi-spinner"
+                          (click)="executeDelete(agent)"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+              <!-- Config / rename panel -->
+              @if (expandedAgentId() === agent.id) {
+                <tr class="border-b border-zinc-200">
+                  <td colspan="6" class="p-0">
+                    <ng-container *ngTemplateOutlet="configPanel; context: { agent: agent }" />
+                  </td>
+                </tr>
+              }
+
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Mobile list (below sm) ───────────────────────────────────────────── -->
+    <div class="sm:hidden divide-y divide-zinc-100">
+
+      @if (loading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="px-4 py-4 space-y-2.5 animate-pulse">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-zinc-100 shrink-0"></div>
+                <div class="h-4 w-36 rounded bg-zinc-100"></div>
+              </div>
+              <div class="h-6 w-24 rounded-full bg-zinc-100"></div>
+            </div>
+            <div class="pl-10 space-y-1.5">
+              <div class="h-3 w-20 rounded bg-zinc-100"></div>
+              <div class="h-3 w-48 rounded bg-zinc-100"></div>
+              <div class="h-3 w-28 rounded bg-zinc-100"></div>
+            </div>
+          </div>
+        }
+      } @else if (agents().length === 0) {
+        <div class="px-4 py-12 text-center">
+          <i class="pi pi-server text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">No agents registered</p>
+          <p class="text-xs text-zinc-400 mt-1">Agents will appear here once connected.</p>
+        </div>
+      } @else {
+        @for (agent of agents(); track agent.id) {
+
+          <!-- Agent card -->
+          <div
+            class="px-4 py-4 cursor-pointer transition-colors"
+            [class.bg-zinc-50]="expandedAgentId() === agent.id"
+            (click)="toggleExpand(agent)"
+          >
+
+            <!-- Row 1: icon + name + actions -->
+            <div class="flex items-center justify-between gap-3 mb-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0">
+                  <i class="pi pi-server text-xs text-zinc-500"></i>
+                </div>
+                <span class="font-medium text-zinc-800 truncate">{{ agent.name }}</span>
+              </div>
+              <div class="flex items-center gap-1 shrink-0" (click)="$event.stopPropagation()">
+                <p-tag
+                  [value]="statusLabel(agent.latestStatus?.status)"
+                  [severity]="statusSeverity(agent.latestStatus?.status)"
+                  [icon]="statusIcon(agent.latestStatus?.status)"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  title="Delete agent"
+                  (click)="confirmDelete(agent.id)"
+                />
+              </div>
+            </div>
+
+            <!-- Row 2: type pill + details + timestamp -->
+            <div class="pl-10 flex flex-col gap-1">
+              <span class="inline-flex items-center self-start text-xs font-medium text-zinc-500 bg-zinc-100 rounded px-1.5 py-0.5">
+                {{ agentTypeLabel(agent.type) }}
+              </span>
+              @if (agent.latestStatus?.details) {
+                <p class="text-xs text-zinc-500 leading-snug">{{ agent.latestStatus?.details }}</p>
+              }
+              @if (agent.latestStatus?.reportedAt) {
+                <p class="text-xs text-zinc-400">
+                  <i class="pi pi-clock text-[10px] mr-1"></i>{{ agent.latestStatus?.reportedAt | date: 'dd MMM y, HH:mm' }}
+                </p>
+              }
+              <p class="text-xs text-[#238cff] mt-0.5">
+                <i class="pi pi-cog text-[10px] mr-1"></i>
+                {{ expandedAgentId() === agent.id ? 'Close configuration' : 'Edit configuration' }}
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Delete confirmation (mobile) -->
+          @if (deleteConfirmingId() === agent.id) {
+            <div class="bg-red-50 px-4 py-3 border-t border-red-100" (click)="$event.stopPropagation()">
+              <p class="text-sm text-red-700 font-medium mb-2">
+                <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                Delete <strong>{{ agent.name }}</strong>? This cannot be undone.
+              </p>
+              <div class="flex items-center gap-2">
+                <p-button
+                  type="button"
+                  label="Keep"
+                  severity="secondary"
+                  size="small"
+                  (click)="abortDelete()"
+                />
+                <p-button
+                  type="button"
+                  label="Yes, delete"
+                  severity="danger"
+                  size="small"
+                  [loading]="deletingId() === agent.id"
+                  [disabled]="deletingId() === agent.id"
+                  loadingIcon="pi pi-spin pi-spinner"
+                  (click)="executeDelete(agent)"
+                />
+              </div>
+            </div>
+          }
+
+          <!-- Config panel (mobile) -->
+          @if (expandedAgentId() === agent.id) {
+            <div (click)="$event.stopPropagation()">
+              <ng-container *ngTemplateOutlet="configPanel; context: { agent: agent }" />
+            </div>
+          }
+
+        }
+      }
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ── Shared config/rename panel template ──────────────────────────────────── -->
+<ng-template #configPanel let-agent="agent">
+  <div class="bg-zinc-50 border-t border-zinc-100 px-4 sm:px-6 py-5">
+
+    <!-- Panel title -->
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-sm font-semibold text-zinc-700 flex items-center gap-2">
+        <i class="pi pi-cog text-zinc-400"></i>
+        Configuration — {{ agent.name }}
+      </h3>
+      <p-button
+        icon="pi pi-times"
+        severity="secondary"
+        [text]="true"
+        [rounded]="true"
+        size="small"
+        (click)="toggleExpand(agent)"
+      />
+    </div>
+
+    @if (configLoading()) {
+      <!-- Loading skeleton -->
+      <div class="space-y-3 animate-pulse">
+        <div class="h-4 w-32 rounded bg-zinc-200"></div>
+        <div class="h-9 rounded-lg bg-zinc-200"></div>
+        <div class="h-4 w-40 rounded bg-zinc-200 mt-4"></div>
+        <div class="h-9 rounded-lg bg-zinc-200"></div>
+        <div class="h-9 rounded-lg bg-zinc-200"></div>
+      </div>
+
+    } @else if (configError()) {
+      <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>
+        <span>{{ configError() }}</span>
+      </div>
+
+    } @else {
+
+      <!-- ── Rename section ──────────────────────────────────────────────── -->
+      <div class="mb-6 pb-6 border-b border-zinc-200">
+        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-3">Agent Name</p>
+
+        @if (renameError()) {
+          <div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>{{ renameError() }}
+          </div>
+        }
+
+        <div [formGroup]="renameForm" class="flex items-start gap-3">
+          <div class="flex-1">
+            <input
+              pInputText
+              type="text"
+              formControlName="name"
+              [fluid]="true"
+              [invalid]="renameForm.get('name')!.invalid && renameForm.get('name')!.touched"
+            />
+            @if (renameForm.get('name')!.invalid && renameForm.get('name')!.touched) {
+              <p class="text-xs text-red-500 mt-1">Name is required.</p>
+            }
+          </div>
+          <p-button
+            type="button"
+            label="Rename"
+            severity="secondary"
+            [loading]="renameSaving()"
+            [disabled]="renameSaving()"
+            loadingIcon="pi pi-spin pi-spinner"
+            (click)="saveRename(agent)"
+          />
+        </div>
+      </div>
+
+      <!-- ── Configuration section ──────────────────────────────────────── -->
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-4">
+          Configuration
+          <span class="ml-1.5 normal-case font-normal text-zinc-400">({{ agentTypeLabel(agent.type) }})</span>
+        </p>
+
+        @if (configSaveError()) {
+          <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ configSaveError() }}</span>
+          </div>
+        }
+        @if (configSaveSuccess()) {
+          <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600 flex items-center gap-2">
+            <i class="pi pi-check-circle shrink-0"></i>
+            <span>Configuration saved.</span>
+          </div>
+        }
+
+        <!-- No-config types -->
+        @if (agent.type === AgentType.None) {
+          <p class="text-sm text-zinc-400 italic">No configuration available for this agent type.</p>
+
+        } @else {
+          <div [formGroup]="configForm">
+
+            <!-- ── Lenel ──────────────────────────────────────────────── -->
+            @if (agent.type === AgentType.Lenel) {
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div class="flex flex-col gap-1.5 sm:col-span-2">
+                  <label class="text-sm font-medium text-zinc-700">API URL <span class="text-red-400">*</span></label>
+                  <input pInputText type="text" formControlName="url" placeholder="https://lenel-server/api" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Username <span class="text-red-400">*</span></label>
+                  <input pInputText type="text" formControlName="username" placeholder="service-account" [fluid]="true" />
+                </div>
+                 <div class="flex flex-col gap-1.5">
+                   <label class="text-sm font-medium text-zinc-700">Password</label>
+                   <app-password-input formControlName="password" />
+                 </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Directory ID <span class="text-red-400">*</span></label>
+                  <input pInputText type="text" formControlName="directoryId" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Application ID <span class="text-red-400">*</span></label>
+                  <input pInputText type="text" formControlName="applicationId" [fluid]="true" />
+                </div>
+                <div class="flex items-center gap-2 sm:col-span-2">
+                  <p-checkbox formControlName="validateSsl" [binary]="true" inputId="validateSsl" />
+                  <label for="validateSsl" class="text-sm text-zinc-700">Validate SSL certificate</label>
+                </div>
+              </div>
+            }
+
+            <!-- ── UniPass ─────────────────────────────────────────────── -->
+            @if (agent.type === AgentType.UniPass) {
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div class="flex flex-col gap-1.5 sm:col-span-2">
+                  <label class="text-sm font-medium text-zinc-700">API URL <span class="text-red-400">*</span></label>
+                  <input pInputText type="text" formControlName="url" placeholder="https://unipass-server/api" [fluid]="true" />
+                </div>
+                 <div class="flex flex-col gap-1.5 sm:col-span-2">
+                   <label class="text-sm font-medium text-zinc-700">API Key</label>
+                   <app-password-input formControlName="apiKey" />
+                 </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Time Zone <span class="text-red-400">*</span></label>
+                  <input pInputText type="text" formControlName="timeZone" placeholder="Europe/Oslo" [fluid]="true" />
+                </div>
+                <div class="flex items-center gap-2 pt-6">
+                  <p-checkbox formControlName="validateSsl" [binary]="true" inputId="validateSslUp" />
+                  <label for="validateSslUp" class="text-sm text-zinc-700">Validate SSL certificate</label>
+                </div>
+              </div>
+            }
+
+            <!-- ── Kiosk Driver ────────────────────────────────────────── -->
+            @if (agent.type === AgentType.KioskDriver) {
+
+              <!-- Driver feature flags -->
+              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">Enabled modules</p>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-2 gap-x-4 mb-5">
+                <div class="flex items-center gap-2">
+                  <p-checkbox formControlName="enableRfid" [binary]="true" inputId="enableRfid" />
+                  <label for="enableRfid" class="text-sm text-zinc-700">RFID</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-checkbox formControlName="enableQr" [binary]="true" inputId="enableQr" />
+                  <label for="enableQr" class="text-sm text-zinc-700">QR Code</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-checkbox formControlName="enableCollector" [binary]="true" inputId="enableCollector" />
+                  <label for="enableCollector" class="text-sm text-zinc-700">Collector</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-checkbox formControlName="enableDispenser" [binary]="true" inputId="enableDispenser" />
+                  <label for="enableDispenser" class="text-sm text-zinc-700">Dispenser</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-checkbox formControlName="enableEid" [binary]="true" inputId="enableEid" />
+                  <label for="enableEid" class="text-sm text-zinc-700">eID Reader</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-checkbox formControlName="enablePassport" [binary]="true" inputId="enablePassport" />
+                  <label for="enablePassport" class="text-sm text-zinc-700">Passport</label>
+                </div>
+              </div>
+
+              <!-- Reader polling -->
+              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">RFID Reader</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Reading Timeout (ms)</label>
+                  <p-inputnumber formControlName="readingTimeout" [min]="0" [fluid]="true" [showButtons]="false" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Polling Interval (ms)</label>
+                  <p-inputnumber formControlName="pollingInterval" [min]="0" [fluid]="true" [showButtons]="false" />
+                </div>
+              </div>
+
+              <!-- Collector -->
+              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">Collector</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">COM Port</label>
+                  <input pInputText type="text" formControlName="collectorComPort" placeholder="COM3" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Reader ID</label>
+                  <p-inputnumber formControlName="collectorReaderId" [min]="0" [fluid]="true" [showButtons]="false" />
+                </div>
+              </div>
+
+              <!-- Dispenser -->
+              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">Dispenser</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">COM Port</label>
+                  <input pInputText type="text" formControlName="dispenserComPort" placeholder="COM4" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Reader ID</label>
+                  <p-inputnumber formControlName="dispenserReaderId" [min]="0" [fluid]="true" [showButtons]="false" />
+                </div>
+              </div>
+
+              <!-- QR Reader -->
+              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">QR Reader</p>
+              <div class="mb-5">
+                <div class="flex flex-col gap-1.5 sm:w-1/2">
+                  <label class="text-sm font-medium text-zinc-700">COM Port</label>
+                  <input pInputText type="text" formControlName="qrComPort" placeholder="COM5" [fluid]="true" />
+                </div>
+              </div>
+
+              <!-- eID Reader -->
+              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">eID Reader</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Polling Interval (ms)</label>
+                  <p-inputnumber formControlName="eidPollingInterval" [min]="0" [fluid]="true" [showButtons]="false" />
+                </div>
+                <div class="flex items-center gap-2 pt-6">
+                  <p-checkbox formControlName="eidBypassPin" [binary]="true" inputId="eidBypassPin" />
+                  <label for="eidBypassPin" class="text-sm text-zinc-700">Bypass PIN</label>
+                </div>
+              </div>
+
+            }
+
+            <!-- ── Printer ──────────────────────────────────────────────── -->
+            @if (agent.type === AgentType.Printer) {
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Printer Type <span class="text-red-400">*</span></label>
+                  <input pInputText type="text" formControlName="printerType" placeholder="e.g. Zebra ZXP7" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Printer Name</label>
+                  <input pInputText type="text" formControlName="printerName" placeholder="OS printer name" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">IP Address</label>
+                  <input pInputText type="text" formControlName="ipAddress" placeholder="192.168.1.100" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Port</label>
+                  <p-inputnumber formControlName="port" [min]="1" [max]="65535" [fluid]="true" [showButtons]="false" />
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-checkbox formControlName="printOverUsb" [binary]="true" inputId="printOverUsb" />
+                  <label for="printOverUsb" class="text-sm text-zinc-700">Print over USB</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-checkbox formControlName="useSpooler" [binary]="true" inputId="useSpooler" />
+                  <label for="useSpooler" class="text-sm text-zinc-700">Use OS print spooler</label>
+                </div>
+              </div>
+            }
+
+            <!-- ── Badge Printer ───────────────────────────────────────── -->
+            @if (agent.type === AgentType.BadgePrinter) {
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Printer Type <span class="text-red-400">*</span></label>
+                  <input pInputText type="text" formControlName="printerType" placeholder="e.g. HID Fargo HDP5000" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Printer Name</label>
+                  <input pInputText type="text" formControlName="printerName" placeholder="OS printer name" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Reader Name</label>
+                  <input pInputText type="text" formControlName="readerName" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Encoding Station</label>
+                  <input pInputText type="text" formControlName="encodingStation" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">COM Port</label>
+                  <input pInputText type="text" formControlName="comPort" placeholder="COM3" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Hopper</label>
+                  <p-inputnumber formControlName="hopper" [min]="1" [fluid]="true" [showButtons]="false" />
+                </div>
+                <div class="flex items-center gap-2 sm:col-span-2">
+                  <p-checkbox formControlName="verboseLogging" [binary]="true" inputId="verboseLoggingBp" />
+                  <label for="verboseLoggingBp" class="text-sm text-zinc-700">Verbose logging</label>
+                </div>
+              </div>
+            }
+
+            <!-- ── Encoder ─────────────────────────────────────────────── -->
+            @if (agent.type === AgentType.Encoder) {
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Encoder Type <span class="text-red-400">*</span></label>
+                  <input pInputText type="text" formControlName="encoderType" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">Encoder Name</label>
+                  <input pInputText type="text" formControlName="encoderName" [fluid]="true" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">COM Port</label>
+                  <input pInputText type="text" formControlName="comPort" placeholder="COM3" [fluid]="true" />
+                </div>
+                <div class="flex items-center gap-2 pt-6">
+                  <p-checkbox formControlName="verboseLogging" [binary]="true" inputId="verboseLoggingEnc" />
+                  <label for="verboseLoggingEnc" class="text-sm text-zinc-700">Verbose logging</label>
+                </div>
+              </div>
+            }
+
+            <div class="flex items-center justify-end">
+              <p-button
+                type="button"
+                icon="pi pi-check"
+                label="Save Configuration"
+                [loading]="configSaving()"
+                [disabled]="configSaving()"
+                loadingIcon="pi pi-spin pi-spinner"
+                (click)="saveConfig(agent)"
+              />
+            </div>
+
+          </div>
+        }
+
+      </div>
+    }
+
+  </div>
+</ng-template>

@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import type { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
@@ -22,11 +22,24 @@ import { toLocalIso, fromServerDate } from '../../../shared/utils/date-utils';
 import { VisitStateBadge } from '../../../shared/components/visit-state-badge/visit-state-badge';
 import { CheckinStatusBadge } from '../../../shared/components/checkin-status-badge/checkin-status-badge';
 import { VisitorTimeline } from '../../../shared/components/visitor-timeline/visitor-timeline';
+import { LocationPicker } from '../../../shared/components/location-picker/location-picker';
 
 @Component({
   selector: 'app-edit-visit',
   standalone: true,
-  imports: [ReactiveFormsModule, AutoCompleteModule, ButtonModule, DatePickerModule, InputTextModule, SelectButtonModule, VisitStateBadge, CheckinStatusBadge, VisitorTimeline],
+  imports: [
+    ReactiveFormsModule,
+    FormsModule,
+    AutoCompleteModule,
+    ButtonModule,
+    DatePickerModule,
+    InputTextModule,
+    SelectButtonModule,
+    VisitStateBadge,
+    CheckinStatusBadge,
+    VisitorTimeline,
+    LocationPicker,
+  ],
   templateUrl: './edit-visit.html',
 })
 export class EditVisit implements OnInit {
@@ -42,7 +55,18 @@ export class EditVisit implements OnInit {
   readonly saveError = signal<string | null>(null);
   readonly saveSuccess = signal(false);
 
-  readonly locationSuggestions = signal<LocationDto[]>([]);
+  // ── Cancel state ─────────────────────────────────────────────────────────
+  readonly cancelConfirming = signal(false);
+  readonly cancelling = signal(false);
+  readonly cancelError = signal<string | null>(null);
+
+  // ── Remove-person state ──────────────────────────────────────────────────
+  readonly removingId = signal<string | null>(null);
+  readonly removeConfirmingId = signal<string | null>(null);
+  readonly removeError = signal<string | null>(null);
+
+  // ── Location state (owned by LocationPicker, mirrored here for save) ─────
+  private selectedLocation = signal<LocationDto | null>(null);
 
   form!: FormGroup;
 
@@ -72,6 +96,16 @@ export class EditVisit implements OnInit {
     return ref ? new Date(ref) < new Date() : false;
   });
 
+  /** True when the visit can still be cancelled (not yet started, finished, or already cancelled). */
+  readonly isCancellable = computed(() => {
+    const v = this.visit();
+    if (!v) return false;
+    return v.state !== 'STARTED' && v.state !== 'FINISHED' && v.state !== 'CANCELED';
+  });
+
+  /** True when person rows should show the remove button. */
+  readonly canRemovePeople = computed(() => !this.isPast() && this.isCancellable());
+
   readonly organizers = computed<OrganizerDto[]>(() =>
     this.visit()?.organizers ?? []
   );
@@ -99,7 +133,15 @@ export class EditVisit implements OnInit {
       summary: ['', Validators.required],
       start: [null as Date | null, Validators.required],
       end: [null as Date | null, Validators.required],
-      location: [null],
+    });
+
+    // When start changes, push end to start + 1h if end would be before start
+    this.form.get('start')!.valueChanges.subscribe((start: Date | null) => {
+      if (!start) return;
+      const end: Date | null = this.form.get('end')!.value;
+      if (!end || end <= start) {
+        this.form.get('end')!.setValue(new Date(start.getTime() + 60 * 60 * 1000));
+      }
     });
 
     this.addPersonForm = this.fb.group({
@@ -129,10 +171,16 @@ export class EditVisit implements OnInit {
     }
   }
 
+  // ── Location ─────────────────────────────────────────────────────────────
+
+  onLocationChange(location: LocationDto | null): void {
+    this.selectedLocation.set(location);
+  }
+
   // ── Actions ──────────────────────────────────────────────────────────────
 
   async save(): Promise<void> {
-    if (this.isPast() || this.form.invalid) {
+    if (this.isPast() || !this.isCancellable() || this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -144,16 +192,15 @@ export class EditVisit implements OnInit {
     this.saveError.set(null);
     this.saveSuccess.set(false);
 
-    const { summary, start, end, location } = this.form.value as {
+    const { summary, start, end } = this.form.value as {
       summary: string;
       start: Date;
       end: Date;
-      location: LocationDto | null;
     };
 
     const startIso = toLocalIso(start);
     const endIso = toLocalIso(end);
-    const locationId = location?.id ?? null;
+    const locationId = this.selectedLocation()?.id ?? null;
 
     try {
       const timesChanged = startIso !== v.start || endIso !== v.end;
@@ -187,24 +234,6 @@ export class EditVisit implements OnInit {
       this.saveError.set('Failed to save changes. Please try again.');
     } finally {
       this.saving.set(false);
-    }
-  }
-
-  async searchLocations(event: AutoCompleteCompleteEvent): Promise<void> {
-    const query = event.query.trim();
-    if (!query) {
-      this.locationSuggestions.set([]);
-      return;
-    }
-
-    try {
-      const result = await this.visitorService.getAllLocations({
-        Filter: buildFilter({ op: 'and', filters: [{ key: 'Name', op: 'contains', value: query }] }),
-        PageSize: 20,
-      });
-      this.locationSuggestions.set(result.items);
-    } catch {
-      this.locationSuggestions.set([]);
     }
   }
 
@@ -322,12 +351,69 @@ export class EditVisit implements OnInit {
     }
   }
 
-  locationMeta(loc: LocationDto): string {
-    const parts: string[] = [loc.type];
-    if (loc.floorLabel) parts.push(loc.floorLabel);
-    else if (loc.floorNumber != null) parts.push(`Floor ${loc.floorNumber}`);
-    if (loc.capacity != null) parts.push(`Cap. ${loc.capacity}`);
-    return parts.join(' · ');
+  // ── Cancel actions ───────────────────────────────────────────────────────
+
+  confirmCancel(): void {
+    this.cancelError.set(null);
+    this.cancelConfirming.set(true);
+  }
+
+  abortCancel(): void {
+    this.cancelConfirming.set(false);
+    this.cancelError.set(null);
+  }
+
+  async executeCancel(): Promise<void> {
+    const v = this.visit();
+    if (!v) return;
+
+    this.cancelling.set(true);
+    this.cancelError.set(null);
+
+    try {
+      const updated = await this.visitorService.cancelVisit(v.id, { reasonToCancel: '' });
+      this.visit.set(updated);
+      this.form.disable();
+      this.cancelConfirming.set(false);
+    } catch {
+      this.cancelError.set('Failed to cancel visit. Please try again.');
+    } finally {
+      this.cancelling.set(false);
+    }
+  }
+
+  // ── Remove-person actions ────────────────────────────────────────────────
+
+  confirmRemove(id: string): void {
+    this.removeError.set(null);
+    this.removeConfirmingId.set(id);
+  }
+
+  abortRemove(): void {
+    this.removeConfirmingId.set(null);
+    this.removeError.set(null);
+  }
+
+  async executeRemove(inv: VisitorInvitationDto): Promise<void> {
+    const v = this.visit();
+    if (!v) return;
+
+    const id = inv.visitor.id;
+    this.removingId.set(id);
+    this.removeError.set(null);
+
+    try {
+      const updated = await this.visitorService.addRemoveVisitors(v.id, {
+        visitorsToAdd: [],
+        visitorsToRemoveEmails: [inv.visitor.email],
+      });
+      this.visit.set(updated);
+      this.removeConfirmingId.set(null);
+    } catch {
+      this.removeError.set('Failed to remove person. Please try again.');
+    } finally {
+      this.removingId.set(null);
+    }
   }
 
   isInvalid(field: string): boolean {
@@ -346,13 +432,11 @@ export class EditVisit implements OnInit {
       summary: v.summary ?? '',
       start: v.start ? fromServerDate(v.start) : null,
       end: v.end ? fromServerDate(v.end) : null,
-      location: v.location ?? null,
     });
 
-    // Lock the form for past visits
-    if (this.isPast()) {
+    // Lock the form for past or cancelled visits
+    if (this.isPast() || !this.isCancellable()) {
       this.form.disable();
     }
   }
 }
-

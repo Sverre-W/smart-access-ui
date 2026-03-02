@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -11,14 +11,14 @@ import {
   VisitorService,
   LocationDto,
   OrganizerDto,
-  buildFilter,
 } from '../services/visitor-service';
 import { toLocalIso } from '../../../shared/utils/date-utils';
+import { LocationPicker } from '../../../shared/components/location-picker/location-picker';
 
 @Component({
   selector: 'app-create-visit',
   standalone: true,
-  imports: [ReactiveFormsModule, AutoCompleteModule, ButtonModule, DatePickerModule, InputTextModule],
+  imports: [ReactiveFormsModule, FormsModule, AutoCompleteModule, ButtonModule, DatePickerModule, InputTextModule, LocationPicker],
   templateUrl: './create-visit.html',
 })
 export class CreateVisit implements OnInit {
@@ -30,8 +30,9 @@ export class CreateVisit implements OnInit {
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
 
-  readonly locationSuggestions = signal<LocationDto[]>([]);
   readonly organizerSuggestions = signal<OrganizerDto[]>([]);
+
+  private selectedLocation = signal<LocationDto | null>(null);
 
   readonly today = new Date();
 
@@ -46,7 +47,15 @@ export class CreateVisit implements OnInit {
       organizer: [null, Validators.required],
       start: [now, Validators.required],
       end: [oneHourLater, Validators.required],
-      location: [null],
+    });
+
+    // When start changes, push end to start + 1h if end would be before start
+    this.form.get('start')!.valueChanges.subscribe((start: Date | null) => {
+      if (!start) return;
+      const end: Date | null = this.form.get('end')!.value;
+      if (!end || end <= start) {
+        this.form.get('end')!.setValue(new Date(start.getTime() + 60 * 60 * 1000));
+      }
     });
 
     // Pre-search with the logged-in user's email so their name appears immediately
@@ -60,22 +69,8 @@ export class CreateVisit implements OnInit {
     await this.loadOrganizers(event.query.trim());
   }
 
-  async searchLocations(event: AutoCompleteCompleteEvent): Promise<void> {
-    const query = event.query.trim();
-    if (!query) {
-      this.locationSuggestions.set([]);
-      return;
-    }
-
-    try {
-      const result = await this.visitorService.getAllLocations({
-        Filter: buildFilter({ op: 'and', filters: [{ key: 'Name', op: 'contains', value: query }] }),
-        PageSize: 20,
-      });
-      this.locationSuggestions.set(result.items);
-    } catch {
-      this.locationSuggestions.set([]);
-    }
+  onLocationChange(location: LocationDto | null): void {
+    this.selectedLocation.set(location);
   }
 
   async submit(): Promise<void> {
@@ -87,13 +82,14 @@ export class CreateVisit implements OnInit {
     this.saving.set(true);
     this.error.set(null);
 
-    const { summary, organizer, start, end, location } = this.form.value as {
+    const { summary, organizer, start, end } = this.form.value as {
       summary: string;
       organizer: OrganizerDto;
       start: Date;
       end: Date;
-      location: LocationDto | null;
     };
+
+    const locationId = this.selectedLocation()?.id ?? null;
 
     try {
       const visit = await this.visitorService.scheduleVisit({
@@ -115,7 +111,7 @@ export class CreateVisit implements OnInit {
         summary,
         start: toLocalIso(start),
         end: toLocalIso(end),
-        locationId: location?.id ?? null,
+        locationId: locationId,
         invitationId: null,
         invitationModified: null,
         attributes: null,
@@ -137,14 +133,6 @@ export class CreateVisit implements OnInit {
   organizerLabel(o: OrganizerDto): string {
     const name = [o.firstName, o.lastName].filter(Boolean).join(' ');
     return name || o.email;
-  }
-
-  locationMeta(loc: LocationDto): string {
-    const parts: string[] = [loc.type];
-    if (loc.floorLabel) parts.push(loc.floorLabel);
-    else if (loc.floorNumber != null) parts.push(`Floor ${loc.floorNumber}`);
-    if (loc.capacity != null) parts.push(`Cap. ${loc.capacity}`);
-    return parts.join(' · ');
   }
 
   isInvalid(field: string): boolean {

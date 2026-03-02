@@ -105,7 +105,7 @@
               <a
                 [routerLink]="item.route"
                 routerLinkActive="bg-[#238cff]/10 text-[#238cff] font-semibold"
-                [routerLinkActiveOptions]="{ exact: item.route === '/visitors' }"
+            [routerLinkActiveOptions]="{ exact: item.route === activeApp()?.rootRoute }"
                 class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-zinc-700 rounded-xl hover:bg-zinc-200/60 transition"
                 (click)="mobileMenuOpen = false"
               >
@@ -161,7 +161,7 @@
           <a
             [routerLink]="item.route"
             routerLinkActive="bg-[#238cff]/10 text-[#238cff] font-semibold"
-            [routerLinkActiveOptions]="{ exact: item.route === '/visitors' }"
+            [routerLinkActiveOptions]="{ exact: item.route === activeApp()?.rootRoute }"
             class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition"
           >
             <i [class]="item.icon + ' text-base w-4 text-center'"></i>

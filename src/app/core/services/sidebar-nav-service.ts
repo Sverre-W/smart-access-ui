@@ -15,7 +15,12 @@ const APP_NAV: Record<string, NavItem[]> = {
     { label: 'Settings',  icon: 'pi pi-cog',         route: '/visitors/settings' },
   ],
   contractors: [],
-  security: [],
+  facility: [
+    { label: 'Dashboard',       icon: 'pi pi-home',        route: '/facility'                  },
+    { label: 'Agents',          icon: 'pi pi-users',       route: '/facility/agents'           },
+    { label: 'Access Policies', icon: 'pi pi-lock',        route: '/facility/access-policies'  },
+    { label: 'Locations',       icon: 'pi pi-map-marker',  route: '/facility/locations'        },
+  ],
   'reception-desk': [],
 };
 

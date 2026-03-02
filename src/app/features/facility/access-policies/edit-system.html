@@ -1,0 +1,468 @@
+<div class="px-4 py-6 sm:p-8 max-w-3xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-6 flex items-center gap-3">
+    <p-button
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      [text]="true"
+      [rounded]="true"
+      (click)="goBack()"
+    />
+    <div class="flex-1 min-w-0">
+      @if (loading()) {
+        <div class="h-7 w-52 rounded bg-zinc-100 animate-pulse mb-1"></div>
+        <div class="h-4 w-32 rounded bg-zinc-100 animate-pulse"></div>
+      } @else if (system()) {
+        <h1 class="text-2xl font-semibold text-zinc-800 truncate">{{ system()!.name }}</h1>
+        <p class="text-sm text-zinc-400 mt-0.5">Access control system</p>
+      } @else {
+        <h1 class="text-2xl font-semibold text-zinc-800">Edit System</h1>
+      }
+    </div>
+  </div>
+
+  <!-- Hard load error -->
+  @if (error()) {
+    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (!loading() && system()) {
+
+    <!-- Metadata warning banner -->
+    @if (metadataError()) {
+      <div class="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 flex items-start gap-2">
+        <i class="pi pi-exclamation-triangle shrink-0 mt-0.5"></i>
+        <span>{{ metadataError() }}</span>
+      </div>
+    }
+
+    <!-- ── UniPass Configuration ──────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-6">
+
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">Configuration</h2>
+        <p class="text-xs text-zinc-400 mt-0.5">Badge types and access assignments for this UniPass system.</p>
+      </div>
+
+      <div class="px-4 sm:px-6 py-5" [formGroup]="configForm">
+
+        <!-- Save feedback -->
+        @if (configSaveError()) {
+          <div class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ configSaveError() }}</span>
+          </div>
+        }
+        @if (configSaveSuccess()) {
+          <div class="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600 flex items-center gap-2">
+            <i class="pi pi-check-circle shrink-0"></i>
+            <span>Configuration saved.</span>
+          </div>
+        }
+
+        <!-- ── Badge Types ──────────────────────────────────────────────────── -->
+        <div class="mb-7">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">Badge Types</p>
+            <p-button
+              icon="pi pi-plus"
+              label="Add"
+              size="small"
+              severity="secondary"
+              (click)="addBadgeType()"
+            />
+          </div>
+
+          @if (badgeTypesForm.controls.length === 0) {
+            <p class="text-sm text-zinc-400 italic py-2">No badge types configured.</p>
+          } @else {
+            <div class="space-y-3">
+              @for (group of badgeTypesForm.controls; track $index) {
+                <div [formGroup]="asGroup(group)" class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-3 items-end p-4 rounded-lg bg-zinc-50 border border-zinc-200">
+
+                  <!-- Name -->
+                  <div class="flex flex-col gap-1.5">
+                    @if ($index === 0) {
+                      <label class="text-xs font-medium text-zinc-500">Name <span class="text-red-400">*</span></label>
+                    }
+                    <input
+                      pInputText
+                      type="text"
+                      formControlName="name"
+                      placeholder="e.g. Visitor Badge"
+                      [fluid]="true"
+                      [invalid]="asGroup(group).get('name')!.invalid && asGroup(group).get('name')!.touched"
+                    />
+                    @if (asGroup(group).get('name')!.invalid && asGroup(group).get('name')!.touched) {
+                      <p class="text-xs text-red-500">Required.</p>
+                    }
+                  </div>
+
+                  <!-- Start of range -->
+                  <div class="flex flex-col gap-1.5">
+                    @if ($index === 0) {
+                      <label class="text-xs font-medium text-zinc-500">Start of Range <span class="text-red-400">*</span></label>
+                    }
+                    <p-inputnumber
+                      formControlName="startOfRange"
+                      placeholder="1000"
+                      [fluid]="true"
+                      [min]="0"
+                      [invalid]="asGroup(group).get('startOfRange')!.invalid && asGroup(group).get('startOfRange')!.touched"
+                    />
+                    @if (asGroup(group).get('startOfRange')!.invalid && asGroup(group).get('startOfRange')!.touched) {
+                      <p class="text-xs text-red-500">Required.</p>
+                    }
+                  </div>
+
+                  <!-- End of range -->
+                  <div class="flex flex-col gap-1.5">
+                    @if ($index === 0) {
+                      <label class="text-xs font-medium text-zinc-500">End of Range <span class="text-red-400">*</span></label>
+                    }
+                    <p-inputnumber
+                      formControlName="endOfRange"
+                      placeholder="1999"
+                      [fluid]="true"
+                      [min]="0"
+                      [invalid]="asGroup(group).get('endOfRange')!.invalid && asGroup(group).get('endOfRange')!.touched"
+                    />
+                    @if (asGroup(group).get('endOfRange')!.invalid && asGroup(group).get('endOfRange')!.touched) {
+                      <p class="text-xs text-red-500">Required.</p>
+                    }
+                  </div>
+
+                  <!-- Remove -->
+                  <div [class]="$index === 0 ? 'pb-0' : ''">
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [text]="true"
+                      [rounded]="true"
+                      size="small"
+                      (click)="removeBadgeType($index)"
+                    />
+                  </div>
+
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- ── Access Assignments ───────────────────────────────────────────── -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">Access Assignments</p>
+              @if (metadataError()) {
+                <p class="text-xs text-amber-600 mt-0.5">Dropdowns unavailable — metadata could not be loaded.</p>
+              }
+            </div>
+            <p-button
+              icon="pi pi-plus"
+              label="Add"
+              size="small"
+              severity="secondary"
+              [disabled]="!!metadataError()"
+              [title]="metadataError() ? 'Metadata unavailable — cannot add access assignments' : ''"
+              (click)="addAccessAssignment()"
+            />
+          </div>
+
+          @if (accessAssignmentsForm.controls.length === 0) {
+            <p class="text-sm text-zinc-400 italic py-2">No access assignments configured.</p>
+          } @else {
+            <div class="space-y-3">
+              @for (group of accessAssignmentsForm.controls; track $index) {
+                <div [formGroup]="asGroup(group)" class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-3 items-end p-4 rounded-lg bg-zinc-50 border border-zinc-200">
+
+                  <!-- Name -->
+                  <div class="flex flex-col gap-1.5">
+                    @if ($index === 0) {
+                      <label class="text-xs font-medium text-zinc-500">Name <span class="text-red-400">*</span></label>
+                    }
+                    <input
+                      pInputText
+                      type="text"
+                      formControlName="name"
+                      placeholder="e.g. Main Entrance"
+                      [fluid]="true"
+                      [invalid]="asGroup(group).get('name')!.invalid && asGroup(group).get('name')!.touched"
+                    />
+                    @if (asGroup(group).get('name')!.invalid && asGroup(group).get('name')!.touched) {
+                      <p class="text-xs text-red-500">Required.</p>
+                    }
+                  </div>
+
+                  <!-- Access rule -->
+                  <div class="flex flex-col gap-1.5">
+                    @if ($index === 0) {
+                      <label class="text-xs font-medium text-zinc-500">Access Rule <span class="text-red-400">*</span></label>
+                    }
+                    @if (metadataError()) {
+                      <input
+                        pInputText
+                        type="text"
+                        [value]="asGroup(group).get('canonicalAccessRule')?.value?.name ?? ''"
+                        placeholder="—"
+                        [fluid]="true"
+                        [disabled]="true"
+                      />
+                    } @else {
+                      <p-select
+                        formControlName="canonicalAccessRule"
+                        [options]="accessRuleOptions()"
+                        optionLabel="name"
+                        dataKey="id"
+                        placeholder="Select rule"
+                        [fluid]="true"
+                        [invalid]="asGroup(group).get('canonicalAccessRule')!.invalid && asGroup(group).get('canonicalAccessRule')!.touched"
+                      />
+                    }
+                    @if (asGroup(group).get('canonicalAccessRule')!.invalid && asGroup(group).get('canonicalAccessRule')!.touched) {
+                      <p class="text-xs text-red-500">Required.</p>
+                    }
+                  </div>
+
+                  <!-- Site -->
+                  <div class="flex flex-col gap-1.5">
+                    @if ($index === 0) {
+                      <label class="text-xs font-medium text-zinc-500">Site <span class="text-red-400">*</span></label>
+                    }
+                    @if (metadataError()) {
+                      <input
+                        pInputText
+                        type="text"
+                        [value]="asGroup(group).get('canonicalSite')?.value?.name ?? ''"
+                        placeholder="—"
+                        [fluid]="true"
+                        [disabled]="true"
+                      />
+                    } @else {
+                      <p-select
+                        formControlName="canonicalSite"
+                        [options]="siteOptions()"
+                        optionLabel="name"
+                        dataKey="id"
+                        placeholder="Select site"
+                        [fluid]="true"
+                        [invalid]="asGroup(group).get('canonicalSite')!.invalid && asGroup(group).get('canonicalSite')!.touched"
+                      />
+                    }
+                    @if (asGroup(group).get('canonicalSite')!.invalid && asGroup(group).get('canonicalSite')!.touched) {
+                      <p class="text-xs text-red-500">Required.</p>
+                    }
+                  </div>
+
+                  <!-- Remove -->
+                  <div>
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [text]="true"
+                      [rounded]="true"
+                      size="small"
+                      (click)="removeAccessAssignment($index)"
+                    />
+                  </div>
+
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Save button -->
+        <div class="flex justify-end border-t border-zinc-100 pt-4">
+          <p-button
+            icon="pi pi-check"
+            label="Save Configuration"
+            [loading]="configSaving()"
+            [disabled]="configSaving()"
+            loadingIcon="pi pi-spin pi-spinner"
+            (click)="saveConfig()"
+          />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Identity Mappings ──────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">
+          Identity Mappings
+          <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ mappings().length }})</span>
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">Subjects linked to their external ID in this access control system.</p>
+      </div>
+
+      <!-- Remove error banner -->
+      @if (removeError()) {
+        <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+          <i class="pi pi-exclamation-circle shrink-0"></i>{{ removeError() }}
+        </div>
+      }
+
+      <!-- Desktop table -->
+      <div class="hidden sm:block">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-zinc-100 bg-zinc-50/60">
+              <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Subject</th>
+              <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">External ID</th>
+              <th class="px-4 py-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+
+            @if (mappings().length === 0) {
+              <tr>
+                <td colspan="3" class="px-6 py-14 text-center">
+                  <i class="pi pi-link text-3xl text-zinc-300 mb-3 block"></i>
+                  <p class="text-sm font-medium text-zinc-500">No identity mappings</p>
+                  <p class="text-xs text-zinc-400 mt-1">Mappings are created automatically when access is provisioned.</p>
+                </td>
+              </tr>
+            } @else {
+              @for (mapping of mappings(); track mapping.id) {
+
+                <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-7 h-7 rounded-full bg-zinc-100 flex items-center justify-center shrink-0">
+                        <i class="pi pi-user text-xs text-zinc-500"></i>
+                      </div>
+                      <div>
+                        <p class="font-medium text-zinc-800">{{ displayName(mapping) }}</p>
+                        <p class="text-xs text-zinc-400 font-mono">{{ mapping.id }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-zinc-500 font-mono text-xs">{{ mapping.externalId }}</td>
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-1 justify-end">
+                      <p-button
+                        icon="pi pi-trash"
+                        severity="danger"
+                        [text]="true"
+                        [rounded]="true"
+                        size="small"
+                        title="Remove mapping"
+                        (click)="confirmRemoveMapping(mapping.id)"
+                      />
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Confirm row -->
+                @if (removeConfirmingId() === mapping.id) {
+                  <tr class="border-b border-zinc-100 bg-red-50">
+                    <td colspan="3" class="px-6 py-3">
+                      <div class="flex items-center justify-between gap-4">
+                        <p class="text-sm text-red-700 font-medium">
+                          <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                          Remove mapping for <strong>{{ displayName(mapping) }}</strong>? This will de-provision their access.
+                        </p>
+                        <div class="flex items-center gap-2 shrink-0">
+                          <p-button
+                            type="button"
+                            label="Keep"
+                            severity="secondary"
+                            size="small"
+                            (click)="abortRemoveMapping()"
+                          />
+                          <p-button
+                            type="button"
+                            label="Yes, remove"
+                            severity="danger"
+                            size="small"
+                            [loading]="removeInProgressId() === mapping.id"
+                            [disabled]="removeInProgressId() === mapping.id"
+                            loadingIcon="pi pi-spin pi-spinner"
+                            (click)="executeRemoveMapping(mapping)"
+                          />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                }
+
+              }
+            }
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile list -->
+      <div class="sm:hidden divide-y divide-zinc-100">
+
+        @if (mappings().length === 0) {
+          <div class="px-4 py-10 text-center">
+            <i class="pi pi-link text-3xl text-zinc-300 mb-3 block"></i>
+            <p class="text-sm font-medium text-zinc-500">No identity mappings</p>
+          </div>
+        } @else {
+          @for (mapping of mappings(); track mapping.id) {
+
+            <div class="px-4 py-4">
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center shrink-0">
+                    <i class="pi pi-user text-xs text-zinc-500"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-medium text-zinc-800 truncate">{{ displayName(mapping) }}</p>
+                    <p class="text-xs text-zinc-400 font-mono truncate">{{ mapping.externalId }}</p>
+                  </div>
+                </div>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  (click)="confirmRemoveMapping(mapping.id)"
+                />
+              </div>
+            </div>
+
+            @if (removeConfirmingId() === mapping.id) {
+              <div class="bg-red-50 px-4 py-3 border-t border-red-100">
+                <p class="text-sm text-red-700 font-medium mb-2">
+                  <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                  Remove mapping for <strong>{{ displayName(mapping) }}</strong>?
+                </p>
+                <div class="flex items-center gap-2">
+                  <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortRemoveMapping()" />
+                  <p-button
+                    type="button"
+                    label="Yes, remove"
+                    severity="danger"
+                    size="small"
+                    [loading]="removeInProgressId() === mapping.id"
+                    [disabled]="removeInProgressId() === mapping.id"
+                    loadingIcon="pi pi-spin pi-spinner"
+                    (click)="executeRemoveMapping(mapping)"
+                  />
+                </div>
+              </div>
+            }
+
+          }
+        }
+
+      </div>
+
+    </div>
+
+  }
+
+</div>

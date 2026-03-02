@@ -13,7 +13,7 @@ export interface AppDefinition {
 export const APPS: AppDefinition[] = [
   { id: 'univisit',       label: 'Univisit',       initial: 'U', icon: 'pi pi-home',   rootRoute: '/visitors'    },
   { id: 'contractors',    label: 'Contractors',    initial: 'C', icon: 'pi pi-wrench', rootRoute: '/contractors' },
-  { id: 'security',       label: 'Security',       initial: 'S', icon: 'pi pi-shield', rootRoute: '/security'    },
+  { id: 'facility',       label: 'Facility',       initial: 'F', icon: 'pi pi-shield', rootRoute: '/facility'    },
   { id: 'reception-desk', label: 'Reception Desk', initial: 'R', icon: 'pi pi-inbox',  rootRoute: '/reception'   },
 ];
 
@@ -37,6 +37,15 @@ export class AppSwitcherService {
           this._activeApp.set(matched ?? null);
         }
       });
+
+    // Seed the active app from the current URL immediately. The service is
+    // lazily instantiated, so the initial NavigationEnd may have already fired
+    // before this constructor runs (e.g. on a full-page reload to a deep link).
+    const initialUrl = this.router.url;
+    if (initialUrl && initialUrl !== '/') {
+      const matched = APPS.find(a => initialUrl.startsWith(a.rootRoute));
+      this._activeApp.set(matched ?? null);
+    }
   }
 
   switchApp(id: string): void {

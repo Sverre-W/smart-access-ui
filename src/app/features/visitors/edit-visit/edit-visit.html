@@ -1,4 +1,4 @@
-<div class="p-8 max-w-2xl mx-auto">
+<div class="px-4 py-6 sm:p-8 max-w-2xl mx-auto">
 
   <!-- Header -->
   <div class="mb-6 flex items-center gap-3">
@@ -40,6 +40,14 @@
       <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 flex items-center gap-2">
         <i class="pi pi-lock"></i>
         This visit has ended and is read-only.
+      </div>
+    }
+
+    <!-- Cancelled-visit banner -->
+    @if (visit()!.state === 'CANCELED') {
+      <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center gap-2">
+        <i class="pi pi-ban"></i>
+        This visit has been cancelled.
       </div>
     }
 
@@ -88,7 +96,7 @@
           </div>
 
           <!-- Start / End row -->
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             <div class="flex flex-col gap-1.5">
               <label class="text-sm font-medium text-zinc-700" for="start">
@@ -132,34 +140,12 @@
 
           </div>
 
-          <!-- Location autocomplete -->
-          <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-zinc-700">Location</label>
-            <p-autocomplete
-              formControlName="location"
-              [suggestions]="locationSuggestions()"
-              optionLabel="name"
-              placeholder="Search by location name…"
-              [dropdown]="false"
-              [forceSelection]="true"
-              [minQueryLength]="1"
-              [fluid]="true"
-              [showClear]="true"
-              (completeMethod)="searchLocations($event)"
-            >
-              <ng-template #item let-loc>
-                <div class="flex flex-col gap-0.5 py-0.5">
-                  <span class="text-sm font-medium text-zinc-800">{{ loc.name }}</span>
-                  <span class="text-xs text-zinc-400">{{ locationMeta(loc) }}</span>
-                  @if (loc.parent) {
-                    <span class="text-xs text-zinc-300">
-                      <i class="pi pi-map-marker mr-0.5"></i>{{ loc.parent.name }}
-                    </span>
-                  }
-                </div>
-              </ng-template>
-            </p-autocomplete>
-          </div>
+          <!-- Location picker -->
+          <app-location-picker
+            [initialLocation]="visit()!.location"
+            [disabled]="form.disabled"
+            (locationChange)="onLocationChange($event)"
+          />
 
         </div>
 
@@ -169,23 +155,78 @@
             <i class="pi pi-lock text-xs"></i>
             This visit is read-only.
           </div>
-        } @else {
-          <div class="px-6 py-4 border-t border-zinc-100 flex items-center justify-end gap-3">
-            <p-button
-              type="button"
-              (click)="goBack()"
-              label="Back"
-              severity="secondary"
-            />
-            <p-button
-              type="submit"
-              [disabled]="saving()"
-              [loading]="saving()"
-              icon="pi pi-check"
-              label="Save Changes"
-              loadingIcon="pi pi-spin pi-spinner"
-            />
+        } @else if (visit()!.state === 'CANCELED') {
+          <div class="px-6 py-4 border-t border-zinc-100 flex items-center gap-2 text-sm text-zinc-400 italic">
+            <i class="pi pi-ban text-xs"></i>
+            This visit has been cancelled and is read-only.
           </div>
+        } @else {
+          <!-- Cancel confirmation row -->
+          @if (cancelConfirming()) {
+            <div class="px-6 py-4 border-t border-zinc-100 bg-red-50 flex flex-col gap-2">
+              @if (cancelError()) {
+                <p class="text-xs text-red-600 flex items-center gap-1">
+                  <i class="pi pi-exclamation-circle"></i>{{ cancelError() }}
+                </p>
+              }
+              <div class="flex items-center justify-between">
+                <p class="text-sm text-red-700 font-medium">
+                  <i class="pi pi-exclamation-triangle mr-1"></i>
+                  Cancel this visit? This cannot be undone.
+                </p>
+                <div class="flex items-center gap-2">
+                  <p-button
+                    type="button"
+                    (click)="abortCancel()"
+                    label="Keep visit"
+                    severity="secondary"
+                    size="small"
+                  />
+                  <p-button
+                    type="button"
+                    (click)="executeCancel()"
+                    [disabled]="cancelling()"
+                    [loading]="cancelling()"
+                    label="Yes, cancel visit"
+                    severity="danger"
+                    size="small"
+                    loadingIcon="pi pi-spin pi-spinner"
+                  />
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="px-6 py-4 border-t border-zinc-100 flex items-center justify-between gap-3">
+              @if (isCancellable()) {
+                <p-button
+                  type="button"
+                  (click)="confirmCancel()"
+                  icon="pi pi-ban"
+                  label="Cancel Visit"
+                  severity="danger"
+                  [text]="true"
+                />
+              } @else {
+                <span></span>
+              }
+              <div class="flex items-center gap-3">
+                <p-button
+                  type="button"
+                  (click)="goBack()"
+                  label="Back"
+                  severity="secondary"
+                />
+                <p-button
+                  type="submit"
+                  [disabled]="saving()"
+                  [loading]="saving()"
+                  icon="pi pi-check"
+                  label="Save Changes"
+                  loadingIcon="pi pi-spin pi-spinner"
+                />
+              </div>
+            </div>
+          }
         }
 
       </div>
@@ -199,7 +240,7 @@
         <h2 class="text-sm font-semibold text-zinc-700">People</h2>
         <div class="flex items-center gap-3">
           <span class="text-xs text-zinc-400">{{ organizers().length + totalInvitations() }} total</span>
-          @if (!isPast() && !addPersonOpen()) {
+          @if (!isPast() && isCancellable() && !addPersonOpen()) {
             <p-button
               type="button"
               (click)="openAddPerson()"
@@ -357,6 +398,13 @@
         </div>
       }
 
+      <!-- Remove error feedback -->
+      @if (removeError()) {
+        <div class="mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+          <i class="pi pi-exclamation-circle"></i>{{ removeError() }}
+        </div>
+      }
+
       <!-- Empty state -->
       @if (organizers().length === 0 && totalInvitations() === 0) {
         <div class="px-6 py-8 text-center">
@@ -392,30 +440,59 @@
                   <i class="pi pi-phone"></i>{{ o.phone }}
                 </span>
               }
-              <span class="rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-600 shrink-0">
-                Organizer
-              </span>
             </li>
           }
 
           <!-- Invited organizers (VisitorInvitationDto with role Organizer) -->
           @for (inv of invitedOrganizers(); track inv.visitor.id) {
-            <li class="px-6 py-3 flex items-center gap-3">
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-zinc-800 truncate">
-                  {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
-                </p>
-                <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
-                @if (inv.visitor.company) {
-                  <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
-                }
-              </div>
-              @if (inv.visitor.licensePlate) {
-                <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
-                  <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
-                </span>
+            <li class="px-6 py-3 flex flex-col gap-1">
+              @if (removeConfirmingId() === inv.visitor.id) {
+                <div class="flex items-center justify-between gap-2 rounded-lg bg-red-50 px-3 py-2">
+                  <p class="text-xs text-red-700 font-medium">Remove {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}?</p>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <p-button type="button" (click)="abortRemove()" label="Keep" severity="secondary" size="small" />
+                    <p-button
+                      type="button"
+                      (click)="executeRemove(inv)"
+                      [disabled]="removingId() === inv.visitor.id"
+                      [loading]="removingId() === inv.visitor.id"
+                      label="Remove"
+                      severity="danger"
+                      size="small"
+                      loadingIcon="pi pi-spin pi-spinner"
+                    />
+                  </div>
+                </div>
+              } @else {
+                <div class="flex items-center gap-3">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-zinc-800 truncate">
+                      {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
+                    </p>
+                    <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
+                    @if (inv.visitor.company) {
+                      <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+                    }
+                  </div>
+                  @if (inv.visitor.licensePlate) {
+                    <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
+                      <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
+                    </span>
+                  }
+                  @if (canRemovePeople()) {
+                    <p-button
+                      type="button"
+                      (click)="confirmRemove(inv.visitor.id)"
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [text]="true"
+                      [rounded]="true"
+                      size="small"
+                      title="Remove person"
+                    />
+                  }
+                </div>
               }
-              <app-checkin-status-badge [status]="inv.checkInStatus" />
             </li>
           }
 
@@ -434,31 +511,62 @@
         </div>
         <ul class="divide-y divide-zinc-100">
           @for (inv of invitedVisitors(); track inv.visitor.id) {
-            <li
-              class="px-6 py-4 flex flex-col gap-3 cursor-pointer hover:bg-zinc-50 transition-colors group"
-              (click)="navigateToOnboarding(inv)"
-              title="View onboarding details"
-            >
-              <!-- Top row: name + navigate hint -->
-              <div class="flex items-center gap-3">
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-zinc-800 truncate group-hover:text-[#238cff] transition-colors">
-                    {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
-                    <i class="pi pi-arrow-right text-[10px] ml-1 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                  </p>
-                  <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
-                  @if (inv.visitor.company) {
-                    <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+            <li class="px-6 py-4 flex flex-col gap-3">
+              @if (removeConfirmingId() === inv.visitor.id) {
+                <div class="flex items-center justify-between gap-2 rounded-lg bg-red-50 px-3 py-2">
+                  <p class="text-xs text-red-700 font-medium">Remove {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}?</p>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <p-button type="button" (click)="abortRemove()" label="Keep" severity="secondary" size="small" />
+                    <p-button
+                      type="button"
+                      (click)="executeRemove(inv)"
+                      [disabled]="removingId() === inv.visitor.id"
+                      [loading]="removingId() === inv.visitor.id"
+                      label="Remove"
+                      severity="danger"
+                      size="small"
+                      loadingIcon="pi pi-spin pi-spinner"
+                    />
+                  </div>
+                </div>
+              } @else {
+                <div
+                  class="flex items-center gap-3 cursor-pointer hover:bg-zinc-50 transition-colors group -mx-6 px-6 -my-1 py-1 rounded"
+                  (click)="navigateToOnboarding(inv)"
+                  title="View onboarding details"
+                >
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-zinc-800 truncate group-hover:text-[#238cff] transition-colors">
+                      {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
+                      <i class="pi pi-arrow-right text-[10px] ml-1 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </p>
+                    <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
+                    @if (inv.visitor.company) {
+                      <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+                    }
+                  </div>
+                  @if (inv.visitor.licensePlate) {
+                    <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
+                      <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
+                    </span>
+                  }
+                  <app-checkin-status-badge [status]="inv.checkInStatus" />
+                  @if (canRemovePeople()) {
+                    <p-button
+                      type="button"
+                      (click)="$event.stopPropagation(); confirmRemove(inv.visitor.id)"
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [text]="true"
+                      [rounded]="true"
+                      size="small"
+                      title="Remove person"
+                    />
                   }
                 </div>
-                @if (inv.visitor.licensePlate) {
-                  <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
-                    <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
-                  </span>
-                }
-              </div>
-              <!-- Timeline stepper -->
-              <app-visitor-timeline [invitation]="inv" />
+                <!-- Timeline stepper -->
+                <app-visitor-timeline [invitation]="inv" />
+              }
             </li>
           }
         </ul>
@@ -476,22 +584,54 @@
         </div>
         <ul class="divide-y divide-zinc-100">
           @for (inv of invitedParticipants(); track inv.visitor.id) {
-            <li class="px-6 py-3 flex items-center gap-3">
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-zinc-800 truncate">
-                  {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
-                </p>
-                <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
-                @if (inv.visitor.company) {
-                  <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
-                }
-              </div>
-              @if (inv.visitor.licensePlate) {
-                <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
-                  <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
-                </span>
+            <li class="px-6 py-3 flex flex-col gap-1">
+              @if (removeConfirmingId() === inv.visitor.id) {
+                <div class="flex items-center justify-between gap-2 rounded-lg bg-red-50 px-3 py-2">
+                  <p class="text-xs text-red-700 font-medium">Remove {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}?</p>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <p-button type="button" (click)="abortRemove()" label="Keep" severity="secondary" size="small" />
+                    <p-button
+                      type="button"
+                      (click)="executeRemove(inv)"
+                      [disabled]="removingId() === inv.visitor.id"
+                      [loading]="removingId() === inv.visitor.id"
+                      label="Remove"
+                      severity="danger"
+                      size="small"
+                      loadingIcon="pi pi-spin pi-spinner"
+                    />
+                  </div>
+                </div>
+              } @else {
+                <div class="flex items-center gap-3">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-zinc-800 truncate">
+                      {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}
+                    </p>
+                    <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.email }}</p>
+                    @if (inv.visitor.company) {
+                      <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+                    }
+                  </div>
+                  @if (inv.visitor.licensePlate) {
+                    <span class="hidden sm:flex items-center gap-1 text-xs text-zinc-400 shrink-0">
+                      <i class="pi pi-car"></i>{{ inv.visitor.licensePlate }}
+                    </span>
+                  }
+                  @if (canRemovePeople()) {
+                    <p-button
+                      type="button"
+                      (click)="confirmRemove(inv.visitor.id)"
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [text]="true"
+                      [rounded]="true"
+                      size="small"
+                      title="Remove person"
+                    />
+                  }
+                </div>
               }
-              <app-checkin-status-badge [status]="inv.checkInStatus" />
             </li>
           }
         </ul>

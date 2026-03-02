@@ -12,6 +12,12 @@ export const routes: Routes = [
         .then(m => m.visitorsRoutes)
   },
   {
+    path: 'facility',
+    loadChildren: () =>
+      import('./features/facility/facility.routes')
+        .then(m => m.facilityRoutes)
+  },
+  {
     path: '**',
     redirectTo: '',
   },

@@ -134,36 +134,8 @@
 
       </div>
 
-      <!-- Location autocomplete -->
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-zinc-700">Location</label>
-        <p-autocomplete
-          formControlName="location"
-          [suggestions]="locationSuggestions()"
-          optionLabel="name"
-          placeholder="Search by location name…"
-          [dropdown]="false"
-          [forceSelection]="true"
-          [minQueryLength]="1"
-          [fluid]="true"
-          [showClear]="true"
-          (completeMethod)="searchLocations($event)"
-        >
-          <!-- Dropdown item: name + metadata row -->
-          <ng-template #item let-loc>
-            <div class="flex flex-col gap-0.5 py-0.5">
-              <span class="text-sm font-medium text-zinc-800">{{ loc.name }}</span>
-              <span class="text-xs text-zinc-400">{{ locationMeta(loc) }}</span>
-              @if (loc.parent) {
-                <span class="text-xs text-zinc-300">
-                  <i class="pi pi-map-marker mr-0.5"></i>{{ loc.parent.name }}
-                </span>
-              }
-            </div>
-          </ng-template>
-        </p-autocomplete>
-        <p class="text-xs text-zinc-400">Optional — you can set or change this later.</p>
-      </div>
+      <!-- Location picker -->
+      <app-location-picker (locationChange)="onLocationChange($event)" />
 
     </div>
 
