@@ -3,8 +3,8 @@
   <!-- Header -->
   <div class="mb-6 flex items-start justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-semibold text-zinc-800">Agents</h1>
-      <p class="text-sm text-zinc-500 mt-1">On-premises Smart Access agents and their current status.</p>
+      <h1 class="text-2xl font-semibold text-zinc-800">{{ 'facility.agents.title' | translate }}</h1>
+      <p class="text-sm text-zinc-500 mt-1">{{ 'facility.agents.subtitle' | translate }}</p>
     </div>
 
     <!-- Refresh button + last-updated indicator + New Agent -->
@@ -24,7 +24,7 @@
       />
       <p-button
         icon="pi pi-plus"
-        label="New Agent"
+        [label]="'facility.agents.newAgent' | translate"
         (click)="openCreate()"
       />
     </div>
@@ -35,7 +35,7 @@
     <div class="mb-6 rounded-xl border border-zinc-200 bg-white shadow-xs">
 
       <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
-        <h2 class="text-sm font-semibold text-zinc-700">New Agent</h2>
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'facility.agents.newAgentPanel' | translate }}</h2>
         <p-button
           icon="pi pi-times"
           severity="secondary"
@@ -60,7 +60,7 @@
           <!-- Name -->
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-zinc-700">
-              Name <span class="text-red-400">*</span>
+              {{ 'facility.agents.nameLabel' | translate }} <span class="text-red-400">*</span>
             </label>
             <input
               pInputText
@@ -71,14 +71,14 @@
               [invalid]="createForm.get('name')!.invalid && createForm.get('name')!.touched"
             />
             @if (createForm.get('name')!.invalid && createForm.get('name')!.touched) {
-              <p class="text-xs text-red-500">Name is required.</p>
+              <p class="text-xs text-red-500">{{ 'facility.agents.nameRequired' | translate }}</p>
             }
           </div>
 
           <!-- Type -->
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-zinc-700">
-              Type <span class="text-red-400">*</span>
+              {{ 'facility.agents.typeLabel' | translate }} <span class="text-red-400">*</span>
             </label>
             <p-select
               formControlName="type"
@@ -95,14 +95,14 @@
         <div class="flex items-center justify-end gap-2">
           <p-button
             type="button"
-            label="Cancel"
+            [label]="'facility.agents.cancel' | translate"
             severity="secondary"
             (click)="closeCreate()"
           />
           <p-button
             type="button"
             icon="pi pi-check"
-            label="Create Agent"
+            [label]="'facility.agents.createAgent' | translate"
             [loading]="createSaving()"
             [disabled]="createSaving()"
             loadingIcon="pi pi-spin pi-spinner"
@@ -119,8 +119,7 @@
     <div class="mb-6 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
       <i class="pi pi-exclamation-triangle shrink-0"></i>
       <span>
-        Live refresh failed — showing data from <strong>{{ lastUpdatedLabel() }}</strong>.
-        Data may be out of date.
+        {{ 'facility.agents.liveRefreshFailed' | translate: { time: lastUpdatedLabel() } }}
       </span>
     </div>
   }
@@ -139,7 +138,7 @@
     <!-- Operational -->
     <div class="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-xs">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Operational</span>
+        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.agents.operational' | translate }}</span>
         <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
           <i class="pi pi-check-circle text-sm text-green-500"></i>
         </div>
@@ -154,7 +153,7 @@
               [class]="stale() ? 'text-zinc-400' : 'text-zinc-800'"
             >{{ operationalCount() }}</p>
           }
-          <p class="text-xs text-zinc-400 mt-1">Connected &amp; healthy</p>
+          <p class="text-xs text-zinc-400 mt-1">{{ 'facility.agents.operationalDesc' | translate }}</p>
         </div>
       </div>
     </div>
@@ -162,7 +161,7 @@
     <!-- Disconnected -->
     <div class="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-xs">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Disconnected</span>
+        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.agents.disconnected' | translate }}</span>
         <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
           <i class="pi pi-times-circle text-sm text-red-500"></i>
         </div>
@@ -177,7 +176,7 @@
               [class]="stale() ? 'text-zinc-400' : (disconnectedCount() > 0 ? 'text-red-600' : 'text-zinc-800')"
             >{{ disconnectedCount() }}</p>
           }
-          <p class="text-xs text-zinc-400 mt-1">Not connected to server</p>
+          <p class="text-xs text-zinc-400 mt-1">{{ 'facility.agents.disconnectedDesc' | translate }}</p>
         </div>
       </div>
     </div>
@@ -185,7 +184,7 @@
     <!-- Config Error -->
     <div class="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-xs">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Config Error</span>
+        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.agents.configError' | translate }}</span>
         <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
           <i class="pi pi-exclamation-triangle text-sm text-amber-500"></i>
         </div>
@@ -200,7 +199,7 @@
               [class]="stale() ? 'text-zinc-400' : (configErrorCount() > 0 ? 'text-amber-600' : 'text-zinc-800')"
             >{{ configErrorCount() }}</p>
           }
-          <p class="text-xs text-zinc-400 mt-1">Invalid configuration</p>
+          <p class="text-xs text-zinc-400 mt-1">{{ 'facility.agents.configErrorDesc' | translate }}</p>
         </div>
       </div>
     </div>
@@ -216,7 +215,7 @@
     <!-- Table header -->
     <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
       <h2 class="text-sm font-semibold text-zinc-700">
-        All Agents
+        {{ 'facility.agents.allAgents' | translate }}
         @if (!loading()) {
           <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ agents().length }})</span>
         }
@@ -227,7 +226,7 @@
         @if (stale()) {
           <span class="flex items-center gap-1.5 text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">
             <i class="pi pi-exclamation-triangle text-[10px]"></i>
-            Stale data
+            {{ 'facility.agents.staleData' | translate }}
           </span>
         } @else {
           <span class="flex items-center gap-1.5 text-xs font-medium text-green-600">
@@ -235,7 +234,7 @@
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
-            Live
+            {{ 'facility.agents.live' | translate }}
           </span>
         }
       }
@@ -253,11 +252,11 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="border-b border-zinc-100 bg-zinc-50/60">
-            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Name</th>
-            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Type</th>
-            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Status</th>
-            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Details</th>
-            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Last Reported</th>
+             <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.agents.colName' | translate }}</th>
+             <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.agents.colType' | translate }}</th>
+             <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.agents.colStatus' | translate }}</th>
+             <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.agents.colDetails' | translate }}</th>
+             <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.agents.colLastReported' | translate }}</th>
             <th class="px-4 py-3"></th>
           </tr>
         </thead>
@@ -278,11 +277,11 @@
             <tr>
               <td colspan="6" class="px-6 py-16 text-center">
                 <i class="pi pi-server text-3xl text-zinc-300 mb-3 block"></i>
-                <p class="text-sm font-medium text-zinc-500">No agents registered</p>
-                <p class="text-xs text-zinc-400 mt-1">Agents will appear here once connected.</p>
-              </td>
-            </tr>
-          } @else {
+                 <p class="text-sm font-medium text-zinc-500">{{ 'facility.agents.noAgentsRegistered' | translate }}</p>
+                 <p class="text-xs text-zinc-400 mt-1">{{ 'facility.agents.noAgentsHint' | translate }}</p>
+               </td>
+             </tr>
+           } @else {
             @for (agent of agents(); track agent.id) {
 
               <!-- Main row -->
@@ -339,7 +338,7 @@
                       [text]="true"
                       [rounded]="true"
                       size="small"
-                      title="Edit configuration"
+                      [title]="'facility.agents.editConfig' | translate"
                       (click)="toggleExpand(agent)"
                     />
                     <p-button
@@ -348,7 +347,7 @@
                       [text]="true"
                       [rounded]="true"
                       size="small"
-                      title="Delete agent"
+                      [title]="'facility.agents.deleteAgent' | translate"
                       (click)="confirmDelete(agent.id)"
                     />
                   </div>
@@ -365,24 +364,24 @@
                         <i class="pi pi-exclamation-triangle mr-1.5"></i>
                         Delete <strong>{{ agent.name }}</strong>? This cannot be undone.
                       </p>
-                      <div class="flex items-center gap-2 shrink-0">
-                        <p-button
-                          type="button"
-                          label="Keep"
-                          severity="secondary"
-                          size="small"
-                          (click)="abortDelete()"
-                        />
-                        <p-button
-                          type="button"
-                          label="Yes, delete"
-                          severity="danger"
-                          size="small"
-                          [loading]="deletingId() === agent.id"
-                          [disabled]="deletingId() === agent.id"
-                          loadingIcon="pi pi-spin pi-spinner"
-                          (click)="executeDelete(agent)"
-                        />
+                       <div class="flex items-center gap-2 shrink-0">
+                         <p-button
+                           type="button"
+                           [label]="'facility.agents.keep' | translate"
+                           severity="secondary"
+                           size="small"
+                           (click)="abortDelete()"
+                         />
+                         <p-button
+                           type="button"
+                           [label]="'facility.agents.yesDelete' | translate"
+                           severity="danger"
+                           size="small"
+                           [loading]="deletingId() === agent.id"
+                           [disabled]="deletingId() === agent.id"
+                           loadingIcon="pi pi-spin pi-spinner"
+                           (click)="executeDelete(agent)"
+                         />
                       </div>
                     </div>
                   </td>
@@ -428,8 +427,8 @@
       } @else if (agents().length === 0) {
         <div class="px-4 py-12 text-center">
           <i class="pi pi-server text-3xl text-zinc-300 mb-3 block"></i>
-          <p class="text-sm font-medium text-zinc-500">No agents registered</p>
-          <p class="text-xs text-zinc-400 mt-1">Agents will appear here once connected.</p>
+          <p class="text-sm font-medium text-zinc-500">{{ 'facility.agents.noAgentsRegistered' | translate }}</p>
+          <p class="text-xs text-zinc-400 mt-1">{{ 'facility.agents.noAgentsHint' | translate }}</p>
         </div>
       } @else {
         @for (agent of agents(); track agent.id) {
@@ -461,7 +460,7 @@
                   [text]="true"
                   [rounded]="true"
                   size="small"
-                  title="Delete agent"
+                  [title]="'facility.agents.deleteAgent' | translate"
                   (click)="confirmDelete(agent.id)"
                 />
               </div>
@@ -482,7 +481,7 @@
               }
               <p class="text-xs text-[#238cff] mt-0.5">
                 <i class="pi pi-cog text-[10px] mr-1"></i>
-                {{ expandedAgentId() === agent.id ? 'Close configuration' : 'Edit configuration' }}
+                {{ expandedAgentId() === agent.id ? ('facility.agents.closeConfig' | translate) : ('facility.agents.editConfiguration' | translate) }}
               </p>
             </div>
 
@@ -495,24 +494,24 @@
                 <i class="pi pi-exclamation-triangle mr-1.5"></i>
                 Delete <strong>{{ agent.name }}</strong>? This cannot be undone.
               </p>
-              <div class="flex items-center gap-2">
-                <p-button
-                  type="button"
-                  label="Keep"
-                  severity="secondary"
-                  size="small"
-                  (click)="abortDelete()"
-                />
-                <p-button
-                  type="button"
-                  label="Yes, delete"
-                  severity="danger"
-                  size="small"
-                  [loading]="deletingId() === agent.id"
-                  [disabled]="deletingId() === agent.id"
-                  loadingIcon="pi pi-spin pi-spinner"
-                  (click)="executeDelete(agent)"
-                />
+               <div class="flex items-center gap-2">
+                 <p-button
+                   type="button"
+                   [label]="'facility.agents.keep' | translate"
+                   severity="secondary"
+                   size="small"
+                   (click)="abortDelete()"
+                 />
+                 <p-button
+                   type="button"
+                   [label]="'facility.agents.yesDelete' | translate"
+                   severity="danger"
+                   size="small"
+                   [loading]="deletingId() === agent.id"
+                   [disabled]="deletingId() === agent.id"
+                   loadingIcon="pi pi-spin pi-spinner"
+                   (click)="executeDelete(agent)"
+                 />
               </div>
             </div>
           }
@@ -539,9 +538,9 @@
 
     <!-- Panel title -->
     <div class="flex items-center justify-between mb-5">
-      <h3 class="text-sm font-semibold text-zinc-700 flex items-center gap-2">
+        <h3 class="text-sm font-semibold text-zinc-700 flex items-center gap-2">
         <i class="pi pi-cog text-zinc-400"></i>
-        Configuration — {{ agent.name }}
+        {{ 'facility.agents.configPanelTitle' | translate: { name: agent.name } }}
       </h3>
       <p-button
         icon="pi pi-times"
@@ -573,7 +572,7 @@
 
       <!-- ── Rename section ──────────────────────────────────────────────── -->
       <div class="mb-6 pb-6 border-b border-zinc-200">
-        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-3">Agent Name</p>
+        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-3">{{ 'facility.agents.agentNameLabel' | translate }}</p>
 
         @if (renameError()) {
           <div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
@@ -591,12 +590,12 @@
               [invalid]="renameForm.get('name')!.invalid && renameForm.get('name')!.touched"
             />
             @if (renameForm.get('name')!.invalid && renameForm.get('name')!.touched) {
-              <p class="text-xs text-red-500 mt-1">Name is required.</p>
+              <p class="text-xs text-red-500 mt-1">{{ 'facility.agents.nameRequired' | translate }}</p>
             }
           </div>
           <p-button
             type="button"
-            label="Rename"
+            [label]="'facility.agents.rename' | translate"
             severity="secondary"
             [loading]="renameSaving()"
             [disabled]="renameSaving()"
@@ -609,7 +608,7 @@
       <!-- ── Configuration section ──────────────────────────────────────── -->
       <div>
         <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-4">
-          Configuration
+          {{ 'facility.agents.configuration' | translate }}
           <span class="ml-1.5 normal-case font-normal text-zinc-400">({{ agentTypeLabel(agent.type) }})</span>
         </p>
 
@@ -622,13 +621,13 @@
         @if (configSaveSuccess()) {
           <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600 flex items-center gap-2">
             <i class="pi pi-check-circle shrink-0"></i>
-            <span>Configuration saved.</span>
+            <span>{{ 'facility.agents.configSaved' | translate }}</span>
           </div>
         }
 
         <!-- No-config types -->
         @if (agent.type === AgentType.None) {
-          <p class="text-sm text-zinc-400 italic">No configuration available for this agent type.</p>
+          <p class="text-sm text-zinc-400 italic">{{ 'facility.agents.noConfigAvailable' | translate }}</p>
 
         } @else {
           <div [formGroup]="configForm">
@@ -870,7 +869,7 @@
               <p-button
                 type="button"
                 icon="pi pi-check"
-                label="Save Configuration"
+                [label]="'facility.agents.saveConfiguration' | translate"
                 [loading]="configSaving()"
                 [disabled]="configSaving()"
                 loadingIcon="pi pi-spin pi-spinner"

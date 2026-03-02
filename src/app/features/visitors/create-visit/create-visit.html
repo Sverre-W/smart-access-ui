@@ -10,8 +10,8 @@
       [rounded]="true"
     />
     <div>
-      <h1 class="text-2xl font-semibold text-zinc-800">New Visit</h1>
-      <p class="text-sm text-zinc-500 mt-0.5">Schedule a visit and add visitors on the next screen.</p>
+      <h1 class="text-2xl font-semibold text-zinc-800">{{ 'visitors.createVisit.title' | translate }}</h1>
+      <p class="text-sm text-zinc-500 mt-0.5">{{ 'visitors.createVisit.subtitle' | translate }}</p>
     </div>
   </div>
 
@@ -27,7 +27,7 @@
   <form [formGroup]="form" (ngSubmit)="submit()" class="rounded-xl border border-zinc-200 bg-white shadow-xs">
 
     <div class="px-6 py-5 border-b border-zinc-100">
-      <h2 class="text-sm font-semibold text-zinc-700">Visit details</h2>
+      <h2 class="text-sm font-semibold text-zinc-700">{{ 'visitors.createVisit.visitDetails' | translate }}</h2>
     </div>
 
     <div class="px-6 py-5 flex flex-col gap-5">
@@ -35,32 +35,32 @@
       <!-- Summary -->
       <div class="flex flex-col gap-1.5">
         <label class="text-sm font-medium text-zinc-700" for="summary">
-          Summary <span class="text-red-400">*</span>
+          {{ 'visitors.createVisit.summaryLabel' | translate }} <span class="text-red-400">*</span>
         </label>
         <input
           pInputText
           id="summary"
           type="text"
           formControlName="summary"
-          placeholder="e.g. Interview with Jane Doe"
+          [placeholder]="'visitors.createVisit.summaryPlaceholder' | translate"
           [fluid]="true"
           [invalid]="isInvalid('summary')"
         />
         @if (isInvalid('summary')) {
-          <p class="text-xs text-red-500">Summary is required.</p>
+          <p class="text-xs text-red-500">{{ 'visitors.createVisit.summaryRequired' | translate }}</p>
         }
       </div>
 
       <!-- Organizer autocomplete -->
       <div class="flex flex-col gap-1.5">
         <label class="text-sm font-medium text-zinc-700">
-          Organizer <span class="text-red-400">*</span>
+          {{ 'visitors.createVisit.organizerLabel' | translate }} <span class="text-red-400">*</span>
         </label>
         <p-autocomplete
           formControlName="organizer"
           [suggestions]="organizerSuggestions()"
           [optionLabel]="organizerLabel"
-          placeholder="Search by name or email…"
+          [placeholder]="'visitors.createVisit.organizerPlaceholder' | translate"
           [dropdown]="false"
           [forceSelection]="true"
           [minQueryLength]="0"
@@ -82,7 +82,7 @@
           </ng-template>
         </p-autocomplete>
         @if (isInvalid('organizer')) {
-          <p class="text-xs text-red-500">An organizer is required.</p>
+          <p class="text-xs text-red-500">{{ 'visitors.createVisit.organizerRequired' | translate }}</p>
         }
       </div>
 
@@ -92,7 +92,7 @@
         <!-- Start -->
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-zinc-700" for="start">
-            Start <span class="text-red-400">*</span>
+            {{ 'visitors.createVisit.startLabel' | translate }} <span class="text-red-400">*</span>
           </label>
           <p-datepicker
             inputId="start"
@@ -107,14 +107,14 @@
             [invalid]="isInvalid('start')"
           />
           @if (isInvalid('start')) {
-            <p class="text-xs text-red-500">Start time is required.</p>
+            <p class="text-xs text-red-500">{{ 'visitors.createVisit.startRequired' | translate }}</p>
           }
         </div>
 
         <!-- End -->
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-zinc-700" for="end">
-            End <span class="text-red-400">*</span>
+            {{ 'visitors.createVisit.endLabel' | translate }} <span class="text-red-400">*</span>
           </label>
           <p-datepicker
             inputId="end"
@@ -128,7 +128,7 @@
             [invalid]="isInvalid('end')"
           />
           @if (isInvalid('end')) {
-            <p class="text-xs text-red-500">End time is required.</p>
+            <p class="text-xs text-red-500">{{ 'visitors.createVisit.endRequired' | translate }}</p>
           }
         </div>
 
@@ -144,7 +144,7 @@
       <p-button
         type="button"
         (click)="cancel()"
-        label="Cancel"
+        [label]="'visitors.createVisit.cancel' | translate"
         severity="secondary"
       />
       <p-button
@@ -152,7 +152,7 @@
         [disabled]="saving()"
         [loading]="saving()"
         icon="pi pi-check"
-        label="Create Visit"
+        [label]="'visitors.createVisit.createVisit' | translate"
         loadingIcon="pi pi-spin pi-spinner"
       />
     </div>

@@ -9,6 +9,9 @@ import { provideOAuthClient } from 'angular-oauth2-oidc';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -25,7 +28,14 @@ export const appConfig: ApplicationConfig = {
           darkModeSelector: false,
         },
       },
-    })
-  ]
+    }),
+    provideTranslateService({
+      defaultLanguage: 'en',
+    }),
+    provideTranslateHttpLoader({
+      prefix: '/assets/i18n/',
+      suffix: '.json',
+    }),
+  ],
 };
 

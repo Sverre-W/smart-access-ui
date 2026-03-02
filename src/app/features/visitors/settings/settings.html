@@ -1,8 +1,8 @@
 <div class="p-4 sm:p-8 max-w-3xl">
 
   <div class="mb-6">
-    <h1 class="text-2xl font-semibold text-zinc-800">Settings</h1>
-    <p class="text-sm text-zinc-500 mt-1">Configure Univisit preferences and integrations.</p>
+    <h1 class="text-2xl font-semibold text-zinc-800">{{ 'visitors.settings.title' | translate }}</h1>
+    <p class="text-sm text-zinc-500 mt-1">{{ 'visitors.settings.subtitle' | translate }}</p>
   </div>
 
   <div class="space-y-4">
@@ -13,7 +13,7 @@
       <!-- Header -->
       <div class="flex items-center gap-2 px-6 py-4 border-b border-zinc-100">
         <i class="pi pi-bell text-zinc-400"></i>
-        <h2 class="text-sm font-semibold text-zinc-700">Notifications</h2>
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'visitors.settings.notifications' | translate }}</h2>
       </div>
 
       <!-- Body -->
@@ -25,7 +25,7 @@
             (ngModelChange)="notifyOrganizerOnConfirmation.set($event)"
             [binary]="true"
           />
-          <span class="text-sm text-zinc-700 leading-snug">Notify organizer when visitor confirmed</span>
+          <span class="text-sm text-zinc-700 leading-snug">{{ 'visitors.settings.notifyOnConfirmation' | translate }}</span>
         </label>
 
         <label class="flex items-start gap-3 cursor-pointer">
@@ -34,7 +34,7 @@
             (ngModelChange)="notifyOrganizerOnArrival.set($event)"
             [binary]="true"
           />
-          <span class="text-sm text-zinc-700 leading-snug">Notify organizer when visitor has arrived</span>
+          <span class="text-sm text-zinc-700 leading-snug">{{ 'visitors.settings.notifyOnArrival' | translate }}</span>
         </label>
 
         <label class="flex items-start gap-3 cursor-pointer">
@@ -43,7 +43,7 @@
             (ngModelChange)="sendConfirmationEmailOnQrAvailable.set($event)"
             [binary]="true"
           />
-          <span class="text-sm text-zinc-700 leading-snug">Send confirmation email after QR token is available</span>
+          <span class="text-sm text-zinc-700 leading-snug">{{ 'visitors.settings.sendConfirmationEmail' | translate }}</span>
         </label>
 
       </div>
@@ -56,7 +56,7 @@
       <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
         <div class="flex items-center gap-2">
           <i class="pi pi-shield text-zinc-400"></i>
-          <h2 class="text-sm font-semibold text-zinc-700">Access Control</h2>
+          <h2 class="text-sm font-semibold text-zinc-700">{{ 'visitors.settings.accessControl' | translate }}</h2>
         </div>
         @if (!loading()) {
           <p-toggleswitch
@@ -70,19 +70,19 @@
       <div class="px-6 py-5">
 
         @if (loading()) {
-          <p class="text-sm text-zinc-400">Loading…</p>
+          <p class="text-sm text-zinc-400">{{ 'visitors.settings.loading' | translate }}</p>
         } @else if (loadError()) {
           <p class="text-sm text-red-500">{{ loadError() }}</p>
         } @else if (!acEnabled()) {
           <p class="text-sm text-zinc-400">
-            No access control system linked. Enable the toggle to connect a system and configure badge and access level assignments.
+            {{ 'visitors.settings.noAcLinked' | translate }}
           </p>
         } @else {
           <div class="space-y-5">
 
             <!-- System -->
             <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
-              <label class="text-sm font-medium text-zinc-600">System</label>
+              <label class="text-sm font-medium text-zinc-600">{{ 'visitors.settings.system' | translate }}</label>
               <p-select
                 [options]="acSystems()"
                 [ngModel]="selectedSystemId()"
@@ -99,7 +99,7 @@
 
               <!-- Badge Type -->
               <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
-                <label class="text-sm font-medium text-zinc-600">Badge type</label>
+                <label class="text-sm font-medium text-zinc-600">{{ 'visitors.settings.badgeType' | translate }}</label>
                 <p-select
                   [options]="badgeTypes()"
                   [ngModel]="selectedBadgeType()"
@@ -114,10 +114,10 @@
 
               <!-- Access levels -->
               <div class="border-t border-zinc-100 pt-4 space-y-4">
-                <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Access levels</p>
+                <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'visitors.settings.accessLevels' | translate }}</p>
 
                 <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
-                  <label class="text-sm font-medium text-zinc-600">On visitor creation</label>
+                  <label class="text-sm font-medium text-zinc-600">{{ 'visitors.settings.onVisitorCreation' | translate }}</label>
                   <p-select
                     [options]="accessLevels()"
                     [ngModel]="selectedAccessLevelCreation()"
@@ -131,7 +131,7 @@
                 </div>
 
                 <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
-                  <label class="text-sm font-medium text-zinc-600">On confirmation</label>
+                  <label class="text-sm font-medium text-zinc-600">{{ 'visitors.settings.onConfirmation' | translate }}</label>
                   <p-select
                     [options]="accessLevels()"
                     [ngModel]="selectedAccessLevelConfirmation()"
@@ -145,7 +145,7 @@
                 </div>
 
                 <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
-                  <label class="text-sm font-medium text-zinc-600">On onboarding</label>
+                  <label class="text-sm font-medium text-zinc-600">{{ 'visitors.settings.onOnboarding' | translate }}</label>
                   <p-select
                     [options]="accessLevels()"
                     [ngModel]="selectedAccessLevelOnboarding()"
@@ -173,7 +173,7 @@
       <!-- Header -->
       <div class="flex items-center gap-2 px-6 py-4 border-b border-zinc-100">
         <i class="pi pi-id-card text-zinc-400"></i>
-        <h2 class="text-sm font-semibold text-zinc-700">Onboarding</h2>
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'visitors.settings.onboarding' | translate }}</h2>
       </div>
 
       <!-- Body -->
@@ -181,13 +181,13 @@
 
         <!-- Onboarding types -->
         <div>
-          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-4">Onboarding types</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-4">{{ 'visitors.settings.onboardingTypes' | translate }}</p>
           <div class="space-y-4">
 
             <div class="flex items-center justify-between gap-4">
               <div>
-                <p class="text-sm font-medium text-zinc-700">Self onboarding</p>
-                <p class="text-xs text-zinc-400 mt-0.5">Visitor completes onboarding on their own device.</p>
+                <p class="text-sm font-medium text-zinc-700">{{ 'visitors.settings.selfOnboarding' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-0.5">{{ 'visitors.settings.selfOnboardingDesc' | translate }}</p>
               </div>
               <p-toggleswitch
                 [ngModel]="selfOnboardingEnabled()"
@@ -197,8 +197,8 @@
 
             <div class="flex items-center justify-between gap-4">
               <div>
-                <p class="text-sm font-medium text-zinc-700">Guided onboarding</p>
-                <p class="text-xs text-zinc-400 mt-0.5">A receptionist guides the visitor through onboarding.</p>
+                <p class="text-sm font-medium text-zinc-700">{{ 'visitors.settings.guidedOnboarding' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-0.5">{{ 'visitors.settings.guidedOnboardingDesc' | translate }}</p>
               </div>
               <p-toggleswitch
                 [ngModel]="guidedOnboardingEnabled()"
@@ -214,8 +214,8 @@
 
           <div class="flex items-center justify-between gap-4">
             <div>
-              <p class="text-sm font-medium text-zinc-700">Label printing</p>
-              <p class="text-xs text-zinc-400 mt-0.5">Print a visitor badge label on arrival.</p>
+                <p class="text-sm font-medium text-zinc-700">{{ 'visitors.settings.labelPrinting' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-0.5">{{ 'visitors.settings.labelPrintingDesc' | translate }}</p>
             </div>
             <p-toggleswitch
               [ngModel]="labelPrintingEnabled()"
@@ -225,7 +225,7 @@
 
           @if (labelPrintingEnabled()) {
             <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
-              <label class="text-sm font-medium text-zinc-600">Printer</label>
+              <label class="text-sm font-medium text-zinc-600">{{ 'visitors.settings.printer' | translate }}</label>
               <p-select
                 [options]="printers()"
                 [ngModel]="selectedPrinterId()"
@@ -245,9 +245,9 @@
         <div class="border-t border-zinc-100 pt-5 space-y-3">
 
           <div class="flex items-center justify-between">
-            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Onboarding data</p>
+            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'visitors.settings.onboardingData' | translate }}</p>
             <p-button
-              label="Add field"
+              [label]="'visitors.settings.addField' | translate"
               icon="pi pi-plus"
               size="small"
               severity="secondary"
@@ -256,7 +256,7 @@
           </div>
 
           @if (onboardingDataItems().length === 0) {
-            <p class="text-sm text-zinc-400">No onboarding data fields configured.</p>
+            <p class="text-sm text-zinc-400">{{ 'visitors.settings.noDataFields' | translate }}</p>
           }
 
           @for (item of onboardingDataItems(); track $index) {
@@ -268,7 +268,7 @@
                 type="text"
                 [ngModel]="item.label"
                 (ngModelChange)="updateOnboardingDataItem($index, { label: $event })"
-                placeholder="Field name…"
+                [placeholder]="'visitors.settings.fieldNamePlaceholder' | translate"
                 class="flex-1 min-w-0 text-sm"
               />
 
@@ -289,7 +289,7 @@
                   [ngModel]="item.required"
                   (ngModelChange)="updateOnboardingDataItem($index, { required: $event })"
                 />
-                <span class="text-xs text-zinc-500">Required</span>
+                <span class="text-xs text-zinc-500">{{ 'visitors.settings.required' | translate }}</span>
               </label>
 
               <!-- Remove -->
@@ -317,16 +317,16 @@
     <div class="text-sm">
       @if (saveSuccess()) {
         <span class="text-green-600 flex items-center gap-1.5">
-          <i class="pi pi-check-circle"></i> Settings saved
+          <i class="pi pi-check-circle"></i> {{ 'visitors.settings.settingsSaved' | translate }}
         </span>
       } @else if (saveError()) {
         <span class="text-red-500">{{ saveError() }}</span>
       } @else {
-        <span class="text-zinc-400">Unsaved changes will be lost on navigation.</span>
+        <span class="text-zinc-400">{{ 'visitors.settings.unsavedWarning' | translate }}</span>
       }
     </div>
     <p-button
-      label="Save"
+      [label]="'visitors.settings.save' | translate"
       icon="pi pi-save"
       [loading]="saving()"
       (onClick)="save()"

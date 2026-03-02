@@ -17,6 +17,7 @@ import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { PasswordInput } from '../../../shared/components/password-input/password-input';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 const REFRESH_INTERVAL_MS = 15_000;
 
@@ -36,12 +37,14 @@ const REFRESH_INTERVAL_MS = 15_000;
     CheckboxModule,
     InputNumberModule,
     PasswordInput,
+    TranslateModule,
   ],
   templateUrl: './agents.html',
 })
 export class FacilityAgents implements OnInit, OnDestroy {
   private agentService = inject(AgentService);
   private fb = inject(FormBuilder);
+  private translate = inject(TranslateService);
 
   // ── Agent list state ───────────────────────────────────────────────────────
 
@@ -155,7 +158,7 @@ export class FacilityAgents implements OnInit, OnDestroy {
       this.error.set(null);
     } catch {
       if (initial) {
-        this.error.set('Failed to load agents.');
+        this.error.set(this.translate.instant('facility.agents.loadError'));
       } else {
         this.stale.set(true);
       }
@@ -196,7 +199,7 @@ export class FacilityAgents implements OnInit, OnDestroy {
       this.agents.update(list => [...list, created].sort((a, b) => a.name.localeCompare(b.name)));
       this.closeCreate();
     } catch (err: unknown) {
-      const msg = this.extractApiError(err) ?? 'Failed to create agent. Please try again.';
+      const msg = this.extractApiError(err) ?? this.translate.instant('facility.agents.createError');
       this.createError.set(msg);
     } finally {
       this.createSaving.set(false);
@@ -228,7 +231,7 @@ export class FacilityAgents implements OnInit, OnDestroy {
         this.expandedAgentId.set(null);
       }
     } catch {
-      this.deleteError.set('Failed to delete agent. Please try again.');
+      this.deleteError.set(this.translate.instant('facility.agents.deleteError'));
     } finally {
       this.deletingId.set(null);
     }
@@ -262,7 +265,7 @@ export class FacilityAgents implements OnInit, OnDestroy {
       this.agentConfig.set(config);
       this.buildConfigForm(agent.type, config.configuration);
     } catch {
-      this.configError.set('Failed to load configuration.');
+      this.configError.set(this.translate.instant('facility.agents.loadConfigError'));
     } finally {
       this.configLoading.set(false);
     }
@@ -307,7 +310,7 @@ export class FacilityAgents implements OnInit, OnDestroy {
       this.configSaveSuccess.set(true);
       setTimeout(() => this.configSaveSuccess.set(false), 3000);
     } catch {
-      this.configSaveError.set('Failed to save configuration. Please try again.');
+      this.configSaveError.set(this.translate.instant('facility.agents.saveConfigError'));
     } finally {
       this.configSaving.set(false);
     }
@@ -335,10 +338,10 @@ export class FacilityAgents implements OnInit, OnDestroy {
 
   statusLabel(status: AgentStatus | null | undefined): string {
     switch (status) {
-      case AgentStatus.Operational:        return 'Operational';
-      case AgentStatus.ConfigurationError: return 'Config Error';
-      case AgentStatus.Disconnected:       return 'Disconnected';
-      default:                             return 'Unknown';
+      case AgentStatus.Operational:        return this.translate.instant('facility.agents.operational');
+      case AgentStatus.ConfigurationError: return this.translate.instant('facility.agents.configError');
+      case AgentStatus.Disconnected:       return this.translate.instant('facility.agents.disconnected');
+      default:                             return this.translate.instant('facility.agents.unknown');
     }
   }
 

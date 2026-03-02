@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -14,11 +15,12 @@ const DEFAULT_PAGE_SIZE = 25;
 @Component({
   selector: 'app-visitors-list',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, InputTextModule, IconField, InputIcon, PaginatorModule],
+  imports: [ReactiveFormsModule, RouterLink, InputTextModule, IconField, InputIcon, PaginatorModule, TranslateModule],
   templateUrl: './list.html',
 })
 export class VisitorsList implements OnInit {
   private visitorService = inject(VisitorService);
+  private translate = inject(TranslateService);
 
   readonly visitors = signal<VisitorDto[]>([]);
   readonly loading = signal(true);
@@ -115,7 +117,7 @@ export class VisitorsList implements OnInit {
       this.visitors.set(result.items);
       this.totalRecords.set(result.totalItems ?? result.items.length);
     } catch {
-      this.error.set('Failed to load visitors. Please try again.');
+      this.error.set(this.translate.instant('visitors.list.loadError'));
     } finally {
       this.loading.set(false);
     }

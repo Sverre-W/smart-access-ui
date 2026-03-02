@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import {
   VisitorService,
@@ -14,13 +15,14 @@ import { formatLocalDateTime } from '../../../shared/utils/date-utils';
 @Component({
   selector: 'app-onboarding-detail',
   standalone: true,
-  imports: [RouterLink, ButtonModule, VisitStateBadge, VisitorTimeline],
+  imports: [RouterLink, TranslateModule, ButtonModule, VisitStateBadge, VisitorTimeline],
   templateUrl: './onboarding-detail.html',
 })
 export class OnboardingDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private visitorService = inject(VisitorService);
+  private translate = inject(TranslateService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -55,7 +57,7 @@ export class OnboardingDetail implements OnInit {
     const visitorId = this.route.snapshot.paramMap.get('visitorId');
 
     if (!visitId || !visitorId) {
-      this.error.set('Invalid route parameters.');
+      this.error.set(this.translate.instant('visitors.onboardingDetail.invalidRoute'));
       this.loading.set(false);
       return;
     }
@@ -71,14 +73,14 @@ export class OnboardingDetail implements OnInit {
       ) ?? null;
 
       if (!inv) {
-        this.error.set('Visitor not found on this visit.');
+        this.error.set(this.translate.instant('visitors.onboardingDetail.visitorNotFound'));
         this.loading.set(false);
         return;
       }
 
       this.invitation.set(inv);
     } catch {
-      this.error.set('Failed to load onboarding details.');
+      this.error.set(this.translate.instant('visitors.onboardingDetail.loadError'));
     } finally {
       this.loading.set(false);
     }

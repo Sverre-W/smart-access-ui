@@ -1,4 +1,5 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ChartModule } from 'primeng/chart';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { FormsModule } from '@angular/forms';
@@ -188,6 +189,7 @@ const MOCK: Record<RangePeriod, {
   selector: 'app-reports',
   standalone: true,
   imports: [
+    TranslateModule,
     FormsModule,
     ChartModule,
     SelectButtonModule,

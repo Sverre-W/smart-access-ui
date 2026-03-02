@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import type { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
@@ -18,7 +19,7 @@ import { LocationPicker } from '../../../shared/components/location-picker/locat
 @Component({
   selector: 'app-create-visit',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, AutoCompleteModule, ButtonModule, DatePickerModule, InputTextModule, LocationPicker],
+  imports: [ReactiveFormsModule, FormsModule, AutoCompleteModule, ButtonModule, DatePickerModule, InputTextModule, LocationPicker, TranslateModule],
   templateUrl: './create-visit.html',
 })
 export class CreateVisit implements OnInit {
@@ -26,6 +27,7 @@ export class CreateVisit implements OnInit {
   private visitorService = inject(VisitorService);
   private router = inject(Router);
   private oauthService = inject(OAuthService);
+  private translate = inject(TranslateService);
 
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
@@ -121,7 +123,7 @@ export class CreateVisit implements OnInit {
 
       this.router.navigate(['/visitors/edit', visit.id]);
     } catch {
-      this.error.set('Failed to create the visit. Please try again.');
+      this.error.set(this.translate.instant('visitors.createVisit.createError'));
       this.saving.set(false);
     }
   }

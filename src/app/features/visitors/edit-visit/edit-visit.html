@@ -15,12 +15,12 @@
         <div class="h-4 w-32 rounded bg-zinc-100 animate-pulse"></div>
       } @else if (visit()) {
         <h1 class="text-2xl font-semibold text-zinc-800 truncate">{{ visit()!.summary || 'Visit' }}</h1>
-        <div class="flex items-center gap-2 mt-0.5">
-          <app-visit-state-badge [state]="visit()!.state" />
-          <span class="text-xs text-zinc-400">{{ totalInvitations() }} visitor{{ totalInvitations() !== 1 ? 's' : '' }}</span>
-        </div>
-      } @else {
-        <h1 class="text-2xl font-semibold text-zinc-800">Edit Visit</h1>
+          <div class="flex items-center gap-2 mt-0.5">
+            <app-visit-state-badge [state]="visit()!.state" />
+            <span class="text-xs text-zinc-400">{{ totalInvitations() }} {{ totalInvitations() !== 1 ? ('visitors.editVisit.visitors' | translate) : ('visitors.editVisit.visitor' | translate) }}</span>
+          </div>
+        } @else {
+          <h1 class="text-2xl font-semibold text-zinc-800">{{ 'visitors.editVisit.title' | translate }}</h1>
       }
     </div>
   </div>
@@ -39,7 +39,7 @@
     @if (isPast()) {
       <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 flex items-center gap-2">
         <i class="pi pi-lock"></i>
-        This visit has ended and is read-only.
+        {{ 'visitors.editVisit.pastVisitBanner' | translate }}
       </div>
     }
 
@@ -47,7 +47,7 @@
     @if (visit()!.state === 'CANCELED') {
       <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center gap-2">
         <i class="pi pi-ban"></i>
-        This visit has been cancelled.
+        {{ 'visitors.editVisit.cancelledBanner' | translate }}
       </div>
     }
 
@@ -61,7 +61,7 @@
     @if (saveSuccess()) {
       <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600 flex items-center gap-2">
         <i class="pi pi-check-circle"></i>
-        Changes saved successfully.
+        {{ 'visitors.editVisit.changesSaved' | translate }}
       </div>
     }
 
@@ -71,7 +71,7 @@
       <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-5">
 
         <div class="px-6 py-5 border-b border-zinc-100">
-          <h2 class="text-sm font-semibold text-zinc-700">Visit details</h2>
+          <h2 class="text-sm font-semibold text-zinc-700">{{ 'visitors.editVisit.visitDetails' | translate }}</h2>
         </div>
 
         <div class="px-6 py-5 flex flex-col gap-5">
@@ -79,19 +79,19 @@
           <!-- Summary -->
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-zinc-700" for="summary">
-              Summary <span class="text-red-400">*</span>
+              {{ 'visitors.editVisit.summaryLabel' | translate }} <span class="text-red-400">*</span>
             </label>
             <input
               pInputText
               id="summary"
               type="text"
               formControlName="summary"
-              placeholder="e.g. Interview with Jane Doe"
+              [placeholder]="'visitors.editVisit.summaryPlaceholder' | translate"
               [fluid]="true"
               [invalid]="isInvalid('summary')"
             />
             @if (isInvalid('summary')) {
-              <p class="text-xs text-red-500">Summary is required.</p>
+              <p class="text-xs text-red-500">{{ 'visitors.editVisit.summaryRequired' | translate }}</p>
             }
           </div>
 
@@ -100,7 +100,7 @@
 
             <div class="flex flex-col gap-1.5">
               <label class="text-sm font-medium text-zinc-700" for="start">
-                Start <span class="text-red-400">*</span>
+                {{ 'visitors.editVisit.startLabel' | translate }} <span class="text-red-400">*</span>
               </label>
               <p-datepicker
                 inputId="start"
@@ -114,13 +114,13 @@
                 [invalid]="isInvalid('start')"
               />
               @if (isInvalid('start')) {
-                <p class="text-xs text-red-500">Start time is required.</p>
+                <p class="text-xs text-red-500">{{ 'visitors.editVisit.startRequired' | translate }}</p>
               }
             </div>
 
             <div class="flex flex-col gap-1.5">
               <label class="text-sm font-medium text-zinc-700" for="end">
-                End <span class="text-red-400">*</span>
+                {{ 'visitors.editVisit.endLabel' | translate }} <span class="text-red-400">*</span>
               </label>
               <p-datepicker
                 inputId="end"
@@ -134,7 +134,7 @@
                 [invalid]="isInvalid('end')"
               />
               @if (isInvalid('end')) {
-                <p class="text-xs text-red-500">End time is required.</p>
+                <p class="text-xs text-red-500">{{ 'visitors.editVisit.endRequired' | translate }}</p>
               }
             </div>
 
@@ -153,12 +153,12 @@
         @if (isPast()) {
           <div class="px-6 py-4 border-t border-zinc-100 flex items-center gap-2 text-sm text-zinc-400 italic">
             <i class="pi pi-lock text-xs"></i>
-            This visit is read-only.
+            {{ 'visitors.editVisit.readOnlyFooter' | translate }}
           </div>
         } @else if (visit()!.state === 'CANCELED') {
           <div class="px-6 py-4 border-t border-zinc-100 flex items-center gap-2 text-sm text-zinc-400 italic">
             <i class="pi pi-ban text-xs"></i>
-            This visit has been cancelled and is read-only.
+            {{ 'visitors.editVisit.cancelledFooter' | translate }}
           </div>
         } @else {
           <!-- Cancel confirmation row -->
@@ -172,13 +172,13 @@
               <div class="flex items-center justify-between">
                 <p class="text-sm text-red-700 font-medium">
                   <i class="pi pi-exclamation-triangle mr-1"></i>
-                  Cancel this visit? This cannot be undone.
+                  {{ 'visitors.editVisit.cancelConfirmQuestion' | translate }}
                 </p>
                 <div class="flex items-center gap-2">
                   <p-button
                     type="button"
                     (click)="abortCancel()"
-                    label="Keep visit"
+                    [label]="'visitors.editVisit.keepVisit' | translate"
                     severity="secondary"
                     size="small"
                   />
@@ -187,7 +187,7 @@
                     (click)="executeCancel()"
                     [disabled]="cancelling()"
                     [loading]="cancelling()"
-                    label="Yes, cancel visit"
+                    [label]="'visitors.editVisit.yesCancelVisit' | translate"
                     severity="danger"
                     size="small"
                     loadingIcon="pi pi-spin pi-spinner"
@@ -202,7 +202,7 @@
                   type="button"
                   (click)="confirmCancel()"
                   icon="pi pi-ban"
-                  label="Cancel Visit"
+                  [label]="'visitors.editVisit.cancelVisit' | translate"
                   severity="danger"
                   [text]="true"
                 />
@@ -213,7 +213,7 @@
                 <p-button
                   type="button"
                   (click)="goBack()"
-                  label="Back"
+                  [label]="'visitors.editVisit.back' | translate"
                   severity="secondary"
                 />
                 <p-button
@@ -221,7 +221,7 @@
                   [disabled]="saving()"
                   [loading]="saving()"
                   icon="pi pi-check"
-                  label="Save Changes"
+                  [label]="'visitors.editVisit.saveChanges' | translate"
                   loadingIcon="pi pi-spin pi-spinner"
                 />
               </div>
@@ -237,7 +237,7 @@
     <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
 
       <div class="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
-        <h2 class="text-sm font-semibold text-zinc-700">People</h2>
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'visitors.editVisit.people' | translate }}</h2>
         <div class="flex items-center gap-3">
           <span class="text-xs text-zinc-400">{{ organizers().length + totalInvitations() }} total</span>
           @if (!isPast() && isCancellable() && !addPersonOpen()) {
@@ -245,7 +245,7 @@
               type="button"
               (click)="openAddPerson()"
               icon="pi pi-user-plus"
-              label="Add person"
+              [label]="'visitors.editVisit.addPerson' | translate"
               severity="secondary"
               size="small"
             />
@@ -258,10 +258,10 @@
         <div [formGroup]="addPersonForm" class="border-b border-zinc-100 bg-zinc-50 px-6 py-5">
 
           <div class="flex items-center justify-between mb-4">
-            <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">Add person</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">{{ 'visitors.editVisit.addPerson' | translate }}</p>
             @if (addPersonKnown()) {
               <span class="rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-600">
-                <i class="pi pi-check mr-1"></i>Existing visitor
+                <i class="pi pi-check mr-1"></i>{{ 'visitors.editVisit.existingVisitor' | translate }}
               </span>
             }
           </div>
@@ -278,7 +278,7 @@
             <!-- Email autocomplete — spans full width -->
             <div class="flex flex-col gap-1 sm:col-span-2">
               <label class="text-xs font-medium text-zinc-500">
-                Email <span class="text-red-400">*</span>
+                {{ 'visitors.editVisit.emailLabel' | translate }} <span class="text-red-400">*</span>
               </label>
               <p-autocomplete
                 formControlName="email"
@@ -287,7 +287,7 @@
                 [dropdown]="false"
                 [fluid]="true"
                 [showClear]="true"
-                placeholder="Search by name or email…"
+                [placeholder]="'visitors.editVisit.emailPlaceholder' | translate"
                 (completeMethod)="searchVisitors($event)"
                 (onSelect)="selectVisitor($event.value)"
                 (onClear)="addPersonKnown.set(false)"
@@ -305,60 +305,60 @@
                 </ng-template>
               </p-autocomplete>
               @if (isAddPersonInvalid('email')) {
-                <p class="text-xs text-red-500">Valid email is required.</p>
+                <p class="text-xs text-red-500">{{ 'visitors.editVisit.emailRequired' | translate }}</p>
               }
             </div>
 
             <!-- First name -->
             <div class="flex flex-col gap-1">
               <label class="text-xs font-medium text-zinc-500">
-                First name <span class="text-red-400">*</span>
+                {{ 'visitors.editVisit.firstNameLabel' | translate }} <span class="text-red-400">*</span>
               </label>
               <input
                 pInputText
                 type="text"
                 formControlName="firstName"
-                placeholder="First name"
+                [placeholder]="'visitors.editVisit.firstNamePlaceholder' | translate"
                 [fluid]="true"
                 [invalid]="isAddPersonInvalid('firstName')"
               />
               @if (isAddPersonInvalid('firstName')) {
-                <p class="text-xs text-red-500">First name is required.</p>
+                <p class="text-xs text-red-500">{{ 'visitors.editVisit.firstNameRequired' | translate }}</p>
               }
             </div>
 
             <!-- Last name -->
             <div class="flex flex-col gap-1">
-              <label class="text-xs font-medium text-zinc-500">Last name</label>
+              <label class="text-xs font-medium text-zinc-500">{{ 'visitors.editVisit.lastNameLabel' | translate }}</label>
               <input
                 pInputText
                 type="text"
                 formControlName="lastName"
-                placeholder="Last name"
+                [placeholder]="'visitors.editVisit.lastNamePlaceholder' | translate"
                 [fluid]="true"
               />
             </div>
 
             <!-- Company -->
             <div class="flex flex-col gap-1">
-              <label class="text-xs font-medium text-zinc-500">Company</label>
+              <label class="text-xs font-medium text-zinc-500">{{ 'visitors.editVisit.companyLabel' | translate }}</label>
               <input
                 pInputText
                 type="text"
                 formControlName="company"
-                placeholder="Company"
+                [placeholder]="'visitors.editVisit.companyPlaceholder' | translate"
                 [fluid]="true"
               />
             </div>
 
             <!-- License plate -->
             <div class="flex flex-col gap-1">
-              <label class="text-xs font-medium text-zinc-500">License plate</label>
+              <label class="text-xs font-medium text-zinc-500">{{ 'visitors.editVisit.licensePlateLabel' | translate }}</label>
               <input
                 pInputText
                 type="text"
                 formControlName="licensePlate"
-                placeholder="License plate"
+                [placeholder]="'visitors.editVisit.licensePlatePlaceholder' | translate"
                 [fluid]="true"
               />
             </div>
@@ -367,7 +367,7 @@
 
           <!-- Role select button -->
           <div class="mb-4">
-            <p class="text-xs font-medium text-zinc-500 mb-2">Role</p>
+            <p class="text-xs font-medium text-zinc-500 mb-2">{{ 'visitors.editVisit.roleLabel' | translate }}</p>
             <p-selectbutton
               formControlName="role"
               [options]="roleOptions"
@@ -381,7 +381,7 @@
             <p-button
               type="button"
               (click)="closeAddPerson()"
-              label="Cancel"
+              [label]="'visitors.editVisit.cancel' | translate"
               severity="secondary"
             />
             <p-button
@@ -390,7 +390,7 @@
               [disabled]="addPersonSaving()"
               [loading]="addPersonSaving()"
               icon="pi pi-check"
-              label="Add"
+              [label]="'visitors.editVisit.add' | translate"
               loadingIcon="pi pi-spin pi-spinner"
             />
           </div>
@@ -409,7 +409,7 @@
       @if (organizers().length === 0 && totalInvitations() === 0) {
         <div class="px-6 py-8 text-center">
           <i class="pi pi-users text-2xl text-zinc-300 mb-2 block"></i>
-          <p class="text-sm text-zinc-400">No participants added yet.</p>
+          <p class="text-sm text-zinc-400">{{ 'visitors.editVisit.noParticipants' | translate }}</p>
         </div>
       }
 
@@ -417,7 +417,7 @@
       @if (organizers().length > 0 || invitedOrganizers().length > 0) {
         <div class="px-6 pt-4 pb-2">
           <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">
-            Organizers
+            {{ 'visitors.editVisit.organizers' | translate }}
             <span class="ml-1 rounded-full bg-purple-50 px-1.5 py-0.5 text-purple-600">
               {{ organizers().length + invitedOrganizers().length }}
             </span>
@@ -448,15 +448,15 @@
             <li class="px-6 py-3 flex flex-col gap-1">
               @if (removeConfirmingId() === inv.visitor.id) {
                 <div class="flex items-center justify-between gap-2 rounded-lg bg-red-50 px-3 py-2">
-                  <p class="text-xs text-red-700 font-medium">Remove {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}?</p>
+                   <p class="text-xs text-red-700 font-medium">{{ 'visitors.editVisit.removeConfirmQuestion' | translate: { name: inv.visitor.firstName + ' ' + inv.visitor.lastName } }}</p>
                   <div class="flex items-center gap-2 shrink-0">
-                    <p-button type="button" (click)="abortRemove()" label="Keep" severity="secondary" size="small" />
+                    <p-button type="button" (click)="abortRemove()" [label]="'visitors.editVisit.keep' | translate" severity="secondary" size="small" />
                     <p-button
                       type="button"
                       (click)="executeRemove(inv)"
                       [disabled]="removingId() === inv.visitor.id"
                       [loading]="removingId() === inv.visitor.id"
-                      label="Remove"
+                      [label]="'visitors.editVisit.remove' | translate"
                       severity="danger"
                       size="small"
                       loadingIcon="pi pi-spin pi-spinner"
@@ -488,7 +488,7 @@
                       [text]="true"
                       [rounded]="true"
                       size="small"
-                      title="Remove person"
+                      [title]="'visitors.editVisit.removePerson' | translate"
                     />
                   }
                 </div>
@@ -503,7 +503,7 @@
       @if (invitedVisitors().length > 0) {
         <div class="px-6 pt-4 pb-2 border-t border-zinc-100">
           <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">
-            Visitors
+            {{ 'visitors.editVisit.visitors' | translate }}
             <span class="ml-1 rounded-full bg-blue-50 px-1.5 py-0.5 text-blue-600">
               {{ invitedVisitors().length }}
             </span>
@@ -514,15 +514,15 @@
             <li class="px-6 py-4 flex flex-col gap-3">
               @if (removeConfirmingId() === inv.visitor.id) {
                 <div class="flex items-center justify-between gap-2 rounded-lg bg-red-50 px-3 py-2">
-                  <p class="text-xs text-red-700 font-medium">Remove {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}?</p>
+                   <p class="text-xs text-red-700 font-medium">{{ 'visitors.editVisit.removeConfirmQuestion' | translate: { name: inv.visitor.firstName + ' ' + inv.visitor.lastName } }}</p>
                   <div class="flex items-center gap-2 shrink-0">
-                    <p-button type="button" (click)="abortRemove()" label="Keep" severity="secondary" size="small" />
+                    <p-button type="button" (click)="abortRemove()" [label]="'visitors.editVisit.keep' | translate" severity="secondary" size="small" />
                     <p-button
                       type="button"
                       (click)="executeRemove(inv)"
                       [disabled]="removingId() === inv.visitor.id"
                       [loading]="removingId() === inv.visitor.id"
-                      label="Remove"
+                      [label]="'visitors.editVisit.remove' | translate"
                       severity="danger"
                       size="small"
                       loadingIcon="pi pi-spin pi-spinner"
@@ -533,7 +533,7 @@
                 <div
                   class="flex items-center gap-3 cursor-pointer hover:bg-zinc-50 transition-colors group -mx-6 px-6 -my-1 py-1 rounded"
                   (click)="navigateToOnboarding(inv)"
-                  title="View onboarding details"
+                  [title]="'visitors.editVisit.viewOnboarding' | translate"
                 >
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-zinc-800 truncate group-hover:text-[#238cff] transition-colors">
@@ -560,7 +560,7 @@
                       [text]="true"
                       [rounded]="true"
                       size="small"
-                      title="Remove person"
+                      [title]="'visitors.editVisit.removePerson' | translate"
                     />
                   }
                 </div>
@@ -576,7 +576,7 @@
       @if (invitedParticipants().length > 0) {
         <div class="px-6 pt-4 pb-2 border-t border-zinc-100">
           <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400">
-            Participants
+            {{ 'visitors.editVisit.participants' | translate }}
             <span class="ml-1 rounded-full bg-zinc-100 px-1.5 py-0.5 text-zinc-500">
               {{ invitedParticipants().length }}
             </span>
@@ -587,15 +587,15 @@
             <li class="px-6 py-3 flex flex-col gap-1">
               @if (removeConfirmingId() === inv.visitor.id) {
                 <div class="flex items-center justify-between gap-2 rounded-lg bg-red-50 px-3 py-2">
-                  <p class="text-xs text-red-700 font-medium">Remove {{ inv.visitor.firstName }} {{ inv.visitor.lastName }}?</p>
+                   <p class="text-xs text-red-700 font-medium">{{ 'visitors.editVisit.removeConfirmQuestion' | translate: { name: inv.visitor.firstName + ' ' + inv.visitor.lastName } }}</p>
                   <div class="flex items-center gap-2 shrink-0">
-                    <p-button type="button" (click)="abortRemove()" label="Keep" severity="secondary" size="small" />
+                    <p-button type="button" (click)="abortRemove()" [label]="'visitors.editVisit.keep' | translate" severity="secondary" size="small" />
                     <p-button
                       type="button"
                       (click)="executeRemove(inv)"
                       [disabled]="removingId() === inv.visitor.id"
                       [loading]="removingId() === inv.visitor.id"
-                      label="Remove"
+                      [label]="'visitors.editVisit.remove' | translate"
                       severity="danger"
                       size="small"
                       loadingIcon="pi pi-spin pi-spinner"
@@ -627,7 +627,7 @@
                       [text]="true"
                       [rounded]="true"
                       size="small"
-                      title="Remove person"
+                      [title]="'visitors.editVisit.removePerson' | translate"
                     />
                   }
                 </div>

@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LocationService } from '../services/location-service';
 import { AgentService, AgentStatus, Agent } from '../services/agent-service';
 import { AccessPolicyService } from '../services/access-policy-service';
@@ -8,13 +9,14 @@ import { AccessPolicyService } from '../services/access-policy-service';
 @Component({
   selector: 'app-facility-dashboard',
   standalone: true,
-  imports: [RouterLink, ButtonModule],
+  imports: [RouterLink, ButtonModule, TranslateModule],
   templateUrl: './dashboard.html',
 })
 export class FacilityDashboard implements OnInit {
   private locationService = inject(LocationService);
   private agentService    = inject(AgentService);
   private policyService   = inject(AccessPolicyService);
+  private translate       = inject(TranslateService);
 
   // ── Loading / error ───────────────────────────────────────────────────────
 
@@ -77,7 +79,7 @@ export class FacilityDashboard implements OnInit {
       this.systemsCount.set(systems.length);
       this.ruleSetsCount.set(ruleSets.totalItems ?? ruleSets.items.length);
     } catch {
-      this.error.set('Failed to load dashboard data. Please try again.');
+      this.error.set(this.translate.instant('facility.dashboard.loadError'));
     } finally {
       this.loading.set(false);
     }
@@ -87,10 +89,10 @@ export class FacilityDashboard implements OnInit {
 
   agentStatusLabel(agent: Agent): string {
     switch (agent.latestStatus?.status) {
-      case AgentStatus.Operational:        return 'Operational';
-      case AgentStatus.Disconnected:       return 'Disconnected';
-      case AgentStatus.ConfigurationError: return 'Config error';
-      default:                             return 'Unknown';
+      case AgentStatus.Operational:        return this.translate.instant('facility.agents.operational');
+      case AgentStatus.Disconnected:       return this.translate.instant('facility.agents.disconnected');
+      case AgentStatus.ConfigurationError: return this.translate.instant('facility.agents.configError');
+      default:                             return this.translate.instant('facility.agents.unknown');
     }
   }
 

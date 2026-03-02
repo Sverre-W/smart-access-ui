@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VisitorService, VisitDto, VisitorCheckInStatus, buildFilter } from '../services/visitor-service';
 import { ButtonModule } from 'primeng/button';
 import { VisitStateBadge } from '../../../shared/components/visit-state-badge/visit-state-badge';
@@ -18,12 +19,13 @@ const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 @Component({
   selector: 'app-visitors-dashboard',
   standalone: true,
-  imports: [ButtonModule, VisitStateBadge],
+  imports: [ButtonModule, VisitStateBadge, TranslateModule],
   templateUrl: './dashboard.html',
 })
 export class VisitorsDashboard implements OnInit {
   private visitorService = inject(VisitorService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   // ── Today's data (always the real today, unaffected by week nav) ──────────
   readonly todayVisits = signal<VisitDto[]>([]);
@@ -135,7 +137,7 @@ export class VisitorsDashboard implements OnInit {
       this.todayVisits.set(todayResult.items);
       this.weekVisits.set(weekResult.items);
     } catch {
-      this.error.set('Failed to load visitor data.');
+      this.error.set(this.translate.instant('visitors.dashboard.loadError'));
     } finally {
       this.loading.set(false);
     }
@@ -183,7 +185,7 @@ export class VisitorsDashboard implements OnInit {
       });
       this.weekVisits.set(result.items);
     } catch {
-      this.error.set('Failed to load visits for this week.');
+      this.error.set(this.translate.instant('visitors.dashboard.loadError'));
     } finally {
       this.weekLoading.set(false);
     }

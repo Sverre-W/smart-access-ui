@@ -2,8 +2,8 @@
 
   <!-- ── Page header ──────────────────────────────────────────────────────── -->
   <div>
-    <h1 class="text-xl font-semibold text-zinc-800">Facility Overview</h1>
-    <p class="mt-1 text-sm text-zinc-400">Status and summary across locations, agents and access policies.</p>
+    <h1 class="text-xl font-semibold text-zinc-800">{{ 'facility.dashboard.title' | translate }}</h1>
+    <p class="mt-1 text-sm text-zinc-400">{{ 'facility.dashboard.subtitle' | translate }}</p>
   </div>
 
   <!-- ── Error banner ─────────────────────────────────────────────────────── -->
@@ -28,7 +28,7 @@
           <div class="h-3 w-16 rounded bg-zinc-100 animate-pulse"></div>
         } @else {
           <p class="text-2xl font-bold text-zinc-800">{{ sitesCount() }}</p>
-          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Sites</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">{{ 'facility.dashboard.sites' | translate }}</p>
         }
       </div>
     </a>
@@ -45,7 +45,7 @@
           <div class="h-3 w-16 rounded bg-zinc-100 animate-pulse"></div>
         } @else {
           <p class="text-2xl font-bold text-zinc-800">{{ buildingsCount() }}</p>
-          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Buildings</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">{{ 'facility.dashboard.buildings' | translate }}</p>
         }
       </div>
     </a>
@@ -62,7 +62,7 @@
           <div class="h-3 w-16 rounded bg-zinc-100 animate-pulse"></div>
         } @else {
           <p class="text-2xl font-bold text-zinc-800">{{ parkingsCount() }}</p>
-          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Parkings</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">{{ 'facility.dashboard.parkings' | translate }}</p>
         }
       </div>
     </a>
@@ -79,11 +79,11 @@
           <div class="h-3 w-20 rounded bg-zinc-100 animate-pulse"></div>
         } @else {
           <p class="text-2xl font-bold text-zinc-800">{{ agentsTotal() }}</p>
-          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Agents</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">{{ 'facility.dashboard.agents' | translate }}</p>
           @if (!loading() && agentsWithIssues() > 0) {
-            <p class="text-xs text-amber-500 mt-1">{{ agentsWithIssues() }} with issues</p>
+            <p class="text-xs text-amber-500 mt-1">{{ 'facility.dashboard.withIssues' | translate: { count: agentsWithIssues() } }}</p>
           } @else if (!loading()) {
-            <p class="text-xs text-emerald-500 mt-1">All operational</p>
+            <p class="text-xs text-emerald-500 mt-1">{{ 'facility.dashboard.allOperational' | translate }}</p>
           }
         }
       </div>
@@ -101,7 +101,7 @@
           <div class="h-3 w-20 rounded bg-zinc-100 animate-pulse"></div>
         } @else {
           <p class="text-2xl font-bold text-zinc-800">{{ systemsCount() }}</p>
-          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Systems</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">{{ 'facility.dashboard.systems' | translate }}</p>
         }
       </div>
     </a>
@@ -118,7 +118,7 @@
           <div class="h-3 w-16 rounded bg-zinc-100 animate-pulse"></div>
         } @else {
           <p class="text-2xl font-bold text-zinc-800">{{ ruleSetsCount() }}</p>
-          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Rule Sets</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">{{ 'facility.dashboard.ruleSets' | translate }}</p>
         }
       </div>
     </a>
@@ -135,13 +135,13 @@
             <i class="pi pi-exclamation-triangle text-xs text-amber-500"></i>
           </div>
           <div>
-            <h2 class="text-sm font-semibold text-zinc-700">Agent Alerts</h2>
-            <p class="text-xs text-zinc-400">{{ agentsWithIssues() }} agent(s) require attention</p>
+            <h2 class="text-sm font-semibold text-zinc-700">{{ 'facility.dashboard.agentAlerts' | translate }}</h2>
+            <p class="text-xs text-zinc-400">{{ 'facility.dashboard.agentsRequireAttention' | translate: { count: agentsWithIssues() } }}</p>
           </div>
         </div>
         <a [routerLink]="['/facility/agents']"
            class="text-xs text-[#238cff] hover:underline font-medium">
-          Manage agents →
+          {{ 'facility.dashboard.manageAgents' | translate }}
         </a>
       </div>
 
@@ -181,8 +181,8 @@
         <i class="pi pi-server text-base text-sky-500"></i>
       </div>
       <div class="min-w-0 flex-1">
-        <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">Agents</p>
-        <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">Manage hardware agents, configure connections and monitor operational status.</p>
+        <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">{{ 'facility.dashboard.quickNavAgents' | translate }}</p>
+        <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">{{ 'facility.dashboard.quickNavAgentsDesc' | translate }}</p>
       </div>
       <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
     </a>
@@ -194,8 +194,8 @@
         <i class="pi pi-lock text-base text-rose-500"></i>
       </div>
       <div class="min-w-0 flex-1">
-        <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">Access Policies</p>
-        <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">Configure access control systems, rule sets and subject-based conditions.</p>
+        <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">{{ 'facility.dashboard.quickNavPolicies' | translate }}</p>
+        <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">{{ 'facility.dashboard.quickNavPoliciesDesc' | translate }}</p>
       </div>
       <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
     </a>
@@ -207,8 +207,8 @@
         <i class="pi pi-map-marker text-base text-[#238cff]"></i>
       </div>
       <div class="min-w-0 flex-1">
-        <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">Locations</p>
-        <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">Browse and manage sites, buildings, rooms and parking areas.</p>
+        <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">{{ 'facility.dashboard.quickNavLocations' | translate }}</p>
+        <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">{{ 'facility.dashboard.quickNavLocationsDesc' | translate }}</p>
       </div>
       <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
     </a>

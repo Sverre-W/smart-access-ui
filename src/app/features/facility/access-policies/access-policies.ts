@@ -15,6 +15,7 @@ import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule } from 'primeng/paginator';
 import type { PaginatorState } from 'primeng/paginator';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 const DEFAULT_PAGE_SIZE = 10;
@@ -31,12 +32,14 @@ const DEFAULT_PAGE_SIZE = 10;
     SelectModule,
     InputTextModule,
     PaginatorModule,
+    TranslateModule,
   ],
   templateUrl: './access-policies.html',
 })
 export class FacilityAccessPolicies implements OnInit {
   private service = inject(AccessPolicyService);
   private fb = inject(FormBuilder);
+  private translate = inject(TranslateService);
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -106,7 +109,7 @@ export class FacilityAccessPolicies implements OnInit {
       this.ruleSets.set(ruleSetsPage.items);
       this.ruleSetTotalRecords.set(ruleSetsPage.totalItems ?? ruleSetsPage.items.length);
     } catch {
-      this.error.set('Failed to load access policies. Please try again.');
+      this.error.set(this.translate.instant('facility.accessPolicies.loadError'));
     } finally {
       this.loading.set(false);
     }
@@ -121,7 +124,7 @@ export class FacilityAccessPolicies implements OnInit {
       this.ruleSets.set(result.items);
       this.ruleSetTotalRecords.set(result.totalItems ?? result.items.length);
     } catch {
-      this.error.set('Failed to load rule sets. Please try again.');
+      this.error.set(this.translate.instant('facility.accessPolicies.loadRuleSetsError'));
     } finally {
       this.ruleSetsLoading.set(false);
     }
@@ -178,7 +181,7 @@ export class FacilityAccessPolicies implements OnInit {
       const agents = await this.service.getAvailableAgents();
       this.availableAgents.set(agents);
     } catch {
-      this.createSystemError.set('Failed to load available agents.');
+      this.createSystemError.set(this.translate.instant('facility.accessPolicies.loadAgentsError'));
     } finally {
       this.agentsLoading.set(false);
     }
@@ -255,7 +258,7 @@ export class FacilityAccessPolicies implements OnInit {
       this.systems.update(list => list.filter(s => s.id !== system.id));
       this.deleteSystemConfirmingId.set(null);
     } catch {
-      this.deleteSystemError.set(`Failed to delete "${system.name}". Please try again.`);
+      this.deleteSystemError.set(this.translate.instant('facility.accessPolicies.deleteSystemError', { name: system.name }));
     } finally {
       this.deleteSystemInProgressId.set(null);
     }
@@ -280,7 +283,7 @@ export class FacilityAccessPolicies implements OnInit {
       this.ruleSets.update(list => list.filter(r => r.id !== ruleSet.id));
       this.deleteRuleSetConfirmingId.set(null);
     } catch {
-      this.deleteRuleSetError.set(`Failed to delete "${ruleSet.name}". Please try again.`);
+      this.deleteRuleSetError.set(this.translate.instant('facility.accessPolicies.deleteRuleSetError', { name: ruleSet.name }));
     } finally {
       this.deleteRuleSetInProgressId.set(null);
     }

@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
@@ -23,11 +24,12 @@ const isLinked = (systemId: string) => systemId !== EMPTY_GUID;
 @Component({
   selector: 'app-visitors-settings',
   standalone: true,
-  imports: [FormsModule, SelectModule, ButtonModule, ToggleSwitchModule, CheckboxModule, InputTextModule],
+  imports: [FormsModule, TranslateModule, SelectModule, ButtonModule, ToggleSwitchModule, CheckboxModule, InputTextModule],
   templateUrl: './settings.html',
 })
 export class VisitorsSettings implements OnInit {
   private visitorService = inject(VisitorService);
+  private translate = inject(TranslateService);
 
   // ── Load state ────────────────────────────────────────────────────────────
   private currentSettings = signal<TenantBadgeSettings | null>(null);
@@ -105,7 +107,7 @@ export class VisitorsSettings implements OnInit {
       }
       await Promise.all(dependents);
     } catch {
-      this.loadError.set('Failed to load access control settings.');
+      this.loadError.set(this.translate.instant('visitors.settings.loadError'));
     } finally {
       this.loading.set(false);
     }
@@ -178,7 +180,7 @@ export class VisitorsSettings implements OnInit {
       this.saveSuccess.set(true);
       setTimeout(() => this.saveSuccess.set(false), 3000);
     } catch {
-      this.saveError.set('Failed to save settings. Please try again.');
+      this.saveError.set(this.translate.instant('visitors.settings.saveError'));
     } finally {
       this.saving.set(false);
     }

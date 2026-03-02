@@ -2,9 +2,9 @@
 
   <!-- Header -->
   <div class="mb-8">
-    <h1 class="text-2xl font-semibold text-zinc-800">Locations</h1>
+    <h1 class="text-2xl font-semibold text-zinc-800">{{ 'facility.locations.title' | translate }}</h1>
     <p class="text-sm text-zinc-500 mt-1">
-      Manage the physical location hierarchy: sites, buildings, rooms and parking areas.
+      {{ 'facility.locations.subtitle' | translate }}
     </p>
   </div>
 
@@ -23,21 +23,21 @@
     <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
       <div>
         <h2 class="text-sm font-semibold text-zinc-700">
-          Sites
+          {{ 'facility.locations.sites' | translate }}
           @if (!loading()) {
             <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ sitesTotalRecords() }})</span>
           }
         </h2>
-        <p class="text-xs text-zinc-400 mt-0.5">Top-level locations containing buildings.</p>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.locations.sitesDesc' | translate }}</p>
       </div>
-      <p-button icon="pi pi-plus" label="New Site" size="small" (click)="openCreateSite()" />
+      <p-button icon="pi pi-plus" [label]="'facility.locations.newSite' | translate" size="small" (click)="openCreateSite()" />
     </div>
 
     <!-- Create site panel -->
     @if (createSiteOpen()) {
       <div class="px-4 sm:px-6 py-5 border-b border-zinc-100 bg-zinc-50">
         <div class="flex items-center justify-between mb-4">
-          <p class="text-sm font-semibold text-zinc-700">New Site</p>
+          <p class="text-sm font-semibold text-zinc-700">{{ 'facility.locations.newSitePanel' | translate }}</p>
           <p-button
             icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
             size="small" (click)="closeCreateSite()"
@@ -51,23 +51,23 @@
         }
         <div [formGroup]="createSiteForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-zinc-700">Name <span class="text-red-400">*</span></label>
+            <label class="text-sm font-medium text-zinc-700">{{ 'facility.locations.nameLabel' | translate }} <span class="text-red-400">*</span></label>
             <input pInputText type="text" formControlName="name" placeholder="e.g. Oslo HQ"
               [fluid]="true"
               [invalid]="createSiteForm.get('name')!.invalid && createSiteForm.get('name')!.touched" />
             @if (createSiteForm.get('name')!.invalid && createSiteForm.get('name')!.touched) {
-              <p class="text-xs text-red-500">Name is required.</p>
+              <p class="text-xs text-red-500">{{ 'facility.locations.nameRequired' | translate }}</p>
             }
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-zinc-700">External ID</label>
+            <label class="text-sm font-medium text-zinc-700">{{ 'facility.locations.externalIdLabel' | translate }}</label>
             <input pInputText type="text" formControlName="externalId" placeholder="Optional" [fluid]="true" />
           </div>
         </div>
         <div class="flex items-center justify-end gap-2">
-          <p-button type="button" label="Cancel" severity="secondary" (click)="closeCreateSite()" />
+          <p-button type="button" [label]="'facility.locations.cancel' | translate" severity="secondary" (click)="closeCreateSite()" />
           <p-button
-            type="button" icon="pi pi-check" label="Create Site"
+            type="button" icon="pi pi-check" [label]="'facility.locations.createSite' | translate"
             [loading]="createSiteSaving()" [disabled]="createSiteSaving()"
             loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateSite()"
           />
@@ -87,8 +87,8 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="border-b border-zinc-100 bg-zinc-50/60">
-            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Name</th>
-            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Buildings</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.locations.nameLabel' | translate }}</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.locations.buildingsCount' | translate }}</th>
             <th class="px-4 py-3"></th>
           </tr>
         </thead>
@@ -106,8 +106,8 @@
             <tr>
               <td colspan="3" class="px-6 py-14 text-center">
                 <i class="pi pi-map-marker text-3xl text-zinc-300 mb-3 block"></i>
-                <p class="text-sm font-medium text-zinc-500">No sites configured</p>
-                <p class="text-xs text-zinc-400 mt-1">Add a site to start building the location hierarchy.</p>
+                <p class="text-sm font-medium text-zinc-500">{{ 'facility.locations.noSitesConfigured' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-1">{{ 'facility.locations.addSiteHint' | translate }}</p>
               </td>
             </tr>
           } @else {
@@ -152,9 +152,9 @@
                 <tr class="border-b border-zinc-100 bg-red-50">
                   <td colspan="3" class="px-6 py-3">
                       <div class="flex items-center gap-2 shrink-0">
-                        <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortDeleteSite()" />
-                        <p-button
-                          type="button" label="Yes, delete" severity="danger" size="small"
+                         <p-button type="button" [label]="'facility.locations.keep' | translate" severity="secondary" size="small" (click)="abortDeleteSite()" />
+                         <p-button
+                           type="button" [label]="'facility.locations.yesDelete' | translate" severity="danger" size="small"
                           [loading]="deleteSiteInProgressId() === site.id"
                           [disabled]="deleteSiteInProgressId() === site.id"
                           loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteSite(site)"
@@ -168,9 +168,9 @@
               @if (isSiteExpanded(site.id)) {
                 @if (site.Buildings.length === 0) {
                   <tr class="border-b border-zinc-100 bg-zinc-50/40">
-                    <td colspan="4" class="pl-16 pr-6 py-3 text-xs text-zinc-400 italic">
-                      No buildings in this site.
-                      <a [routerLink]="['sites', site.id]" class="ml-1 text-[#238cff] hover:underline not-italic">Add buildings →</a>
+                   <td colspan="4" class="pl-16 pr-6 py-3 text-xs text-zinc-400 italic">
+                       {{ 'facility.locations.noBuildingsInSite' | translate }}
+                       <a [routerLink]="['sites', site.id]" class="ml-1 text-[#238cff] hover:underline not-italic">{{ 'facility.locations.addBuildingsLink' | translate }}</a>
                     </td>
                   </tr>
                 } @else {
@@ -224,15 +224,15 @@
                           <td colspan="4" class="py-2.5" style="padding-left: 5.5rem; padding-right: 1rem;">
                             <div class="flex items-center gap-2 text-xs text-zinc-400 animate-pulse">
                               <i class="pi pi-spin pi-spinner text-[10px]"></i>
-                              <span>Loading rooms…</span>
+                            <span>{{ 'facility.locations.loadingRooms' | translate }}</span>
                             </div>
                           </td>
                         </tr>
                       } @else if (getRooms(building.id).length === 0) {
                         <tr class="border-b border-zinc-100 bg-zinc-50/20">
-                          <td colspan="4" class="py-2.5 text-xs text-zinc-400 italic" style="padding-left: 5.5rem; padding-right: 1rem;">
-                            No rooms in this building.
-                            <a [routerLink]="['buildings', building.id]" class="ml-1 text-[#238cff] hover:underline not-italic">Add rooms →</a>
+                           <td colspan="4" class="py-2.5 text-xs text-zinc-400 italic" style="padding-left: 5.5rem; padding-right: 1rem;">
+                             {{ 'facility.locations.noRoomsInBuilding' | translate }}
+                             <a [routerLink]="['buildings', building.id]" class="ml-1 text-[#238cff] hover:underline not-italic">{{ 'facility.locations.addRoomsLink' | translate }}</a>
                           </td>
                         </tr>
                       } @else {
@@ -293,7 +293,7 @@
       } @else if (sites().length === 0) {
         <div class="px-4 py-10 text-center">
           <i class="pi pi-map-marker text-3xl text-zinc-300 mb-3 block"></i>
-          <p class="text-sm font-medium text-zinc-500">No sites configured</p>
+           <p class="text-sm font-medium text-zinc-500">{{ 'facility.locations.noSitesConfigured' | translate }}</p>
         </div>
       } @else {
         @for (site of sites(); track site.id) {
@@ -338,13 +338,13 @@
                 Delete <strong>{{ site.Name }}</strong>? This cannot be undone.
               </p>
               <div class="flex items-center gap-2">
-                <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortDeleteSite()" />
-                <p-button
-                  type="button" label="Yes, delete" severity="danger" size="small"
-                  [loading]="deleteSiteInProgressId() === site.id"
-                  [disabled]="deleteSiteInProgressId() === site.id"
-                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteSite(site)"
-                />
+                 <p-button type="button" [label]="'facility.locations.keep' | translate" severity="secondary" size="small" (click)="abortDeleteSite()" />
+                 <p-button
+                   type="button" [label]="'facility.locations.yesDelete' | translate" severity="danger" size="small"
+                   [loading]="deleteSiteInProgressId() === site.id"
+                   [disabled]="deleteSiteInProgressId() === site.id"
+                   loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteSite(site)"
+                 />
               </div>
             </div>
           }
@@ -395,7 +395,7 @@
                     @if (isBuildingLoading(building.id)) {
                       <div class="mt-2 ml-8 flex items-center gap-2">
                         <i class="pi pi-spin pi-spinner text-xs text-zinc-400"></i>
-                        <span class="text-xs text-zinc-400">Loading rooms…</span>
+                         <span class="text-xs text-zinc-400">{{ 'facility.locations.loadingRooms' | translate }}</span>
                       </div>
                     } @else if (getRooms(building.id).length === 0) {
                       <p class="mt-2 ml-8 text-xs text-zinc-400 italic">
@@ -434,7 +434,7 @@
         [totalRecords]="sitesTotalRecords()"
         [rowsPerPageOptions]="sitesPageSizeOptions"
         [showCurrentPageReport]="true"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} sites"
+        [currentPageReportTemplate]="'facility.locations.pageReport' | translate"
         (onPageChange)="onSitesPageChange($event)"
       />
     </div>
@@ -448,21 +448,21 @@
     <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
       <div>
         <h2 class="text-sm font-semibold text-zinc-700">
-          Parking Areas
+          {{ 'facility.locations.parkingAreas' | translate }}
           @if (!loading()) {
             <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ parkings().length }})</span>
           }
         </h2>
-        <p class="text-xs text-zinc-400 mt-0.5">Parking facilities associated with sites.</p>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.locations.parkingDesc' | translate }}</p>
       </div>
-      <p-button icon="pi pi-plus" label="New Parking" size="small" (click)="openCreateParking()" />
+      <p-button icon="pi pi-plus" [label]="'facility.locations.newParking' | translate" size="small" (click)="openCreateParking()" />
     </div>
 
     <!-- Create parking panel -->
     @if (createParkingOpen()) {
       <div class="px-4 sm:px-6 py-5 border-b border-zinc-100 bg-zinc-50">
         <div class="flex items-center justify-between mb-4">
-          <p class="text-sm font-semibold text-zinc-700">New Parking Area</p>
+          <p class="text-sm font-semibold text-zinc-700">{{ 'facility.locations.newParkingPanel' | translate }}</p>
           <p-button
             icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
             size="small" (click)="closeCreateParking()"
@@ -476,27 +476,27 @@
         }
         <div [formGroup]="createParkingForm" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-zinc-700">Name <span class="text-red-400">*</span></label>
+            <label class="text-sm font-medium text-zinc-700">{{ 'facility.locations.nameLabel' | translate }} <span class="text-red-400">*</span></label>
             <input pInputText type="text" formControlName="name" placeholder="e.g. North Garage"
               [fluid]="true"
               [invalid]="createParkingForm.get('name')!.invalid && createParkingForm.get('name')!.touched" />
             @if (createParkingForm.get('name')!.invalid && createParkingForm.get('name')!.touched) {
-              <p class="text-xs text-red-500">Name is required.</p>
+              <p class="text-xs text-red-500">{{ 'facility.locations.nameRequired' | translate }}</p>
             }
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-zinc-700">External ID</label>
+            <label class="text-sm font-medium text-zinc-700">{{ 'facility.locations.externalIdLabel' | translate }}</label>
             <input pInputText type="text" formControlName="externalId" placeholder="Optional" [fluid]="true" />
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-zinc-700">Capacity</label>
+            <label class="text-sm font-medium text-zinc-700">{{ 'facility.locations.capacityLabel' | translate }}</label>
             <input pInputText type="number" formControlName="capacity" placeholder="Optional" [fluid]="true" />
           </div>
         </div>
         <div class="flex items-center justify-end gap-2">
-          <p-button type="button" label="Cancel" severity="secondary" (click)="closeCreateParking()" />
+          <p-button type="button" [label]="'facility.locations.cancel' | translate" severity="secondary" (click)="closeCreateParking()" />
           <p-button
-            type="button" icon="pi pi-check" label="Create Parking"
+            type="button" icon="pi pi-check" [label]="'facility.locations.createParking' | translate"
             [loading]="createParkingSaving()" [disabled]="createParkingSaving()"
             loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateParking()"
           />
@@ -516,9 +516,9 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="border-b border-zinc-100 bg-zinc-50/60">
-            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Name</th>
-            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Site</th>
-            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Capacity</th>
+             <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.locations.nameLabel' | translate }}</th>
+             <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.locations.siteLabel' | translate }}</th>
+             <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.locations.capacityLabel' | translate }}</th>
             <th class="px-4 py-3"></th>
           </tr>
         </thead>
@@ -537,8 +537,8 @@
             <tr>
               <td colspan="4" class="px-6 py-14 text-center">
                 <i class="pi pi-car text-3xl text-zinc-300 mb-3 block"></i>
-                <p class="text-sm font-medium text-zinc-500">No parking areas configured</p>
-                <p class="text-xs text-zinc-400 mt-1">Add a parking area to track parking facilities.</p>
+                 <p class="text-sm font-medium text-zinc-500">{{ 'facility.locations.noParkingConfigured' | translate }}</p>
+                 <p class="text-xs text-zinc-400 mt-1">{{ 'facility.locations.addParkingHint' | translate }}</p>
               </td>
             </tr>
           } @else {
@@ -575,13 +575,13 @@
                         Delete <strong>{{ parking.Name }}</strong>? This cannot be undone.
                       </p>
                       <div class="flex items-center gap-2 shrink-0">
-                        <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortDeleteParking()" />
-                        <p-button
-                          type="button" label="Yes, delete" severity="danger" size="small"
-                          [loading]="deleteParkingInProgressId() === parking.id"
-                          [disabled]="deleteParkingInProgressId() === parking.id"
-                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteParking(parking)"
-                        />
+                         <p-button type="button" [label]="'facility.locations.keep' | translate" severity="secondary" size="small" (click)="abortDeleteParking()" />
+                         <p-button
+                           type="button" [label]="'facility.locations.yesDelete' | translate" severity="danger" size="small"
+                           [loading]="deleteParkingInProgressId() === parking.id"
+                           [disabled]="deleteParkingInProgressId() === parking.id"
+                           loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteParking(parking)"
+                         />
                       </div>
                     </div>
                   </td>
@@ -611,7 +611,7 @@
       } @else if (parkings().length === 0) {
         <div class="px-4 py-10 text-center">
           <i class="pi pi-car text-3xl text-zinc-300 mb-3 block"></i>
-          <p class="text-sm font-medium text-zinc-500">No parking areas configured</p>
+           <p class="text-sm font-medium text-zinc-500">{{ 'facility.locations.noParkingConfigured' | translate }}</p>
         </div>
       } @else {
         @for (parking of parkings(); track parking.id) {
@@ -627,7 +627,7 @@
                   <p class="text-xs text-zinc-400">
                     @if (parking.Site?.Name) { {{ parking.Site!.Name }} · }
                     @if (parking.Capacity) { {{ parking.Capacity }} spaces }
-                    @if (!parking.Site?.Name && !parking.Capacity) { No site assigned }
+                    @if (!parking.Site?.Name && !parking.Capacity) { {{ 'facility.locations.noSiteAssigned' | translate }} }
                   </p>
                 </div>
               </div>
@@ -646,13 +646,13 @@
                 Delete <strong>{{ parking.Name }}</strong>? This cannot be undone.
               </p>
               <div class="flex items-center gap-2">
-                <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortDeleteParking()" />
-                <p-button
-                  type="button" label="Yes, delete" severity="danger" size="small"
-                  [loading]="deleteParkingInProgressId() === parking.id"
-                  [disabled]="deleteParkingInProgressId() === parking.id"
-                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteParking(parking)"
-                />
+                 <p-button type="button" [label]="'facility.locations.keep' | translate" severity="secondary" size="small" (click)="abortDeleteParking()" />
+                 <p-button
+                   type="button" [label]="'facility.locations.yesDelete' | translate" severity="danger" size="small"
+                   [loading]="deleteParkingInProgressId() === parking.id"
+                   [disabled]="deleteParkingInProgressId() === parking.id"
+                   loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteParking(parking)"
+                 />
               </div>
             </div>
           }

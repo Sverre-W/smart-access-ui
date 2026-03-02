@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
+import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { APPS, AppSwitcherService } from '../../core/services/app-switcher-service';
 
 @Component({
   selector: 'app-home',
-  imports: [ButtonModule],
+  imports: [ButtonModule, TranslateModule],
   templateUrl: './home.html',
 })
 export class Home {
@@ -14,13 +15,13 @@ export class Home {
   private appSwitcher = inject(AppSwitcherService);
   private router = inject(Router);
 
-  readonly features = [
-    'Role-based access control',
-    'Visitor management',
-    'Contractor lifecycle',
-    'Audit-ready reporting',
-    'Multi-site support',
-    'Single sign-on',
+  readonly featureKeys = [
+    'home.features.rbac',
+    'home.features.visitorManagement',
+    'home.features.contractorLifecycle',
+    'home.features.auditReporting',
+    'home.features.multiSite',
+    'home.features.sso',
   ];
 
   readonly apps = APPS;

@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { PaginatorModule } from 'primeng/paginator';
@@ -18,7 +19,7 @@ const VISITS_PAGE_SIZE = 10;
 @Component({
   selector: 'app-visitor-detail',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, InputTextModule, ButtonModule, PaginatorModule, VisitStateBadge],
+  imports: [ReactiveFormsModule, RouterLink, TranslateModule, InputTextModule, ButtonModule, PaginatorModule, VisitStateBadge],
   templateUrl: './visitor-detail.html',
 })
 export class VisitorDetail implements OnInit {
@@ -26,6 +27,7 @@ export class VisitorDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private visitorService = inject(VisitorService);
+  private translate = inject(TranslateService);
 
   // ── Visitor ──────────────────────────────────────────────────────────────
   readonly visitor = signal<VisitorDto | null>(null);
@@ -50,7 +52,7 @@ export class VisitorDetail implements OnInit {
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.error.set('Visitor ID not found.');
+      this.error.set(this.translate.instant('visitors.visitorDetail.idNotFound'));
       this.loading.set(false);
       return;
     }
@@ -69,7 +71,7 @@ export class VisitorDetail implements OnInit {
       this.visitor.set(v);
       this.patchForm(v);
     } catch {
-      this.error.set('Failed to load visitor. Please try again.');
+      this.error.set(this.translate.instant('visitors.visitorDetail.loadError'));
     } finally {
       this.loading.set(false);
     }
@@ -106,7 +108,7 @@ export class VisitorDetail implements OnInit {
       this.saveSuccess.set(true);
       setTimeout(() => this.saveSuccess.set(false), 3000);
     } catch {
-      this.saveError.set('Failed to save changes. Please try again.');
+      this.saveError.set(this.translate.instant('visitors.visitorDetail.saveError'));
     } finally {
       this.saving.set(false);
     }

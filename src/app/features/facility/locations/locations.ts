@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   LocationService,
   SiteDto,
@@ -18,12 +19,13 @@ const DEFAULT_PAGE_SIZE = 10;
 @Component({
   selector: 'app-facility-locations',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, ButtonModule, InputTextModule, PaginatorModule],
+  imports: [RouterLink, ReactiveFormsModule, ButtonModule, InputTextModule, PaginatorModule, TranslateModule],
   templateUrl: './locations.html',
 })
 export class FacilityLocations implements OnInit {
   private service = inject(LocationService);
   private fb = inject(FormBuilder);
+  private translate = inject(TranslateService);
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -104,7 +106,7 @@ export class FacilityLocations implements OnInit {
       this.sitesTotalRecords.set(sitesPage.totalItems ?? sitesPage.items.length);
       this.parkings.set(parkingsPage.items);
     } catch {
-      this.error.set('Failed to load locations. Please try again.');
+      this.error.set(this.translate.instant('facility.locations.loadError'));
     } finally {
       this.loading.set(false);
     }
@@ -119,7 +121,7 @@ export class FacilityLocations implements OnInit {
       this.sites.set(result.items);
       this.sitesTotalRecords.set(result.totalItems ?? result.items.length);
     } catch {
-      this.error.set('Failed to load sites. Please try again.');
+      this.error.set(this.translate.instant('facility.locations.loadSitesError'));
     } finally {
       this.sitesLoading.set(false);
     }
@@ -288,7 +290,7 @@ export class FacilityLocations implements OnInit {
       this.sitesFirst.set(safeFirst);
       await this.loadSites(safeFirst);
     } catch {
-      this.deleteSiteError.set(`Failed to delete "${site.Name}". Please try again.`);
+      this.deleteSiteError.set(this.translate.instant('facility.locations.deleteError', { name: site.Name }));
     } finally {
       this.deleteSiteInProgressId.set(null);
     }
@@ -313,7 +315,7 @@ export class FacilityLocations implements OnInit {
       this.parkings.update(list => list.filter(p => p.id !== parking.id));
       this.deleteParkingConfirmingId.set(null);
     } catch {
-      this.deleteParkingError.set(`Failed to delete "${parking.Name}". Please try again.`);
+      this.deleteParkingError.set(this.translate.instant('facility.locations.deleteError', { name: parking.Name }));
     } finally {
       this.deleteParkingInProgressId.set(null);
     }

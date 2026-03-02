@@ -15,10 +15,10 @@
             >
               {{ activeApp()!.initial }}
             </div>
-            <span class="text-lg font-semibold tracking-tight text-zinc-800">{{ activeApp()!.label }}</span>
+            <span class="text-lg font-semibold tracking-tight text-zinc-800">{{ 'layout.apps.' + activeApp()!.id | translate }}</span>
             <i class="pi pi-chevron-down text-xs text-zinc-400"></i>
           </p-button>
-          <p-menu #appSwitcherMenu [model]="appSwitcherItems" [popup]="true" />
+          <p-menu #appSwitcherMenu [model]="appSwitcherItems()" [popup]="true" />
         } @else {
           <!-- No app selected (home screen) or unauthenticated: plain brand -->
           <span class="text-lg font-semibold tracking-tight text-zinc-800">Smart Access</span>
@@ -41,9 +41,9 @@
             <span>{{ userName }}</span>
             <i class="pi pi-chevron-down text-xs text-zinc-400"></i>
           </p-button>
-          <p-menu #userMenu [model]="userMenuItems" [popup]="true" />
+          <p-menu #userMenu [model]="userMenuItems()" [popup]="true" />
         } @else {
-          <p-button (click)="login()">Login</p-button>
+          <p-button (click)="login()">{{ 'layout.login' | translate }}</p-button>
         }
       </div>
 
@@ -78,15 +78,17 @@
         <!-- App Switcher -->
         @if (isAuthenticated) {
           <div class="px-1">
-            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide px-3 pb-1">Switch App</p>
-            @for (item of appSwitcherItems; track item.label) {
+            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide px-3 pb-1">
+              {{ 'layout.switchApp' | translate }}
+            </p>
+            @for (item of appSwitcherItems(); track item.label) {
               <p-button
                 [label]="item.label ?? ''"
                 [icon]="item.icon ?? ''"
                 severity="secondary"
                 [text]="true"
                 styleClass="w-full justify-start"
-                [class]="activeApp()?.label === item.label ? 'text-[#238cff]' : ''"
+                [class]="activeApp()?.id === item.id ? 'text-[#238cff]' : ''"
                 (click)="item.command && item.command({}); mobileMenuOpen = false"
               />
             }
@@ -99,7 +101,7 @@
         @if (isAuthenticated && navItems().length > 0) {
           <div class="px-1">
             <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide px-3 pb-1">
-              {{ activeApp()!.label }}
+              {{ 'layout.apps.' + activeApp()!.id | translate }}
             </p>
             @for (item of navItems(); track item.route) {
               <a
@@ -128,7 +130,7 @@
             <span class="text-sm font-medium text-zinc-700">{{ userName }}</span>
           </div>
           <p-button
-            label="Logout"
+            [label]="'layout.logout' | translate"
             icon="pi pi-sign-out"
             severity="secondary"
             [text]="true"
@@ -137,7 +139,7 @@
           />
         } @else {
           <p-button
-            label="Login"
+            [label]="'layout.login' | translate"
             styleClass="w-full"
             (click)="login()"
           />
@@ -154,7 +156,7 @@
     <!-- Sidebar -->
     <aside class="hidden sm:flex flex-col w-56 shrink-0 border-r border-zinc-200 bg-white pt-4 pb-6 px-3">
       <p class="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest px-3 mb-2">
-        {{ activeApp()!.label }}
+        {{ 'layout.apps.' + activeApp()!.id | translate }}
       </p>
       <nav class="flex flex-col gap-0.5">
         @for (item of navItems(); track item.route) {

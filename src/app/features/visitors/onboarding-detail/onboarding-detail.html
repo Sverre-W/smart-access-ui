@@ -17,7 +17,7 @@
         <h1 class="text-2xl font-semibold text-zinc-800 truncate">{{ visitorFullName() }}</h1>
         <p class="text-sm text-zinc-400 mt-0.5 truncate">{{ invitation()!.visitor.email }}</p>
       } @else {
-        <h1 class="text-2xl font-semibold text-zinc-800">Onboarding Details</h1>
+        <h1 class="text-2xl font-semibold text-zinc-800">{{ 'visitors.onboardingDetail.title' | translate }}</h1>
       }
     </div>
     @if (visit()) {
@@ -38,7 +38,7 @@
     <!-- ── Timeline card ───────────────────────────────────────────────────── -->
     <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-5">
       <div class="px-6 py-5 border-b border-zinc-100">
-        <h2 class="text-sm font-semibold text-zinc-700">Visitor journey</h2>
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'visitors.onboardingDetail.visitorJourney' | translate }}</h2>
       </div>
       <div class="px-6 py-6">
         <app-visitor-timeline [invitation]="invitation()!" />
@@ -48,51 +48,51 @@
     <!-- ── Visitor details card ────────────────────────────────────────────── -->
     <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-5">
       <div class="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
-        <h2 class="text-sm font-semibold text-zinc-700">Visitor details</h2>
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'visitors.onboardingDetail.visitorDetails' | translate }}</h2>
         <a
           [routerLink]="['/visitors/visitor', invitation()!.visitor.id]"
           class="inline-flex items-center gap-1 text-xs text-[#238cff] hover:underline"
         >
           <i class="pi pi-external-link text-[10px]"></i>
-          View profile
+          {{ 'visitors.onboardingDetail.viewProfile' | translate }}
         </a>
       </div>
       <dl class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
 
         <div>
-          <dt class="text-xs font-medium text-zinc-400">Full name</dt>
+          <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.fullName' | translate }}</dt>
           <dd class="mt-0.5 text-sm text-zinc-800">{{ visitorFullName() || '—' }}</dd>
         </div>
 
         <div>
-          <dt class="text-xs font-medium text-zinc-400">Email</dt>
+          <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.email' | translate }}</dt>
           <dd class="mt-0.5 text-sm text-zinc-800 break-all">{{ invitation()!.visitor.email || '—' }}</dd>
         </div>
 
         @if (invitation()!.visitor.company) {
           <div>
-            <dt class="text-xs font-medium text-zinc-400">Company</dt>
+            <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.company' | translate }}</dt>
             <dd class="mt-0.5 text-sm text-zinc-800">{{ invitation()!.visitor.company }}</dd>
           </div>
         }
 
         @if (invitation()!.visitor.phone) {
           <div>
-            <dt class="text-xs font-medium text-zinc-400">Phone</dt>
+            <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.phone' | translate }}</dt>
             <dd class="mt-0.5 text-sm text-zinc-800">{{ invitation()!.visitor.phone }}</dd>
           </div>
         }
 
         @if (invitation()!.visitor.licensePlate) {
           <div>
-            <dt class="text-xs font-medium text-zinc-400">License plate</dt>
+            <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.licensePlate' | translate }}</dt>
             <dd class="mt-0.5 text-sm text-zinc-800 font-mono">{{ invitation()!.visitor.licensePlate }}</dd>
           </div>
         }
 
         <div>
-          <dt class="text-xs font-medium text-zinc-400">Parking required</dt>
-          <dd class="mt-0.5 text-sm text-zinc-800">{{ invitation()!.parkingRequired ? 'Yes' : 'No' }}</dd>
+          <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.parkingRequired' | translate }}</dt>
+          <dd class="mt-0.5 text-sm text-zinc-800">{{ invitation()!.parkingRequired ? ('visitors.onboardingDetail.yes' | translate) : ('visitors.onboardingDetail.no' | translate) }}</dd>
         </div>
 
       </dl>
@@ -101,30 +101,30 @@
     <!-- ── Visit details card ─────────────────────────────────────────────── -->
     <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-5">
       <div class="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
-        <h2 class="text-sm font-semibold text-zinc-700">Visit details</h2>
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'visitors.onboardingDetail.visitDetails' | translate }}</h2>
         <a
           [routerLink]="['/visitors/edit', visit()!.id]"
           class="inline-flex items-center gap-1 text-xs text-[#238cff] hover:underline"
         >
           <i class="pi pi-external-link text-[10px]"></i>
-          Edit visit
+          {{ 'visitors.onboardingDetail.editVisit' | translate }}
         </a>
       </div>
       <dl class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
 
         <div class="sm:col-span-2">
-          <dt class="text-xs font-medium text-zinc-400">Summary</dt>
+          <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.summary' | translate }}</dt>
           <dd class="mt-0.5 text-sm text-zinc-800">{{ visit()!.summary || '—' }}</dd>
         </div>
 
         <div>
-          <dt class="text-xs font-medium text-zinc-400">Scheduled</dt>
+          <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.scheduled' | translate }}</dt>
           <dd class="mt-0.5 text-sm text-zinc-800">{{ visitDateRange() }}</dd>
         </div>
 
         @if (visit()!.actualStart || visit()!.actualEnd) {
           <div>
-            <dt class="text-xs font-medium text-zinc-400">Actual</dt>
+            <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.actual' | translate }}</dt>
             <dd class="mt-0.5 text-sm text-zinc-800">
               {{ formatDate(visit()!.actualStart) }}
               @if (visit()!.actualEnd) { – {{ formatDate(visit()!.actualEnd) }} }
@@ -134,28 +134,28 @@
 
         @if (visit()!.location) {
           <div>
-            <dt class="text-xs font-medium text-zinc-400">Location</dt>
+            <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.location' | translate }}</dt>
             <dd class="mt-0.5 text-sm text-zinc-800">{{ visit()!.location!.name }}</dd>
           </div>
         }
 
         @if (invitation()!.onboardedOn) {
           <div>
-            <dt class="text-xs font-medium text-zinc-400">Onboarded</dt>
+            <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.onboarded' | translate }}</dt>
             <dd class="mt-0.5 text-sm text-zinc-800">{{ formatDate(invitation()!.onboardedOn) }}</dd>
           </div>
         }
 
         @if (invitation()!.arrivedOn) {
           <div>
-            <dt class="text-xs font-medium text-zinc-400">Arrived</dt>
+            <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.arrived' | translate }}</dt>
             <dd class="mt-0.5 text-sm text-zinc-800">{{ formatDate(invitation()!.arrivedOn) }}</dd>
           </div>
         }
 
         @if (invitation()!.leftOn) {
           <div>
-            <dt class="text-xs font-medium text-zinc-400">Left</dt>
+            <dt class="text-xs font-medium text-zinc-400">{{ 'visitors.onboardingDetail.left' | translate }}</dt>
             <dd class="mt-0.5 text-sm text-zinc-800">{{ formatDate(invitation()!.leftOn) }}</dd>
           </div>
         }
@@ -167,7 +167,7 @@
     <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
       <div class="px-6 py-5 border-b border-zinc-100">
         <h2 class="text-sm font-semibold text-zinc-700">
-          Gathered documents
+          {{ 'visitors.onboardingDetail.gatheredDocuments' | translate }}
           @if (!imagesLoading() && onboardingImages().length > 0) {
             <span class="ml-1.5 rounded-full bg-zinc-100 px-1.5 py-0.5 text-xs font-medium text-zinc-500">
               {{ onboardingImages().length }}
@@ -179,12 +179,12 @@
       @if (imagesLoading()) {
         <div class="px-6 py-8 flex items-center gap-3 text-sm text-zinc-400">
           <i class="pi pi-spin pi-spinner"></i>
-          Loading documents…
+          {{ 'visitors.onboardingDetail.loadingDocuments' | translate }}
         </div>
       } @else if (onboardingImages().length === 0) {
         <div class="px-6 py-8 text-center">
           <i class="pi pi-file text-2xl text-zinc-300 mb-2 block"></i>
-          <p class="text-sm text-zinc-400">No documents gathered yet.</p>
+          <p class="text-sm text-zinc-400">{{ 'visitors.onboardingDetail.noDocuments' | translate }}</p>
         </div>
       } @else {
         <div class="p-6 grid grid-cols-2 sm:grid-cols-3 gap-3">

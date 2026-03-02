@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import type { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
@@ -30,6 +31,7 @@ import { LocationPicker } from '../../../shared/components/location-picker/locat
   imports: [
     ReactiveFormsModule,
     FormsModule,
+    TranslateModule,
     AutoCompleteModule,
     ButtonModule,
     DatePickerModule,
@@ -47,6 +49,7 @@ export class EditVisit implements OnInit {
   private visitorService = inject(VisitorService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   readonly visit = signal<VisitDto | null>(null);
   readonly loading = signal(true);
@@ -155,7 +158,7 @@ export class EditVisit implements OnInit {
 
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.error.set('No visit ID provided.');
+      this.error.set(this.translate.instant('visitors.editVisit.noVisitId'));
       this.loading.set(false);
       return;
     }
@@ -165,7 +168,7 @@ export class EditVisit implements OnInit {
       this.visit.set(v);
       this.patchForm(v);
     } catch {
-      this.error.set('Failed to load visit.');
+      this.error.set(this.translate.instant('visitors.editVisit.loadError'));
     } finally {
       this.loading.set(false);
     }
@@ -231,7 +234,7 @@ export class EditVisit implements OnInit {
 
       setTimeout(() => this.saveSuccess.set(false), 3000);
     } catch {
-      this.saveError.set('Failed to save changes. Please try again.');
+      this.saveError.set(this.translate.instant('visitors.editVisit.saveError'));
     } finally {
       this.saving.set(false);
     }
@@ -345,7 +348,7 @@ export class EditVisit implements OnInit {
       this.visit.set(updated);
       this.closeAddPerson();
     } catch {
-      this.addPersonError.set('Failed to add person. Please try again.');
+      this.addPersonError.set(this.translate.instant('visitors.editVisit.addPersonError'));
     } finally {
       this.addPersonSaving.set(false);
     }
@@ -376,7 +379,7 @@ export class EditVisit implements OnInit {
       this.form.disable();
       this.cancelConfirming.set(false);
     } catch {
-      this.cancelError.set('Failed to cancel visit. Please try again.');
+      this.cancelError.set(this.translate.instant('visitors.editVisit.cancelError'));
     } finally {
       this.cancelling.set(false);
     }
@@ -410,7 +413,7 @@ export class EditVisit implements OnInit {
       this.visit.set(updated);
       this.removeConfirmingId.set(null);
     } catch {
-      this.removeError.set('Failed to remove person. Please try again.');
+      this.removeError.set(this.translate.instant('visitors.editVisit.removeError'));
     } finally {
       this.removingId.set(null);
     }
