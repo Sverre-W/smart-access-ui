@@ -34,7 +34,7 @@ export class Home {
   }
 
   login(): void {
-    this.oauthService.initLoginFlow(undefined, { state: this.router.url });
+    this.oauthService.initLoginFlow(this.router.url);
   }
 
   selectApp(id: string): void {

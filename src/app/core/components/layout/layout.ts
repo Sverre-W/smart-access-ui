@@ -57,7 +57,7 @@ export class Layout {
   }
 
   login(): void {
-    this.oauthService.initLoginFlow(undefined, { state: this.router.url });
+    this.oauthService.initLoginFlow(this.router.url);
   }
 
   logout(): void {

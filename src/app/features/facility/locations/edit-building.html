@@ -1,0 +1,417 @@
+<div class="px-4 py-6 sm:p-8 max-w-3xl mx-auto">
+
+  <!-- Back button + header -->
+  <div class="mb-8">
+    <button
+      type="button"
+      (click)="goBack()"
+      class="mb-4 flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-700 transition-colors"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+      <span>Locations</span>
+    </button>
+
+    @if (loading()) {
+      <div class="animate-pulse">
+        <div class="h-7 w-56 rounded bg-zinc-200 mb-2"></div>
+        <div class="h-4 w-36 rounded bg-zinc-100"></div>
+      </div>
+    } @else if (building()) {
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0 mt-0.5">
+          <i class="pi pi-home text-violet-500"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-semibold text-zinc-800">{{ building()!.Name }}</h1>
+          <p class="text-sm text-zinc-400 mt-0.5">
+            Building · {{ building()!.Rooms.length }} room(s)
+            @if (building()!.Site) {
+              <span class="mx-1">·</span>
+              <span>{{ building()!.Site!.Name }}</span>
+            }
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Load error -->
+  @if (error()) {
+    <div class="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- ── Details card ─────────────────────────────────────────────────────── -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible mb-6">
+
+    <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <h2 class="text-sm font-semibold text-zinc-700">Details</h2>
+      <p class="text-xs text-zinc-400 mt-0.5">Name, external reference and address for this building.</p>
+    </div>
+
+    <div class="px-4 sm:px-6 py-5">
+
+      @if (loading()) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-pulse mb-4">
+          <div class="h-9 rounded-lg bg-zinc-100"></div>
+          <div class="h-9 rounded-lg bg-zinc-100"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-pulse">
+          <div class="h-9 rounded-lg bg-zinc-100"></div>
+          <div class="h-9 rounded-lg bg-zinc-100"></div>
+          <div class="h-9 rounded-lg bg-zinc-100"></div>
+          <div class="h-9 rounded-lg bg-zinc-100"></div>
+          <div class="h-9 rounded-lg bg-zinc-100"></div>
+        </div>
+      } @else {
+        @if (detailsSuccess()) {
+          <div class="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <i class="pi pi-check-circle shrink-0"></i>
+            <span>Building details saved.</span>
+          </div>
+        }
+        @if (detailsError()) {
+          <div class="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ detailsError() }}</span>
+          </div>
+        }
+
+        <div [formGroup]="detailsForm">
+          <!-- Name + ExternalId -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">Name <span class="text-red-400">*</span></label>
+              <input
+                pInputText type="text" formControlName="name" placeholder="e.g. Block A"
+                [fluid]="true"
+                [invalid]="detailsForm.get('name')!.invalid && detailsForm.get('name')!.touched"
+              />
+              @if (detailsForm.get('name')!.invalid && detailsForm.get('name')!.touched) {
+                <p class="text-xs text-red-500">Name is required.</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">External ID</label>
+              <input pInputText type="text" formControlName="externalId" placeholder="Optional" [fluid]="true" />
+            </div>
+          </div>
+
+          <!-- Address section -->
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-3">Address</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">Street</label>
+              <input pInputText type="text" formControlName="street" placeholder="e.g. Karl Johans gate 1" [fluid]="true" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">Zip Code</label>
+              <input pInputText type="text" formControlName="zipCode" placeholder="e.g. 0154" [fluid]="true" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">City</label>
+              <input pInputText type="text" formControlName="city" placeholder="e.g. Oslo" [fluid]="true" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">State / Region</label>
+              <input pInputText type="text" formControlName="state" placeholder="e.g. Oslo" [fluid]="true" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">Country</label>
+              <input pInputText type="text" formControlName="country" placeholder="e.g. Norway" [fluid]="true" />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <p-button
+            type="button" icon="pi pi-check" label="Save Details"
+            [loading]="detailsSaving()" [disabled]="detailsSaving()"
+            loadingIcon="pi pi-spin pi-spinner" (click)="saveDetails()"
+          />
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- ── Rooms card ───────────────────────────────────────────────────────── -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+
+    <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <div>
+        <h2 class="text-sm font-semibold text-zinc-700">
+          Rooms
+          @if (!loading() && building()) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ building()!.Rooms.length }})</span>
+          }
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">Rooms in this building.</p>
+      </div>
+      @if (!loading()) {
+        <p-button
+          type="button"
+          [icon]="showCreateRoom() ? 'pi pi-minus' : 'pi pi-plus'"
+          [label]="showCreateRoom() ? 'Cancel' : 'Add Room'"
+          severity="secondary"
+          size="small"
+          (click)="toggleCreateRoom()"
+        />
+      }
+    </div>
+
+    <!-- Delete room error -->
+    @if (deleteRoomError()) {
+      <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteRoomError() }}
+      </div>
+    }
+
+    <!-- Create room panel -->
+    @if (showCreateRoom()) {
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100 bg-zinc-50/50">
+        <p class="text-sm font-semibold text-zinc-700 mb-3">New Room</p>
+        @if (createRoomError()) {
+          <div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>{{ createRoomError() }}
+          </div>
+        }
+        <div [formGroup]="createRoomForm">
+          <!-- Name + ExternalId -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">Name <span class="text-red-400">*</span></label>
+              <input
+                pInputText type="text" formControlName="name" placeholder="e.g. Conference Room A"
+                [fluid]="true"
+                [invalid]="createRoomForm.get('name')!.invalid && createRoomForm.get('name')!.touched"
+              />
+              @if (createRoomForm.get('name')!.invalid && createRoomForm.get('name')!.touched) {
+                <p class="text-xs text-red-500">Name is required.</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">External ID</label>
+              <input pInputText type="text" formControlName="externalId" placeholder="Optional" [fluid]="true" />
+            </div>
+          </div>
+          <!-- Capacity + Floor -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">Capacity</label>
+              <input pInputText type="number" formControlName="capacity" placeholder="e.g. 10" [fluid]="true" min="0" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">Floor Number</label>
+              <input pInputText type="number" formControlName="floorNumber" placeholder="e.g. 2" [fluid]="true" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">Floor Label</label>
+              <input pInputText type="text" formControlName="floorLabel" placeholder="e.g. 2nd Floor" [fluid]="true" />
+            </div>
+          </div>
+          <!-- Wheelchair -->
+          <div class="flex items-center gap-2 mb-4">
+            <p-checkbox formControlName="isWheelChairAccessible" [binary]="true" inputId="createRoomWheelchair" />
+            <label for="createRoomWheelchair" class="text-sm text-zinc-600 cursor-pointer">Wheelchair accessible</label>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <p-button
+            type="button" icon="pi pi-plus" label="Create Room"
+            [loading]="createRoomSaving()" [disabled]="createRoomSaving()"
+            loadingIcon="pi pi-spin pi-spinner" (click)="createRoom()"
+          />
+        </div>
+      </div>
+    }
+
+    <!-- Desktop table -->
+    <div class="hidden sm:block">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Room</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Floor</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Capacity</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (loading()) {
+            @for (i of [1, 2, 3]; track i) {
+              <tr class="border-b border-zinc-100">
+                 <td class="px-6 py-4"><div class="h-4 w-44 rounded bg-zinc-100 animate-pulse"></div></td>
+                 <td class="px-4 py-4"><div class="h-4 w-10 rounded bg-zinc-100 animate-pulse"></div></td>
+                 <td class="px-4 py-4"><div class="h-4 w-10 rounded bg-zinc-100 animate-pulse"></div></td>
+                 <td class="px-4 py-4"></td>
+              </tr>
+            }
+          } @else if (!building() || building()!.Rooms.length === 0) {
+            <tr>
+              <td colspan="4" class="px-6 py-12 text-center">
+                <i class="pi pi-objects-column text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">No rooms yet</p>
+                <p class="text-xs text-zinc-400 mt-1">Add rooms to this building using the button above.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (room of building()!.Rooms; track room.id) {
+
+              <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0">
+                      <i class="pi pi-objects-column text-xs text-zinc-400"></i>
+                    </div>
+                    <div>
+                      <span class="font-medium text-zinc-800">{{ room.Name }}</span>
+                      @if (room.IsWheelChairAccessible) {
+                        <span class="ml-2 text-xs text-blue-500" title="Wheelchair accessible">♿</span>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-4 text-zinc-500">
+                  @if (room.FloorLabel) {
+                    {{ room.FloorLabel }}
+                  } @else if (room.FloorNumber !== null) {
+                    {{ room.FloorNumber }}
+                  } @else {
+                    <span class="text-zinc-300">—</span>
+                  }
+                </td>
+                 <td class="px-4 py-4 text-zinc-500">
+                  @if (room.Capacity !== null) {
+                    {{ room.Capacity }}
+                  } @else {
+                    <span class="text-zinc-300">—</span>
+                  }
+                </td>
+                 <td class="px-4 py-4">
+                  <div class="flex items-center gap-1 justify-end">
+                    <p-button
+                      icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                      size="small" title="Delete room" (click)="confirmDeleteRoom(room.id)"
+                    />
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Delete confirmation row -->
+              @if (deleteRoomConfirmingId() === room.id) {
+                <tr class="border-b border-zinc-100 bg-red-50">
+                   <td colspan="4" class="px-6 py-3">
+                    <div class="flex items-center justify-between gap-4">
+                      <p class="text-sm text-red-700 font-medium">
+                        <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                        Delete room <strong>{{ room.Name }}</strong>? This cannot be undone.
+                      </p>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortDeleteRoom()" />
+                        <p-button
+                          type="button" label="Yes, delete" severity="danger" size="small"
+                          [loading]="deleteRoomInProgressId() === room.id"
+                          [disabled]="deleteRoomInProgressId() === room.id"
+                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteRoom(room)"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile list -->
+    <div class="sm:hidden divide-y divide-zinc-100">
+
+      @if (loading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="px-4 py-4 flex items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-zinc-100 shrink-0"></div>
+              <div>
+                <div class="h-4 w-36 rounded bg-zinc-100 mb-1"></div>
+                <div class="h-3 w-20 rounded bg-zinc-100"></div>
+              </div>
+            </div>
+            <div class="h-4 w-8 rounded bg-zinc-100"></div>
+          </div>
+        }
+      } @else if (!building() || building()!.Rooms.length === 0) {
+        <div class="px-4 py-10 text-center">
+          <i class="pi pi-objects-column text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">No rooms yet</p>
+        </div>
+      } @else {
+        @for (room of building()!.Rooms; track room.id) {
+
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0">
+                  <i class="pi pi-objects-column text-xs text-zinc-400"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-medium text-zinc-800 truncate">
+                    {{ room.Name }}
+                    @if (room.IsWheelChairAccessible) {
+                      <span class="ml-1 text-xs text-blue-500">♿</span>
+                    }
+                  </p>
+                  <p class="text-xs text-zinc-400">
+                    @if (room.FloorLabel) {
+                      {{ room.FloorLabel }}
+                    } @else if (room.FloorNumber !== null) {
+                      Floor {{ room.FloorNumber }}
+                    } @else {
+                      No floor info
+                    }
+                    @if (room.Capacity !== null) {
+                      <span class="mx-1">·</span>Cap. {{ room.Capacity }}
+                    }
+                  </p>
+                </div>
+              </div>
+              <p-button
+                icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                size="small" (click)="confirmDeleteRoom(room.id)"
+              />
+            </div>
+          </div>
+
+          @if (deleteRoomConfirmingId() === room.id) {
+            <div class="bg-red-50 px-4 py-3 border-t border-red-100">
+              <p class="text-sm text-red-700 font-medium mb-2">
+                <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                Delete <strong>{{ room.Name }}</strong>? This cannot be undone.
+              </p>
+              <div class="flex items-center gap-2">
+                <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortDeleteRoom()" />
+                <p-button
+                  type="button" label="Yes, delete" severity="danger" size="small"
+                  [loading]="deleteRoomInProgressId() === room.id"
+                  [disabled]="deleteRoomInProgressId() === room.id"
+                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteRoom(room)"
+                />
+              </div>
+            </div>
+          }
+
+        }
+      }
+
+    </div>
+
+  </div>
+
+</div>

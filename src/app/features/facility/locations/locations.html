@@ -1,0 +1,667 @@
+<div class="p-4 sm:p-8">
+
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-semibold text-zinc-800">Locations</h1>
+    <p class="text-sm text-zinc-500 mt-1">
+      Manage the physical location hierarchy: sites, buildings, rooms and parking areas.
+    </p>
+  </div>
+
+  <!-- Initial load error -->
+  @if (error()) {
+    <div class="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- ── Sites ──────────────────────────────────────────────────────────────── -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible mb-6">
+
+    <!-- Card header -->
+    <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <div>
+        <h2 class="text-sm font-semibold text-zinc-700">
+          Sites
+          @if (!loading()) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ sitesTotalRecords() }})</span>
+          }
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">Top-level locations containing buildings.</p>
+      </div>
+      <p-button icon="pi pi-plus" label="New Site" size="small" (click)="openCreateSite()" />
+    </div>
+
+    <!-- Create site panel -->
+    @if (createSiteOpen()) {
+      <div class="px-4 sm:px-6 py-5 border-b border-zinc-100 bg-zinc-50">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-semibold text-zinc-700">New Site</p>
+          <p-button
+            icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+            size="small" (click)="closeCreateSite()"
+          />
+        </div>
+        @if (createSiteError()) {
+          <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ createSiteError() }}</span>
+          </div>
+        }
+        <div [formGroup]="createSiteForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">Name <span class="text-red-400">*</span></label>
+            <input pInputText type="text" formControlName="name" placeholder="e.g. Oslo HQ"
+              [fluid]="true"
+              [invalid]="createSiteForm.get('name')!.invalid && createSiteForm.get('name')!.touched" />
+            @if (createSiteForm.get('name')!.invalid && createSiteForm.get('name')!.touched) {
+              <p class="text-xs text-red-500">Name is required.</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">External ID</label>
+            <input pInputText type="text" formControlName="externalId" placeholder="Optional" [fluid]="true" />
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+          <p-button type="button" label="Cancel" severity="secondary" (click)="closeCreateSite()" />
+          <p-button
+            type="button" icon="pi pi-check" label="Create Site"
+            [loading]="createSiteSaving()" [disabled]="createSiteSaving()"
+            loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateSite()"
+          />
+        </div>
+      </div>
+    }
+
+    <!-- Delete site error -->
+    @if (deleteSiteError()) {
+      <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteSiteError() }}
+      </div>
+    }
+
+    <!-- Desktop tree -->
+    <div class="hidden sm:block" [class.opacity-50]="sitesLoading()" [class.pointer-events-none]="sitesLoading()">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Name</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Buildings</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (loading()) {
+            @for (i of [1, 2, 3]; track i) {
+              <tr class="border-b border-zinc-100">
+                <td class="px-6 py-4"><div class="h-4 w-44 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-8 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"></td>
+              </tr>
+            }
+          } @else if (sites().length === 0) {
+            <tr>
+              <td colspan="3" class="px-6 py-14 text-center">
+                <i class="pi pi-map-marker text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">No sites configured</p>
+                <p class="text-xs text-zinc-400 mt-1">Add a site to start building the location hierarchy.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (site of sites(); track site.id) {
+
+              <!-- Site row -->
+              <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+                <td class="px-6 py-3">
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      class="w-6 h-6 flex items-center justify-center rounded text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-colors shrink-0"
+                      [class.text-zinc-600]="isSiteExpanded(site.id)"
+                      (click)="toggleSite(site.id)"
+                      [title]="isSiteExpanded(site.id) ? 'Collapse' : 'Expand'"
+                    >
+                      <i class="pi text-xs" [class.pi-chevron-down]="isSiteExpanded(site.id)" [class.pi-chevron-right]="!isSiteExpanded(site.id)"></i>
+                    </button>
+                    <div class="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                      <i class="pi pi-building text-xs text-blue-500"></i>
+                    </div>
+                    <span class="font-semibold text-zinc-800">{{ site.Name }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-zinc-500">{{ site.Buildings.length }}</td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-1 justify-end">
+                    <p-button
+                      icon="pi pi-cog" severity="secondary" [text]="true" [rounded]="true"
+                      size="small" title="Edit site" [routerLink]="['sites', site.id]"
+                    />
+                    <p-button
+                      icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                      size="small" title="Delete site" (click)="confirmDeleteSite(site.id)"
+                    />
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Delete site confirmation row -->
+              @if (deleteSiteConfirmingId() === site.id) {
+                <tr class="border-b border-zinc-100 bg-red-50">
+                  <td colspan="3" class="px-6 py-3">
+                      <div class="flex items-center gap-2 shrink-0">
+                        <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortDeleteSite()" />
+                        <p-button
+                          type="button" label="Yes, delete" severity="danger" size="small"
+                          [loading]="deleteSiteInProgressId() === site.id"
+                          [disabled]="deleteSiteInProgressId() === site.id"
+                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteSite(site)"
+                        />
+                       </div>
+                  </td>
+                </tr>
+              }
+
+              <!-- Buildings (expanded) -->
+              @if (isSiteExpanded(site.id)) {
+                @if (site.Buildings.length === 0) {
+                  <tr class="border-b border-zinc-100 bg-zinc-50/40">
+                    <td colspan="4" class="pl-16 pr-6 py-3 text-xs text-zinc-400 italic">
+                      No buildings in this site.
+                      <a [routerLink]="['sites', site.id]" class="ml-1 text-[#238cff] hover:underline not-italic">Add buildings →</a>
+                    </td>
+                  </tr>
+                } @else {
+                  @for (building of site.Buildings; track building.id) {
+
+                    <!-- Building row -->
+                    <tr class="border-b border-zinc-100 bg-zinc-50/30 hover:bg-zinc-50/70 transition-colors">
+                      <td class="py-2.5" style="padding-left: 3rem; padding-right: 1rem;">
+                        <div class="flex items-center gap-2">
+                          <button
+                            type="button"
+                            class="w-6 h-6 flex items-center justify-center rounded text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-colors shrink-0"
+                            (click)="toggleBuilding(building.id)"
+                            [title]="isBuildingExpanded(building.id) ? 'Collapse' : 'Expand'"
+                          >
+                            <i class="pi text-xs" [class.pi-chevron-down]="isBuildingExpanded(building.id)" [class.pi-chevron-right]="!isBuildingExpanded(building.id)"></i>
+                          </button>
+                          <div class="w-6 h-6 rounded-md bg-violet-50 flex items-center justify-center shrink-0">
+                            <i class="pi pi-home text-[10px] text-violet-500"></i>
+                          </div>
+                          <span class="font-medium text-zinc-700 text-sm">{{ building.Name }}</span>
+                          @if (building.Address?.City) {
+                            <span class="text-xs text-zinc-400">· {{ building.Address!.City }}</span>
+                          }
+                        </div>
+                      </td>
+
+                      <td class="px-4 py-2.5 text-zinc-500 text-sm">
+                        @if (isBuildingLoading(building.id)) {
+                          <span class="text-zinc-400">…</span>
+                        } @else if (loadedBuildings().has(building.id)) {
+                          {{ getRooms(building.id).length }} room(s)
+                        } @else {
+                          <span class="text-zinc-400">—</span>
+                        }
+                      </td>
+                      <td class="px-4 py-2.5">
+                        <div class="flex items-center gap-1 justify-end">
+                          <p-button
+                            icon="pi pi-cog" severity="secondary" [text]="true" [rounded]="true"
+                            size="small" title="Edit building" [routerLink]="['buildings', building.id]"
+                          />
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- Rooms (expanded) -->
+                    @if (isBuildingExpanded(building.id)) {
+                      @if (isBuildingLoading(building.id)) {
+                        <tr class="border-b border-zinc-100 bg-zinc-50/20">
+                          <td colspan="4" class="py-2.5" style="padding-left: 5.5rem; padding-right: 1rem;">
+                            <div class="flex items-center gap-2 text-xs text-zinc-400 animate-pulse">
+                              <i class="pi pi-spin pi-spinner text-[10px]"></i>
+                              <span>Loading rooms…</span>
+                            </div>
+                          </td>
+                        </tr>
+                      } @else if (getRooms(building.id).length === 0) {
+                        <tr class="border-b border-zinc-100 bg-zinc-50/20">
+                          <td colspan="4" class="py-2.5 text-xs text-zinc-400 italic" style="padding-left: 5.5rem; padding-right: 1rem;">
+                            No rooms in this building.
+                            <a [routerLink]="['buildings', building.id]" class="ml-1 text-[#238cff] hover:underline not-italic">Add rooms →</a>
+                          </td>
+                        </tr>
+                      } @else {
+                        @for (room of getRooms(building.id); track room.id) {
+                          <tr class="border-b border-zinc-100 bg-white hover:bg-zinc-50/50 transition-colors">
+                            <td class="py-2" style="padding-left: 5.5rem; padding-right: 1rem;">
+                              <div class="flex items-center gap-2">
+                                <div class="w-5 h-5 rounded flex items-center justify-center shrink-0">
+                                  <i class="pi pi-objects-column text-[10px] text-zinc-400"></i>
+                                </div>
+                                <span class="text-sm text-zinc-600">{{ room.Name }}</span>
+                                @if (room.FloorLabel) {
+                                  <span class="text-xs text-zinc-400">· Floor {{ room.FloorLabel }}</span>
+                                }
+                              </div>
+                            </td>
+
+                            <td class="px-4 py-2 text-zinc-400 text-xs">
+                              @if (room.Capacity) { {{ room.Capacity }} cap. }
+                            </td>
+                            <td class="px-4 py-2">
+                              <div class="flex items-center gap-1 justify-end">
+                                <p-button
+                                  icon="pi pi-cog" severity="secondary" [text]="true" [rounded]="true"
+                                  size="small" title="Edit room" [routerLink]="['buildings', building.id]"
+                                />
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                      }
+                    }
+
+                  }
+                }
+              }
+
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile list -->
+    <div class="sm:hidden divide-y divide-zinc-100" [class.opacity-50]="sitesLoading()" [class.pointer-events-none]="sitesLoading()">
+
+      @if (loading()) {
+        @for (i of [1, 2]; track i) {
+          <div class="px-4 py-4 flex items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-zinc-100 shrink-0"></div>
+              <div class="h-4 w-36 rounded bg-zinc-100"></div>
+            </div>
+            <div class="h-4 w-12 rounded bg-zinc-100"></div>
+          </div>
+        }
+      } @else if (sites().length === 0) {
+        <div class="px-4 py-10 text-center">
+          <i class="pi pi-map-marker text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">No sites configured</p>
+        </div>
+      } @else {
+        @for (site of sites(); track site.id) {
+
+          <!-- Site row (mobile) -->
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <button
+                type="button"
+                class="flex items-center gap-2.5 min-w-0 flex-1 text-left"
+                (click)="toggleSite(site.id)"
+              >
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                  <i class="pi pi-building text-xs text-blue-500"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-semibold text-zinc-800 truncate">{{ site.Name }}</p>
+                  <p class="text-xs text-zinc-400">{{ site.Buildings.length }} building(s)</p>
+                </div>
+                <i class="pi text-xs text-zinc-400 shrink-0 ml-1"
+                  [class.pi-chevron-down]="isSiteExpanded(site.id)"
+                  [class.pi-chevron-right]="!isSiteExpanded(site.id)"></i>
+              </button>
+              <div class="flex items-center gap-1 shrink-0">
+                <p-button
+                  icon="pi pi-cog" severity="secondary" [text]="true" [rounded]="true"
+                  size="small" [routerLink]="['sites', site.id]"
+                />
+                <p-button
+                  icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                  size="small" (click)="confirmDeleteSite(site.id)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Delete site confirmation (mobile) -->
+          @if (deleteSiteConfirmingId() === site.id) {
+            <div class="bg-red-50 px-4 py-3 border-t border-red-100">
+              <p class="text-sm text-red-700 font-medium mb-2">
+                <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                Delete <strong>{{ site.Name }}</strong>? This cannot be undone.
+              </p>
+              <div class="flex items-center gap-2">
+                <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortDeleteSite()" />
+                <p-button
+                  type="button" label="Yes, delete" severity="danger" size="small"
+                  [loading]="deleteSiteInProgressId() === site.id"
+                  [disabled]="deleteSiteInProgressId() === site.id"
+                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteSite(site)"
+                />
+              </div>
+            </div>
+          }
+
+          <!-- Buildings (mobile, expanded) -->
+          @if (isSiteExpanded(site.id)) {
+            @if (site.Buildings.length === 0) {
+              <div class="pl-12 pr-4 py-3 bg-zinc-50/50 text-xs text-zinc-400 italic border-t border-zinc-100">
+                No buildings.
+                <a [routerLink]="['sites', site.id]" class="ml-1 text-[#238cff] not-italic">Add →</a>
+              </div>
+            } @else {
+              @for (building of site.Buildings; track building.id) {
+                <div class="pl-10 pr-4 py-2.5 bg-zinc-50/30 border-t border-zinc-100">
+                  <div class="flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      class="flex items-center gap-2 min-w-0 flex-1 text-left"
+                      (click)="toggleBuilding(building.id)"
+                    >
+                      <div class="w-6 h-6 rounded-md bg-violet-50 flex items-center justify-center shrink-0">
+                        <i class="pi pi-home text-[10px] text-violet-500"></i>
+                      </div>
+                      <div class="min-w-0">
+                        <p class="text-sm font-medium text-zinc-700 truncate">{{ building.Name }}</p>
+                        <p class="text-xs text-zinc-400">
+                          @if (isBuildingLoading(building.id)) {
+                            …
+                          } @else if (loadedBuildings().has(building.id)) {
+                            {{ getRooms(building.id).length }} room(s)
+                          } @else {
+                            —
+                          }
+                        </p>
+                      </div>
+                      <i class="pi text-xs text-zinc-400 shrink-0 ml-1"
+                        [class.pi-chevron-down]="isBuildingExpanded(building.id)"
+                        [class.pi-chevron-right]="!isBuildingExpanded(building.id)"></i>
+                    </button>
+                    <p-button
+                      icon="pi pi-cog" severity="secondary" [text]="true" [rounded]="true"
+                      size="small" [routerLink]="['buildings', building.id]"
+                    />
+                  </div>
+
+                  <!-- Rooms (mobile, expanded) -->
+                  @if (isBuildingExpanded(building.id)) {
+                    @if (isBuildingLoading(building.id)) {
+                      <div class="mt-2 ml-8 flex items-center gap-2">
+                        <i class="pi pi-spin pi-spinner text-xs text-zinc-400"></i>
+                        <span class="text-xs text-zinc-400">Loading rooms…</span>
+                      </div>
+                    } @else if (getRooms(building.id).length === 0) {
+                      <p class="mt-2 ml-8 text-xs text-zinc-400 italic">
+                        No rooms.
+                        <a [routerLink]="['buildings', building.id]" class="ml-1 text-[#238cff] not-italic">Add →</a>
+                      </p>
+                    } @else {
+                      <div class="mt-1.5 ml-8 space-y-1">
+                        @for (room of getRooms(building.id); track room.id) {
+                          <div class="flex items-center gap-2 py-1">
+                            <i class="pi pi-objects-column text-[10px] text-zinc-400 shrink-0"></i>
+                            <span class="text-xs text-zinc-600">{{ room.Name }}</span>
+                            @if (room.FloorLabel) {
+                              <span class="text-xs text-zinc-400">· {{ room.FloorLabel }}</span>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            }
+          }
+
+        }
+      }
+
+    </div>
+
+    <!-- Sites paginator -->
+    <div class="border-t border-zinc-100">
+      <p-paginator
+        [first]="sitesFirst()"
+        [rows]="sitesPageSize()"
+        [totalRecords]="sitesTotalRecords()"
+        [rowsPerPageOptions]="sitesPageSizeOptions"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} sites"
+        (onPageChange)="onSitesPageChange($event)"
+      />
+    </div>
+
+  </div>
+
+  <!-- ── Parkings ───────────────────────────────────────────────────────────── -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+
+    <!-- Card header -->
+    <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <div>
+        <h2 class="text-sm font-semibold text-zinc-700">
+          Parking Areas
+          @if (!loading()) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ parkings().length }})</span>
+          }
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">Parking facilities associated with sites.</p>
+      </div>
+      <p-button icon="pi pi-plus" label="New Parking" size="small" (click)="openCreateParking()" />
+    </div>
+
+    <!-- Create parking panel -->
+    @if (createParkingOpen()) {
+      <div class="px-4 sm:px-6 py-5 border-b border-zinc-100 bg-zinc-50">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-semibold text-zinc-700">New Parking Area</p>
+          <p-button
+            icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+            size="small" (click)="closeCreateParking()"
+          />
+        </div>
+        @if (createParkingError()) {
+          <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ createParkingError() }}</span>
+          </div>
+        }
+        <div [formGroup]="createParkingForm" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">Name <span class="text-red-400">*</span></label>
+            <input pInputText type="text" formControlName="name" placeholder="e.g. North Garage"
+              [fluid]="true"
+              [invalid]="createParkingForm.get('name')!.invalid && createParkingForm.get('name')!.touched" />
+            @if (createParkingForm.get('name')!.invalid && createParkingForm.get('name')!.touched) {
+              <p class="text-xs text-red-500">Name is required.</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">External ID</label>
+            <input pInputText type="text" formControlName="externalId" placeholder="Optional" [fluid]="true" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">Capacity</label>
+            <input pInputText type="number" formControlName="capacity" placeholder="Optional" [fluid]="true" />
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+          <p-button type="button" label="Cancel" severity="secondary" (click)="closeCreateParking()" />
+          <p-button
+            type="button" icon="pi pi-check" label="Create Parking"
+            [loading]="createParkingSaving()" [disabled]="createParkingSaving()"
+            loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateParking()"
+          />
+        </div>
+      </div>
+    }
+
+    <!-- Delete parking error -->
+    @if (deleteParkingError()) {
+      <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteParkingError() }}
+      </div>
+    }
+
+    <!-- Desktop table -->
+    <div class="hidden sm:block">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Name</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Site</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Capacity</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (loading()) {
+            @for (i of [1, 2]; track i) {
+              <tr class="border-b border-zinc-100">
+                <td class="px-6 py-4"><div class="h-4 w-40 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-28 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-12 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"></td>
+              </tr>
+            }
+          } @else if (parkings().length === 0) {
+            <tr>
+              <td colspan="4" class="px-6 py-14 text-center">
+                <i class="pi pi-car text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">No parking areas configured</p>
+                <p class="text-xs text-zinc-400 mt-1">Add a parking area to track parking facilities.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (parking of parkings(); track parking.id) {
+
+              <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+                      <i class="pi pi-car text-xs text-amber-500"></i>
+                    </div>
+                    <span class="font-medium text-zinc-800">{{ parking.Name }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-4 text-zinc-500">{{ parking.Site?.Name || '—' }}</td>
+                <td class="px-4 py-4 text-zinc-500">{{ parking.Capacity ?? '—' }}</td>
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-1 justify-end">
+                    <p-button
+                      icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                      size="small" title="Delete parking" (click)="confirmDeleteParking(parking.id)"
+                    />
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Delete parking confirmation row -->
+              @if (deleteParkingConfirmingId() === parking.id) {
+                <tr class="border-b border-zinc-100 bg-red-50">
+                  <td colspan="4" class="px-6 py-3">
+                    <div class="flex items-center justify-between gap-4">
+                      <p class="text-sm text-red-700 font-medium">
+                        <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                        Delete <strong>{{ parking.Name }}</strong>? This cannot be undone.
+                      </p>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortDeleteParking()" />
+                        <p-button
+                          type="button" label="Yes, delete" severity="danger" size="small"
+                          [loading]="deleteParkingInProgressId() === parking.id"
+                          [disabled]="deleteParkingInProgressId() === parking.id"
+                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteParking(parking)"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile list -->
+    <div class="sm:hidden divide-y divide-zinc-100">
+
+      @if (loading()) {
+        @for (i of [1, 2]; track i) {
+          <div class="px-4 py-4 flex items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-zinc-100 shrink-0"></div>
+              <div class="h-4 w-32 rounded bg-zinc-100"></div>
+            </div>
+            <div class="h-4 w-10 rounded bg-zinc-100"></div>
+          </div>
+        }
+      } @else if (parkings().length === 0) {
+        <div class="px-4 py-10 text-center">
+          <i class="pi pi-car text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">No parking areas configured</p>
+        </div>
+      } @else {
+        @for (parking of parkings(); track parking.id) {
+
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+                  <i class="pi pi-car text-xs text-amber-500"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-medium text-zinc-800 truncate">{{ parking.Name }}</p>
+                  <p class="text-xs text-zinc-400">
+                    @if (parking.Site?.Name) { {{ parking.Site!.Name }} · }
+                    @if (parking.Capacity) { {{ parking.Capacity }} spaces }
+                    @if (!parking.Site?.Name && !parking.Capacity) { No site assigned }
+                  </p>
+                </div>
+              </div>
+              <p-button
+                icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                size="small" (click)="confirmDeleteParking(parking.id)"
+              />
+            </div>
+          </div>
+
+          <!-- Delete parking confirmation (mobile) -->
+          @if (deleteParkingConfirmingId() === parking.id) {
+            <div class="bg-red-50 px-4 py-3 border-t border-red-100">
+              <p class="text-sm text-red-700 font-medium mb-2">
+                <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                Delete <strong>{{ parking.Name }}</strong>? This cannot be undone.
+              </p>
+              <div class="flex items-center gap-2">
+                <p-button type="button" label="Keep" severity="secondary" size="small" (click)="abortDeleteParking()" />
+                <p-button
+                  type="button" label="Yes, delete" severity="danger" size="small"
+                  [loading]="deleteParkingInProgressId() === parking.id"
+                  [disabled]="deleteParkingInProgressId() === parking.id"
+                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteParking(parking)"
+                />
+              </div>
+            </div>
+          }
+
+        }
+      }
+
+    </div>
+
+  </div>
+
+</div>

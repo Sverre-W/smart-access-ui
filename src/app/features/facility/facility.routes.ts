@@ -25,4 +25,12 @@ export const facilityRoutes: Routes = [
     path: 'locations',
     loadComponent: () => import('./locations/locations').then(m => m.FacilityLocations),
   },
+  {
+    path: 'locations/sites/:siteId',
+    loadComponent: () => import('./locations/edit-site').then(m => m.EditSite),
+  },
+  {
+    path: 'locations/buildings/:buildingId',
+    loadComponent: () => import('./locations/edit-building').then(m => m.EditBuilding),
+  },
 ];

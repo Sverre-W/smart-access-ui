@@ -1,0 +1,218 @@
+<div class="p-4 sm:p-8 space-y-6">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <div>
+    <h1 class="text-xl font-semibold text-zinc-800">Facility Overview</h1>
+    <p class="mt-1 text-sm text-zinc-400">Status and summary across locations, agents and access policies.</p>
+  </div>
+
+  <!-- ── Error banner ─────────────────────────────────────────────────────── -->
+  @if (error()) {
+    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- ── Stat cards ───────────────────────────────────────────────────────── -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+
+    <!-- Sites -->
+    <a [routerLink]="['/facility/locations']"
+       class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+      <div class="w-8 h-8 rounded-lg bg-[#238cff]/10 flex items-center justify-center">
+        <i class="pi pi-map text-sm text-[#238cff]"></i>
+      </div>
+      <div>
+        @if (loading()) {
+          <div class="h-7 w-12 rounded bg-zinc-100 animate-pulse mb-1"></div>
+          <div class="h-3 w-16 rounded bg-zinc-100 animate-pulse"></div>
+        } @else {
+          <p class="text-2xl font-bold text-zinc-800">{{ sitesCount() }}</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Sites</p>
+        }
+      </div>
+    </a>
+
+    <!-- Buildings -->
+    <a [routerLink]="['/facility/locations']"
+       class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+      <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
+        <i class="pi pi-home text-sm text-violet-500"></i>
+      </div>
+      <div>
+        @if (loading()) {
+          <div class="h-7 w-12 rounded bg-zinc-100 animate-pulse mb-1"></div>
+          <div class="h-3 w-16 rounded bg-zinc-100 animate-pulse"></div>
+        } @else {
+          <p class="text-2xl font-bold text-zinc-800">{{ buildingsCount() }}</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Buildings</p>
+        }
+      </div>
+    </a>
+
+    <!-- Parkings -->
+    <a [routerLink]="['/facility/locations']"
+       class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+      <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+        <i class="pi pi-car text-sm text-emerald-500"></i>
+      </div>
+      <div>
+        @if (loading()) {
+          <div class="h-7 w-12 rounded bg-zinc-100 animate-pulse mb-1"></div>
+          <div class="h-3 w-16 rounded bg-zinc-100 animate-pulse"></div>
+        } @else {
+          <p class="text-2xl font-bold text-zinc-800">{{ parkingsCount() }}</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Parkings</p>
+        }
+      </div>
+    </a>
+
+    <!-- Agents -->
+    <a [routerLink]="['/facility/agents']"
+       class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+      <div class="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center">
+        <i class="pi pi-server text-sm text-sky-500"></i>
+      </div>
+      <div>
+        @if (loading()) {
+          <div class="h-7 w-12 rounded bg-zinc-100 animate-pulse mb-1"></div>
+          <div class="h-3 w-20 rounded bg-zinc-100 animate-pulse"></div>
+        } @else {
+          <p class="text-2xl font-bold text-zinc-800">{{ agentsTotal() }}</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Agents</p>
+          @if (!loading() && agentsWithIssues() > 0) {
+            <p class="text-xs text-amber-500 mt-1">{{ agentsWithIssues() }} with issues</p>
+          } @else if (!loading()) {
+            <p class="text-xs text-emerald-500 mt-1">All operational</p>
+          }
+        }
+      </div>
+    </a>
+
+    <!-- Access Systems -->
+    <a [routerLink]="['/facility/access-policies']"
+       class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+      <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
+        <i class="pi pi-lock text-sm text-rose-500"></i>
+      </div>
+      <div>
+        @if (loading()) {
+          <div class="h-7 w-12 rounded bg-zinc-100 animate-pulse mb-1"></div>
+          <div class="h-3 w-20 rounded bg-zinc-100 animate-pulse"></div>
+        } @else {
+          <p class="text-2xl font-bold text-zinc-800">{{ systemsCount() }}</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Systems</p>
+        }
+      </div>
+    </a>
+
+    <!-- Rule Sets -->
+    <a [routerLink]="['/facility/access-policies']"
+       class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+      <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+        <i class="pi pi-list-check text-sm text-orange-500"></i>
+      </div>
+      <div>
+        @if (loading()) {
+          <div class="h-7 w-12 rounded bg-zinc-100 animate-pulse mb-1"></div>
+          <div class="h-3 w-16 rounded bg-zinc-100 animate-pulse"></div>
+        } @else {
+          <p class="text-2xl font-bold text-zinc-800">{{ ruleSetsCount() }}</p>
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mt-0.5">Rule Sets</p>
+        }
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ── Agent health panel ────────────────────────────────────────────────── -->
+  @if (!loading() && agentsWithIssues() > 0) {
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-hidden">
+
+      <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+            <i class="pi pi-exclamation-triangle text-xs text-amber-500"></i>
+          </div>
+          <div>
+            <h2 class="text-sm font-semibold text-zinc-700">Agent Alerts</h2>
+            <p class="text-xs text-zinc-400">{{ agentsWithIssues() }} agent(s) require attention</p>
+          </div>
+        </div>
+        <a [routerLink]="['/facility/agents']"
+           class="text-xs text-[#238cff] hover:underline font-medium">
+          Manage agents →
+        </a>
+      </div>
+
+      <div class="divide-y divide-zinc-100">
+        @for (agent of problematicAgents(); track agent.id) {
+          <div class="flex items-center justify-between px-4 sm:px-6 py-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-7 h-7 rounded-md bg-zinc-100 flex items-center justify-center shrink-0">
+                <i class="pi pi-server text-[11px] text-zinc-500"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-zinc-700 truncate">{{ agent.name }}</p>
+                @if (agent.latestStatus?.details) {
+                  <p class="text-xs text-zinc-400 truncate">{{ agent.latestStatus!.details }}</p>
+                }
+              </div>
+            </div>
+            <span class="shrink-0 ml-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium"
+                  [class]="agentStatusClass(agent)">
+              <i class="pi text-[10px]" [class]="agentStatusIcon(agent)"></i>
+              {{ agentStatusLabel(agent) }}
+            </span>
+          </div>
+        }
+      </div>
+
+    </div>
+  }
+
+  <!-- ── Quick-nav cards ───────────────────────────────────────────────────── -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+    <!-- Agents -->
+    <a [routerLink]="['/facility/agents']"
+       class="rounded-xl border border-zinc-200 bg-white shadow-xs p-5 flex items-start gap-4 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+      <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
+        <i class="pi pi-server text-base text-sky-500"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">Agents</p>
+        <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">Manage hardware agents, configure connections and monitor operational status.</p>
+      </div>
+      <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
+    </a>
+
+    <!-- Access Policies -->
+    <a [routerLink]="['/facility/access-policies']"
+       class="rounded-xl border border-zinc-200 bg-white shadow-xs p-5 flex items-start gap-4 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+      <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center shrink-0">
+        <i class="pi pi-lock text-base text-rose-500"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">Access Policies</p>
+        <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">Configure access control systems, rule sets and subject-based conditions.</p>
+      </div>
+      <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
+    </a>
+
+    <!-- Locations -->
+    <a [routerLink]="['/facility/locations']"
+       class="rounded-xl border border-zinc-200 bg-white shadow-xs p-5 flex items-start gap-4 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+      <div class="w-10 h-10 rounded-lg bg-[#238cff]/10 flex items-center justify-center shrink-0">
+        <i class="pi pi-map-marker text-base text-[#238cff]"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">Locations</p>
+        <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">Browse and manage sites, buildings, rooms and parking areas.</p>
+      </div>
+      <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
+    </a>
+
+  </div>
+
+</div>
