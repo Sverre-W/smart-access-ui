@@ -45,6 +45,7 @@
           icon="pi pi-plus"
           [label]="'facility.tenants.newTenant' | translate"
           size="small"
+          [disabled]="!canWriteTenants()"
           (click)="openCreate()"
         />
       </div>
@@ -174,7 +175,7 @@
           <p-button type="button" [label]="'facility.tenants.cancel' | translate" severity="secondary" (click)="closeCreate()" />
           <p-button
             type="button" icon="pi pi-check" [label]="'facility.tenants.createTenant' | translate"
-            [loading]="createSaving()" [disabled]="createSaving()"
+            [loading]="createSaving()" [disabled]="createSaving() || !canWriteTenants()"
             loadingIcon="pi pi-spin pi-spinner" (click)="saveCreate()"
           />
         </div>
@@ -265,10 +266,10 @@
                        [routerLink]="['/facility/tenants', tenant.tenantId]"
                      />
                      @if (!tenant.isRootTenant) {
-                       <p-button
-                         icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                         size="small" title="Delete tenant" (click)="confirmDelete(tenant.tenantId)"
-                       />
+                        <p-button
+                          icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                          size="small" title="Delete tenant" [disabled]="!canWriteTenants()" (click)="confirmDelete(tenant.tenantId)"
+                        />
                      }
                    </div>
                  </td>
@@ -287,9 +288,9 @@
                         <p-button type="button" [label]="'facility.tenants.keep' | translate" severity="secondary" size="small" (click)="abortDelete()" />
                         <p-button
                           type="button" [label]="'facility.tenants.yesDelete' | translate" severity="danger" size="small"
-                          [loading]="deleteInProgressId() === tenant.tenantId"
-                          [disabled]="deleteInProgressId() === tenant.tenantId"
-                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(tenant)"
+                           [loading]="deleteInProgressId() === tenant.tenantId"
+                           [disabled]="deleteInProgressId() === tenant.tenantId || !canWriteTenants()"
+                           loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(tenant)"
                         />
                       </div>
                     </div>
@@ -352,7 +353,7 @@
                 @if (!tenant.isRootTenant) {
                    <p-button
                      icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                     size="small" (click)="confirmDelete(tenant.tenantId)"
+                     size="small" [disabled]="!canWriteTenants()" (click)="confirmDelete(tenant.tenantId)"
                    />
                 }
               </div>
@@ -379,9 +380,9 @@
                 <p-button type="button" [label]="'facility.tenants.keep' | translate" severity="secondary" size="small" (click)="abortDelete()" />
                 <p-button
                   type="button" [label]="'facility.tenants.yesDelete' | translate" severity="danger" size="small"
-                  [loading]="deleteInProgressId() === tenant.tenantId"
-                  [disabled]="deleteInProgressId() === tenant.tenantId"
-                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(tenant)"
+                   [loading]="deleteInProgressId() === tenant.tenantId"
+                   [disabled]="deleteInProgressId() === tenant.tenantId || !canWriteTenants()"
+                   loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(tenant)"
                 />
               </div>
             </div>

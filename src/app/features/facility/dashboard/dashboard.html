@@ -17,6 +17,7 @@
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
 
     <!-- Sites -->
+    @if (canSeeLocations()) {
     <a [routerLink]="['/facility/locations']"
        class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
       <div class="w-8 h-8 rounded-lg bg-[#238cff]/10 flex items-center justify-center">
@@ -32,8 +33,10 @@
         }
       </div>
     </a>
+    }
 
     <!-- Buildings -->
+    @if (canSeeLocations()) {
     <a [routerLink]="['/facility/locations']"
        class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
       <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
@@ -49,8 +52,10 @@
         }
       </div>
     </a>
+    }
 
     <!-- Parkings -->
+    @if (canSeeLocations()) {
     <a [routerLink]="['/facility/locations']"
        class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
       <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
@@ -66,8 +71,10 @@
         }
       </div>
     </a>
+    }
 
     <!-- Agents -->
+    @if (canSeeAgents()) {
     <a [routerLink]="['/facility/agents']"
        class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
       <div class="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center">
@@ -88,8 +95,10 @@
         }
       </div>
     </a>
+    }
 
     <!-- Access Systems -->
+    @if (canSeeAccessPolicies()) {
     <a [routerLink]="['/facility/access-policies']"
        class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
       <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
@@ -105,8 +114,10 @@
         }
       </div>
     </a>
+    }
 
     <!-- Rule Sets -->
+    @if (canSeeAccessPolicies()) {
     <a [routerLink]="['/facility/access-policies']"
        class="rounded-xl border border-zinc-200 bg-white shadow-xs p-4 flex flex-col gap-3 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
       <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
@@ -122,11 +133,12 @@
         }
       </div>
     </a>
+    }
 
   </div>
 
   <!-- ── Agent health panel ────────────────────────────────────────────────── -->
-  @if (!loading() && agentsWithIssues() > 0) {
+  @if (canSeeAgents() && !loading() && agentsWithIssues() > 0) {
     <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-hidden">
 
       <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
@@ -175,6 +187,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
 
     <!-- Agents -->
+    @if (canSeeAgents()) {
     <a [routerLink]="['/facility/agents']"
        class="rounded-xl border border-zinc-200 bg-white shadow-xs p-5 flex items-start gap-4 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
       <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
@@ -186,8 +199,10 @@
       </div>
       <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
     </a>
+    }
 
     <!-- Access Policies -->
+    @if (canSeeAccessPolicies()) {
     <a [routerLink]="['/facility/access-policies']"
        class="rounded-xl border border-zinc-200 bg-white shadow-xs p-5 flex items-start gap-4 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
       <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center shrink-0">
@@ -199,8 +214,10 @@
       </div>
       <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
     </a>
+    }
 
     <!-- Locations -->
+    @if (canSeeLocations()) {
     <a [routerLink]="['/facility/locations']"
        class="rounded-xl border border-zinc-200 bg-white shadow-xs p-5 flex items-start gap-4 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
       <div class="w-10 h-10 rounded-lg bg-[#238cff]/10 flex items-center justify-center shrink-0">
@@ -212,6 +229,7 @@
       </div>
       <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
     </a>
+    }
 
   </div>
 

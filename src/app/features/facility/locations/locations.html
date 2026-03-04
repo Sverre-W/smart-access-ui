@@ -30,7 +30,7 @@
         </h2>
         <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.locations.sitesDesc' | translate }}</p>
       </div>
-      <p-button icon="pi pi-plus" [label]="'facility.locations.newSite' | translate" size="small" (click)="openCreateSite()" />
+      <p-button icon="pi pi-plus" [label]="'facility.locations.newSite' | translate" size="small" [disabled]="!canWriteLocations()" (click)="openCreateSite()" />
     </div>
 
     <!-- Create site panel -->
@@ -68,7 +68,7 @@
           <p-button type="button" [label]="'facility.locations.cancel' | translate" severity="secondary" (click)="closeCreateSite()" />
           <p-button
             type="button" icon="pi pi-check" [label]="'facility.locations.createSite' | translate"
-            [loading]="createSiteSaving()" [disabled]="createSiteSaving()"
+            [loading]="createSiteSaving()" [disabled]="createSiteSaving() || !canWriteLocations()"
             loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateSite()"
           />
         </div>
@@ -141,7 +141,7 @@
                     />
                     <p-button
                       icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                      size="small" title="Delete site" (click)="confirmDeleteSite(site.id)"
+                      size="small" title="Delete site" [disabled]="!canWriteLocations()" (click)="confirmDeleteSite(site.id)"
                     />
                   </div>
                 </td>
@@ -155,9 +155,9 @@
                          <p-button type="button" [label]="'facility.locations.keep' | translate" severity="secondary" size="small" (click)="abortDeleteSite()" />
                          <p-button
                            type="button" [label]="'facility.locations.yesDelete' | translate" severity="danger" size="small"
-                          [loading]="deleteSiteInProgressId() === site.id"
-                          [disabled]="deleteSiteInProgressId() === site.id"
-                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteSite(site)"
+                           [loading]="deleteSiteInProgressId() === site.id"
+                           [disabled]="deleteSiteInProgressId() === site.id || !canWriteLocations()"
+                           loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteSite(site)"
                         />
                        </div>
                   </td>
@@ -322,10 +322,10 @@
                   icon="pi pi-cog" severity="secondary" [text]="true" [rounded]="true"
                   size="small" [routerLink]="['sites', site.id]"
                 />
-                <p-button
-                  icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                  size="small" (click)="confirmDeleteSite(site.id)"
-                />
+                 <p-button
+                   icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                   size="small" [disabled]="!canWriteLocations()" (click)="confirmDeleteSite(site.id)"
+                 />
               </div>
             </div>
           </div>
@@ -342,7 +342,7 @@
                  <p-button
                    type="button" [label]="'facility.locations.yesDelete' | translate" severity="danger" size="small"
                    [loading]="deleteSiteInProgressId() === site.id"
-                   [disabled]="deleteSiteInProgressId() === site.id"
+                   [disabled]="deleteSiteInProgressId() === site.id || !canWriteLocations()"
                    loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteSite(site)"
                  />
               </div>
@@ -455,7 +455,7 @@
         </h2>
         <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.locations.parkingDesc' | translate }}</p>
       </div>
-      <p-button icon="pi pi-plus" [label]="'facility.locations.newParking' | translate" size="small" (click)="openCreateParking()" />
+      <p-button icon="pi pi-plus" [label]="'facility.locations.newParking' | translate" size="small" [disabled]="!canWriteLocations()" (click)="openCreateParking()" />
     </div>
 
     <!-- Create parking panel -->
@@ -497,7 +497,7 @@
           <p-button type="button" [label]="'facility.locations.cancel' | translate" severity="secondary" (click)="closeCreateParking()" />
           <p-button
             type="button" icon="pi pi-check" [label]="'facility.locations.createParking' | translate"
-            [loading]="createParkingSaving()" [disabled]="createParkingSaving()"
+            [loading]="createParkingSaving()" [disabled]="createParkingSaving() || !canWriteLocations()"
             loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateParking()"
           />
         </div>
@@ -559,7 +559,7 @@
                   <div class="flex items-center gap-1 justify-end">
                     <p-button
                       icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                      size="small" title="Delete parking" (click)="confirmDeleteParking(parking.id)"
+                      size="small" title="Delete parking" [disabled]="!canWriteLocations()" (click)="confirmDeleteParking(parking.id)"
                     />
                   </div>
                 </td>
@@ -578,9 +578,9 @@
                          <p-button type="button" [label]="'facility.locations.keep' | translate" severity="secondary" size="small" (click)="abortDeleteParking()" />
                          <p-button
                            type="button" [label]="'facility.locations.yesDelete' | translate" severity="danger" size="small"
-                           [loading]="deleteParkingInProgressId() === parking.id"
-                           [disabled]="deleteParkingInProgressId() === parking.id"
-                           loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteParking(parking)"
+                            [loading]="deleteParkingInProgressId() === parking.id"
+                            [disabled]="deleteParkingInProgressId() === parking.id || !canWriteLocations()"
+                            loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteParking(parking)"
                          />
                       </div>
                     </div>
@@ -633,7 +633,7 @@
               </div>
               <p-button
                 icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                size="small" (click)="confirmDeleteParking(parking.id)"
+                size="small" [disabled]="!canWriteLocations()" (click)="confirmDeleteParking(parking.id)"
               />
             </div>
           </div>
@@ -650,7 +650,7 @@
                  <p-button
                    type="button" [label]="'facility.locations.yesDelete' | translate" severity="danger" size="small"
                    [loading]="deleteParkingInProgressId() === parking.id"
-                   [disabled]="deleteParkingInProgressId() === parking.id"
+                   [disabled]="deleteParkingInProgressId() === parking.id || !canWriteLocations()"
                    loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteParking(parking)"
                  />
               </div>

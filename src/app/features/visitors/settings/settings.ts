@@ -1,4 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { PermissionsService } from '../../../core/services/permissions-service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -33,6 +34,9 @@ const isLinked = (systemId: string) => systemId !== EMPTY_GUID;
 export class VisitorsSettings implements OnInit {
   private visitorService = inject(VisitorService);
   private translate = inject(TranslateService);
+  private permissions = inject(PermissionsService);
+
+  readonly canUpdateSettings = computed(() => this.permissions.hasPermission('Visitors Service', 'Settings:Update'));
 
   // ── Load state ────────────────────────────────────────────────────────────
   private currentSettings = signal<TenantBadgeSettings | null>(null);

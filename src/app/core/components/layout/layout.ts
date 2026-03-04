@@ -25,6 +25,7 @@ export class Layout {
   private sidebarNav = inject(SidebarNavService);
   private translate = inject(TranslateService);
   readonly locale = inject(LocaleService);
+  private permissionsService = inject(PermissionsService);
 
   activeApp = this.appSwitcher.activeApp;
   navItems = this.sidebarNav.navItems;
@@ -35,11 +36,12 @@ export class Layout {
 
   appSwitcherItems = computed<MenuItem[]>(() => {
     this._lang(); // track language changes
+    this.permissionsService.permissions(); // track permission changes
     return APPS.map((app) => ({
       id: app.id,
       label: this.translate.instant(`layout.apps.${app.id}`),
       icon: app.icon,
-      disabled: app.disabled,
+      disabled: app.disabled || (!app.disabled && !this.permissionsService.hasAppAccess(app.id)),
       command: () => this.appSwitcher.switchApp(app.id),
     }));
   });
@@ -68,11 +70,10 @@ export class Layout {
 
   constructor(
     private oauthService: OAuthService,
-    private permmisionsService: PermissionsService,
     private router: Router,
   ) {
     if (this.oauthService.hasValidAccessToken()) {
-      permmisionsService.loadPermissions();
+      this.permissionsService.loadPermissions();
     }
   }
 
@@ -89,7 +90,7 @@ export class Layout {
   }
 
   logout(): void {
-    this.permmisionsService.resetPermissions();
+    this.permissionsService.resetPermissions();
     this.oauthService.revokeTokenAndLogout();
   }
 }

@@ -1,4 +1,5 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { APP_BASE_HREF } from '@angular/common';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -10,12 +11,13 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 
 import { provideTranslateService } from '@ngx-translate/core';
-import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TRANSLATE_HTTP_LOADER_CONFIG, provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
+    { provide: APP_BASE_HREF, useFactory: () => document.querySelector('base')?.getAttribute('href') ?? '/' },
     provideOAuthClient(),
     provideHttpClient(withInterceptors([authInterceptor])),
     providePrimeNG({
@@ -32,10 +34,15 @@ export const appConfig: ApplicationConfig = {
     provideTranslateService({
       defaultLanguage: 'en',
     }),
-    provideTranslateHttpLoader({
-      prefix: '/assets/i18n/',
-      suffix: '.json',
-    }),
+    provideTranslateHttpLoader(),
+    {
+      provide: TRANSLATE_HTTP_LOADER_CONFIG,
+      useFactory: (baseHref: string) => ({
+        prefix: `${baseHref}assets/i18n/`,
+        suffix: '.json',
+      }),
+      deps: [APP_BASE_HREF],
+    },
   ],
 };
 

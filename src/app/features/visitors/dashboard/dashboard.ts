@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VisitorService, VisitDto, VisitorCheckInStatus, buildFilter } from '../services/visitor-service';
+import { PermissionsService } from '../../../core/services/permissions-service';
 import { ButtonModule } from 'primeng/button';
 import { VisitStateBadge } from '../../../shared/components/visit-state-badge/visit-state-badge';
 import { formatLocalTime } from '../../../shared/utils/date-utils';
@@ -26,9 +27,15 @@ export class VisitorsDashboard implements OnInit {
   private visitorService = inject(VisitorService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private permissions = inject(PermissionsService);
 
   // ── Today's data (always the real today, unaffected by week nav) ──────────
   readonly todayVisits = signal<VisitDto[]>([]);
+
+  // ── Permissions ───────────────────────────────────────────────────────────
+  readonly canCreateVisit = computed(() =>
+    this.permissions.hasPermission('Visitors Service', 'Visits:Create')
+  );
 
   // ── Week navigation ───────────────────────────────────────────────────────
   /** Monday of the currently displayed week (normalised to midnight). */

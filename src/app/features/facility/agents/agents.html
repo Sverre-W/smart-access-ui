@@ -25,6 +25,7 @@
       <p-button
         icon="pi pi-plus"
         [label]="'facility.agents.newAgent' | translate"
+        [disabled]="!canEditAgents()"
         (click)="openCreate()"
       />
     </div>
@@ -104,7 +105,7 @@
             icon="pi pi-check"
             [label]="'facility.agents.createAgent' | translate"
             [loading]="createSaving()"
-            [disabled]="createSaving()"
+            [disabled]="createSaving() || !canEditAgents()"
             loadingIcon="pi pi-spin pi-spinner"
             (click)="saveCreate()"
           />
@@ -347,6 +348,7 @@
                       [text]="true"
                       [rounded]="true"
                       size="small"
+                      [disabled]="!canEditAgents()"
                       [title]="'facility.agents.deleteAgent' | translate"
                       (click)="confirmDelete(agent.id)"
                     />
@@ -378,7 +380,7 @@
                            severity="danger"
                            size="small"
                            [loading]="deletingId() === agent.id"
-                           [disabled]="deletingId() === agent.id"
+                           [disabled]="deletingId() === agent.id || !canEditAgents()"
                            loadingIcon="pi pi-spin pi-spinner"
                            (click)="executeDelete(agent)"
                          />
@@ -460,6 +462,7 @@
                   [text]="true"
                   [rounded]="true"
                   size="small"
+                  [disabled]="!canEditAgents()"
                   [title]="'facility.agents.deleteAgent' | translate"
                   (click)="confirmDelete(agent.id)"
                 />
@@ -508,7 +511,7 @@
                    severity="danger"
                    size="small"
                    [loading]="deletingId() === agent.id"
-                   [disabled]="deletingId() === agent.id"
+                   [disabled]="deletingId() === agent.id || !canEditAgents()"
                    loadingIcon="pi pi-spin pi-spinner"
                    (click)="executeDelete(agent)"
                  />
@@ -598,7 +601,7 @@
             [label]="'facility.agents.rename' | translate"
             severity="secondary"
             [loading]="renameSaving()"
-            [disabled]="renameSaving()"
+            [disabled]="renameSaving() || !canEditAgents()"
             loadingIcon="pi pi-spin pi-spinner"
             (click)="saveRename(agent)"
           />
@@ -871,7 +874,7 @@
                 icon="pi pi-check"
                 [label]="'facility.agents.saveConfiguration' | translate"
                 [loading]="configSaving()"
-                [disabled]="configSaving()"
+                [disabled]="configSaving() || !canEditAgents()"
                 loadingIcon="pi pi-spin pi-spinner"
                 (click)="saveConfig(agent)"
               />

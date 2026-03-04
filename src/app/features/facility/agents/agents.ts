@@ -18,6 +18,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { PasswordInput } from '../../../shared/components/password-input/password-input';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PermissionsService } from '../../../core/services/permissions-service';
 
 const REFRESH_INTERVAL_MS = 15_000;
 
@@ -45,6 +46,9 @@ export class FacilityAgents implements OnInit, OnDestroy {
   private agentService = inject(AgentService);
   private fb = inject(FormBuilder);
   private translate = inject(TranslateService);
+  private permissions = inject(PermissionsService);
+
+  readonly canEditAgents = computed(() => this.permissions.hasPermission('Agent Server', 'Edit and Delete Agents'));
 
   // ── Agent list state ───────────────────────────────────────────────────────
 

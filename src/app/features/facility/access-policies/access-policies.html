@@ -30,12 +30,13 @@
         </h2>
          <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.accessPolicies.acSystemsDesc' | translate }}</p>
       </div>
-       <p-button
-         icon="pi pi-plus"
-         [label]="'facility.accessPolicies.newSystem' | translate"
-         size="small"
-         (click)="openCreateSystem()"
-      />
+        <p-button
+          icon="pi pi-plus"
+          [label]="'facility.accessPolicies.newSystem' | translate"
+          size="small"
+          [disabled]="!canWriteSystems()"
+          (click)="openCreateSystem()"
+       />
     </div>
 
     <!-- Create system panel -->
@@ -94,7 +95,7 @@
                icon="pi pi-check"
                [label]="'facility.accessPolicies.createSystem' | translate"
               [loading]="createSystemSaving()"
-              [disabled]="createSystemSaving() || agentsLoading()"
+              [disabled]="createSystemSaving() || agentsLoading() || !canWriteSystems()"
               loadingIcon="pi pi-spin pi-spinner"
               (click)="saveCreateSystem()"
             />
@@ -175,6 +176,7 @@
                       [rounded]="true"
                       size="small"
                       title="Delete system"
+                      [disabled]="!canWriteSystems()"
                       (click)="confirmDeleteSystem(system.id)"
                     />
                   </div>
@@ -203,7 +205,7 @@
                            severity="danger"
                            size="small"
                            [loading]="deleteSystemInProgressId() === system.id"
-                           [disabled]="deleteSystemInProgressId() === system.id"
+                           [disabled]="deleteSystemInProgressId() === system.id || !canWriteSystems()"
                            loadingIcon="pi pi-spin pi-spinner"
                            (click)="executeDeleteSystem(system)"
                          />
@@ -254,14 +256,15 @@
                   [value]="systemTypeLabel(system.agentType)"
                   [severity]="systemTypeSeverity(system.agentType)"
                 />
-                <p-button
-                  icon="pi pi-trash"
-                  severity="danger"
-                  [text]="true"
-                  [rounded]="true"
-                  size="small"
-                  (click)="confirmDeleteSystem(system.id)"
-                />
+                 <p-button
+                   icon="pi pi-trash"
+                   severity="danger"
+                   [text]="true"
+                   [rounded]="true"
+                   size="small"
+                   [disabled]="!canWriteSystems()"
+                   (click)="confirmDeleteSystem(system.id)"
+                 />
               </div>
             </div>
           </div>
@@ -280,7 +283,7 @@
                    severity="danger"
                    size="small"
                    [loading]="deleteSystemInProgressId() === system.id"
-                   [disabled]="deleteSystemInProgressId() === system.id"
+                   [disabled]="deleteSystemInProgressId() === system.id || !canWriteSystems()"
                    loadingIcon="pi pi-spin pi-spinner"
                    (click)="executeDeleteSystem(system)"
                  />
@@ -309,12 +312,13 @@
         </h2>
          <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.accessPolicies.ruleSetsDesc' | translate }}</p>
       </div>
-       <p-button
-         icon="pi pi-plus"
-         [label]="'facility.accessPolicies.newRuleSet' | translate"
-         size="small"
-         (click)="openCreateRuleSet()"
-      />
+        <p-button
+          icon="pi pi-plus"
+          [label]="'facility.accessPolicies.newRuleSet' | translate"
+          size="small"
+          [disabled]="!canWriteRuleSets()"
+          (click)="openCreateRuleSet()"
+       />
     </div>
 
     <!-- Create rule set panel -->
@@ -391,7 +395,7 @@
              icon="pi pi-check"
              [label]="'facility.accessPolicies.createRuleSet' | translate"
             [loading]="createRuleSetSaving()"
-            [disabled]="createRuleSetSaving() || systems().length === 0"
+            [disabled]="createRuleSetSaving() || systems().length === 0 || !canWriteRuleSets()"
             loadingIcon="pi pi-spin pi-spinner"
             (click)="saveCreateRuleSet()"
           />
@@ -476,6 +480,7 @@
                       [rounded]="true"
                       size="small"
                       title="Delete rule set"
+                      [disabled]="!canWriteRuleSets()"
                       (click)="confirmDeleteRuleSet(ruleSet.id)"
                     />
                   </div>
@@ -504,7 +509,7 @@
                            severity="danger"
                            size="small"
                            [loading]="deleteRuleSetInProgressId() === ruleSet.id"
-                           [disabled]="deleteRuleSetInProgressId() === ruleSet.id"
+                           [disabled]="deleteRuleSetInProgressId() === ruleSet.id || !canWriteRuleSets()"
                            loadingIcon="pi pi-spin pi-spinner"
                            (click)="executeDeleteRuleSet(ruleSet)"
                          />
@@ -566,14 +571,15 @@
                   size="small"
                   [routerLink]="['rule-sets', ruleSet.id]"
                 />
-                <p-button
-                  icon="pi pi-trash"
-                  severity="danger"
-                  [text]="true"
-                  [rounded]="true"
-                  size="small"
-                  (click)="confirmDeleteRuleSet(ruleSet.id)"
-                />
+                 <p-button
+                   icon="pi pi-trash"
+                   severity="danger"
+                   [text]="true"
+                   [rounded]="true"
+                   size="small"
+                   [disabled]="!canWriteRuleSets()"
+                   (click)="confirmDeleteRuleSet(ruleSet.id)"
+                 />
               </div>
             </div>
             <p class="pl-10 text-xs text-zinc-400">{{ ruleSet.system.name }}</p>
@@ -593,7 +599,7 @@
                    severity="danger"
                    size="small"
                    [loading]="deleteRuleSetInProgressId() === ruleSet.id"
-                   [disabled]="deleteRuleSetInProgressId() === ruleSet.id"
+                   [disabled]="deleteRuleSetInProgressId() === ruleSet.id || !canWriteRuleSets()"
                    loadingIcon="pi pi-spin pi-spinner"
                    (click)="executeDeleteRuleSet(ruleSet)"
                  />

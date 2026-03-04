@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -16,6 +16,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule } from 'primeng/paginator';
 import type { PaginatorState } from 'primeng/paginator';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PermissionsService } from '../../../core/services/permissions-service';
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 const DEFAULT_PAGE_SIZE = 10;
@@ -40,6 +41,10 @@ export class FacilityAccessPolicies implements OnInit {
   private service = inject(AccessPolicyService);
   private fb = inject(FormBuilder);
   private translate = inject(TranslateService);
+  private permissions = inject(PermissionsService);
+
+  readonly canWriteSystems = computed(() => this.permissions.hasPermission('Access Policies', 'Write systems'));
+  readonly canWriteRuleSets = computed(() => this.permissions.hasPermission('Access Policies', 'Write rule sets'));
 
   // ── Data ──────────────────────────────────────────────────────────────────
 

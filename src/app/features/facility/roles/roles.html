@@ -45,6 +45,7 @@
           icon="pi pi-plus"
           [label]="'facility.roles.newRole' | translate"
           size="small"
+          [disabled]="!canWriteRoles()"
           (click)="openCreate()"
         />
       </div>
@@ -90,7 +91,7 @@
           <p-button type="button" [label]="'facility.roles.cancel' | translate" severity="secondary" (click)="closeCreate()" />
           <p-button
             type="button" icon="pi pi-check" [label]="'facility.roles.createRole' | translate"
-            [loading]="createSaving()" [disabled]="createSaving()"
+            [loading]="createSaving()" [disabled]="createSaving() || !canWriteRoles()"
             loadingIcon="pi pi-spin pi-spinner" (click)="saveCreate()"
           />
         </div>
@@ -175,6 +176,7 @@
                     <p-button
                       icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
                       size="small" [title]="'facility.roles.deleteRole' | translate"
+                      [disabled]="!canWriteRoles()"
                       (click)="confirmDelete(role.name)"
                     />
                   </div>
@@ -194,9 +196,9 @@
                         <p-button type="button" [label]="'facility.roles.keep' | translate" severity="secondary" size="small" (click)="abortDelete()" />
                         <p-button
                           type="button" [label]="'facility.roles.yesDelete' | translate" severity="danger" size="small"
-                          [loading]="deleteInProgressName() === role.name"
-                          [disabled]="deleteInProgressName() === role.name"
-                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(role)"
+                           [loading]="deleteInProgressName() === role.name"
+                           [disabled]="deleteInProgressName() === role.name || !canWriteRoles()"
+                           loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(role)"
                         />
                       </div>
                     </div>
@@ -255,7 +257,7 @@
                 />
                 <p-button
                   icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                  size="small" (click)="confirmDelete(role.name)"
+                  size="small" [disabled]="!canWriteRoles()" (click)="confirmDelete(role.name)"
                 />
               </div>
             </div>
@@ -280,9 +282,9 @@
                 <p-button type="button" [label]="'facility.roles.keep' | translate" severity="secondary" size="small" (click)="abortDelete()" />
                 <p-button
                   type="button" [label]="'facility.roles.yesDelete' | translate" severity="danger" size="small"
-                  [loading]="deleteInProgressName() === role.name"
-                  [disabled]="deleteInProgressName() === role.name"
-                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(role)"
+                   [loading]="deleteInProgressName() === role.name"
+                   [disabled]="deleteInProgressName() === role.name || !canWriteRoles()"
+                   loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(role)"
                 />
               </div>
             </div>

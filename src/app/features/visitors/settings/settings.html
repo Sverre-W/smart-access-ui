@@ -36,6 +36,7 @@
         @if (!loading()) {
           <p-toggleswitch
             [ngModel]="acEnabled()"
+            [disabled]="!canUpdateSettings()"
             (ngModelChange)="onToggleChange($event)"
           />
         }
@@ -166,6 +167,7 @@
               </div>
               <p-toggleswitch
                 [ngModel]="selfOnboardingEnabled()"
+                [disabled]="!canUpdateSettings()"
                 (ngModelChange)="selfOnboardingEnabled.set($event)"
               />
             </div>
@@ -177,6 +179,7 @@
               </div>
               <p-toggleswitch
                 [ngModel]="guidedOnboardingEnabled()"
+                [disabled]="!canUpdateSettings()"
                 (ngModelChange)="guidedOnboardingEnabled.set($event)"
               />
             </div>
@@ -194,6 +197,7 @@
             </div>
             <p-toggleswitch
               [ngModel]="labelPrintingEnabled()"
+              [disabled]="!canUpdateSettings()"
               (ngModelChange)="onLabelPrintingChange($event)"
             />
           </div>
@@ -405,6 +409,7 @@
       [label]="'visitors.settings.save' | translate"
       icon="pi pi-save"
       [loading]="saving()"
+      [disabled]="!canUpdateSettings()"
       (onClick)="save()"
     />
   </div>

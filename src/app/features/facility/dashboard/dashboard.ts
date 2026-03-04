@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LocationService } from '../services/location-service';
 import { AgentService, AgentStatus, Agent } from '../services/agent-service';
 import { AccessPolicyService } from '../services/access-policy-service';
+import { PermissionsService } from '../../../core/services/permissions-service';
 
 @Component({
   selector: 'app-facility-dashboard',
@@ -17,6 +18,13 @@ export class FacilityDashboard implements OnInit {
   private agentService    = inject(AgentService);
   private policyService   = inject(AccessPolicyService);
   private translate       = inject(TranslateService);
+  private permissions     = inject(PermissionsService);
+
+  // ── Permission guards ─────────────────────────────────────────────────────
+
+  readonly canSeeLocations     = computed(() => this.permissions.hasAnyPermission('Locations Service', 'Locations:Read', 'Locations:Create', 'Locations:Update', 'Locations:Delete'));
+  readonly canSeeAgents        = computed(() => this.permissions.hasAnyPermission('Agent Server', 'Read Agents', 'Edit and Delete Agents'));
+  readonly canSeeAccessPolicies = computed(() => this.permissions.hasAnyPermission('Access Policies', 'Read systems', 'Write systems', 'Read rule sets', 'Write rule sets'));
 
   // ── Loading / error ───────────────────────────────────────────────────────
 
@@ -63,21 +71,23 @@ export class FacilityDashboard implements OnInit {
   async ngOnInit(): Promise<void> {
     try {
       const [sites, buildings, parkings, agents, systems, ruleSets] = await Promise.all([
-        this.locationService.getSites({ PageSize: 1 }),
-        this.locationService.getBuildings({ PageSize: 1 }),
-        this.locationService.getParkings({ PageSize: 1 }),
-        this.agentService.getAgents({ pageSize: 200 }),
-        this.policyService.getSystems(),
-        this.policyService.getRuleSets({ pageSize: 1 }),
+        this.canSeeLocations()     ? this.locationService.getSites({ PageSize: 1 })      : Promise.resolve(null),
+        this.canSeeLocations()     ? this.locationService.getBuildings({ PageSize: 1 })  : Promise.resolve(null),
+        this.canSeeLocations()     ? this.locationService.getParkings({ PageSize: 1 })   : Promise.resolve(null),
+        this.canSeeAgents()        ? this.agentService.getAgents({ pageSize: 200 })      : Promise.resolve(null),
+        this.canSeeAccessPolicies() ? this.policyService.getSystems()                    : Promise.resolve(null),
+        this.canSeeAccessPolicies() ? this.policyService.getRuleSets({ pageSize: 1 })    : Promise.resolve(null),
       ]);
 
-      this.sitesCount.set(sites.totalItems ?? sites.items.length);
-      this.buildingsCount.set(buildings.totalItems ?? buildings.items.length);
-      this.parkingsCount.set(parkings.totalItems ?? parkings.items.length);
-      this.agentsTotal.set(agents.totalItems ?? agents.items.length);
-      this.allAgents.set(agents.items);
-      this.systemsCount.set(systems.length);
-      this.ruleSetsCount.set(ruleSets.totalItems ?? ruleSets.items.length);
+      if (sites)    this.sitesCount.set(sites.totalItems ?? sites.items.length);
+      if (buildings) this.buildingsCount.set(buildings.totalItems ?? buildings.items.length);
+      if (parkings)  this.parkingsCount.set(parkings.totalItems ?? parkings.items.length);
+      if (agents) {
+        this.agentsTotal.set(agents.totalItems ?? agents.items.length);
+        this.allAgents.set(agents.items);
+      }
+      if (systems)  this.systemsCount.set(systems.length);
+      if (ruleSets) this.ruleSetsCount.set(ruleSets.totalItems ?? ruleSets.items.length);
     } catch {
       this.error.set(this.translate.instant('facility.dashboard.loadError'));
     } finally {

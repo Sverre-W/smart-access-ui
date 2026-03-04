@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { SettingsService, Role } from '../services/settings-service';
+import { PermissionsService } from '../../../core/services/permissions-service';
 
 @Component({
   selector: 'app-facility-roles',
@@ -26,6 +27,9 @@ export class FacilityRoles implements OnInit {
   private settingsService = inject(SettingsService);
   private fb = inject(FormBuilder);
   private translate = inject(TranslateService);
+  private permissions = inject(PermissionsService);
+
+  readonly canWriteRoles = computed(() => this.permissions.hasPermission('Settings Server', 'roles.write'));
 
   // ── Data ──────────────────────────────────────────────────────────────────
 

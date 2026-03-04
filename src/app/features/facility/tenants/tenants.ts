@@ -11,6 +11,7 @@ import {
   TenantInfo,
   FeatureFlags,
 } from '../services/settings-service';
+import { PermissionsService } from '../../../core/services/permissions-service';
 
 @Component({
   selector: 'app-facility-tenants',
@@ -30,6 +31,9 @@ export class FacilityTenants implements OnInit {
   private settingsService = inject(SettingsService);
   private fb = inject(FormBuilder);
   private translate = inject(TranslateService);
+  private permissions = inject(PermissionsService);
+
+  readonly canWriteTenants = computed(() => this.permissions.hasPermission('Settings Server', 'tenants.write'));
 
   // ── Data ──────────────────────────────────────────────────────────────────
 

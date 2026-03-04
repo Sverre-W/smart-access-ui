@@ -10,12 +10,14 @@
       (click)="navigateToCreate()"
       icon="pi pi-plus"
       [label]="'visitors.dashboard.newVisit' | translate"
+      [disabled]="!canCreateVisit()"
       class="hidden sm:inline-flex"
     />
     <p-button
       (click)="navigateToCreate()"
       icon="pi pi-plus"
       [label]="'visitors.dashboard.newVisitShort' | translate"
+      [disabled]="!canCreateVisit()"
       class="sm:hidden"
     />
   </div>

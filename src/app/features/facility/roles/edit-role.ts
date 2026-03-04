@@ -172,6 +172,11 @@ export class EditRole implements OnInit {
       this.roleName = updated.name;
       this.detailsSuccess.set(true);
       setTimeout(() => this.detailsSuccess.set(false), 3000);
+      // If the name changed, update the URL to reflect the new role name
+      // without pushing a new history entry, so the back button still works.
+      if (updated.name !== current.name) {
+        void this.router.navigate(['/facility/roles', updated.name], { replaceUrl: true });
+      }
     } catch (err) {
       this.detailsError.set(this.extractApiError(err));
     } finally {

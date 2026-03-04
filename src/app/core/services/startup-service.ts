@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Inject, Injectable, signal } from '@angular/core';
+import { APP_BASE_HREF } from '@angular/common';
 import { Router } from '@angular/router';
 import { ConfigService } from './config-service';
 import { OAuthService } from 'angular-oauth2-oidc';
@@ -23,6 +24,7 @@ export class StartupService {
     private config: ConfigService,
     private oauth: OAuthService,
     private router: Router,
+    @Inject(APP_BASE_HREF) private baseHref: string,
   ) { }
 
   async initialize() {
@@ -37,8 +39,8 @@ export class StartupService {
       this.oauth.configure({
         issuer: auth.authority ?? auth.metadataUrl,
         clientId: auth.clientId!,
-        redirectUri: window.location.origin,
-        postLogoutRedirectUri: window.location.origin,
+        redirectUri: window.location.origin + this.baseHref,
+        postLogoutRedirectUri: window.location.origin + this.baseHref,
         responseType: auth.responseType ?? 'code',
         scope: scopes,
         customQueryParams: auth.additionalProviderParameters,
