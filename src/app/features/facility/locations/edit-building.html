@@ -5,7 +5,8 @@
     <button
       type="button"
       (click)="goBack()"
-      class="mb-4 flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-700 transition-colors"
+      [disabled]="!canGoBack()"
+      class="mb-4 flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
     >
       <i class="pi pi-arrow-left text-xs"></i>
       <span>Locations</span>

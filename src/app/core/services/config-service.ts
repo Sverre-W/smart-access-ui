@@ -10,8 +10,10 @@ export class ConfigService {
   constructor(private http: HttpClient) { }
 
   async load(): Promise<void> {
+    // Use an absolute URL so the request always hits the root-relative /api/settings
+    // regardless of the <base href> value set for Angular's client-side routing.
     this.settings = await firstValueFrom(
-      this.http.get<AppSettings>('/api/settings')
+      this.http.get<AppSettings>(`${window.location.origin}/api/settings`)
     );
   }
 

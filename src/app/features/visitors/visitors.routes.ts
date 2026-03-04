@@ -14,6 +14,11 @@ export const visitorsRoutes: Routes = [
     loadComponent: () => import('./settings/settings').then(m => m.VisitorsSettings),
   },
   {
+    path: 'settings/notifications/:category',
+    loadComponent: () =>
+      import('./notification-settings/notification-settings').then(m => m.NotificationSettings),
+  },
+  {
     path: 'create',
     loadComponent: () => import('./create-visit/create-visit').then(m => m.CreateVisit),
   },

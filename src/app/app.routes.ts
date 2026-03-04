@@ -18,6 +18,12 @@ export const routes: Routes = [
         .then(m => m.facilityRoutes)
   },
   {
+    path: 'reception',
+    loadChildren: () =>
+      import('./features/reception/reception.routes')
+        .then(m => m.receptionRoutes)
+  },
+  {
     path: '**',
     redirectTo: '',
   },

@@ -1,0 +1,28 @@
+# Dependencies — reinstalled inside the build stage
+node_modules/
+
+# Previous build output
+dist/
+
+# Angular build cache
+.angular/
+
+# Test artefacts
+coverage/
+
+# Dev tooling
+.vscode/
+.opencode/
+.tmp/
+
+# VCS
+.git/
+.gitignore
+
+# Local env / secrets
+*.env
+.env*
+
+# OS noise
+.DS_Store
+Thumbs.db

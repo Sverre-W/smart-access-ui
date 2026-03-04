@@ -1,0 +1,298 @@
+<div class="p-4 sm:p-8">
+
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-semibold text-zinc-800">{{ 'facility.roles.title' | translate }}</h1>
+    <p class="text-sm text-zinc-500 mt-1">{{ 'facility.roles.subtitle' | translate }}</p>
+  </div>
+
+  <!-- Load error -->
+  @if (error()) {
+    <div class="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Roles card -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+
+    <!-- Card header -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <div>
+        <h2 class="text-sm font-semibold text-zinc-700">
+          {{ 'facility.roles.allRoles' | translate }}
+          @if (!loading()) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ allRoles().length }})</span>
+          }
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.roles.allRolesDesc' | translate }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-iconfield>
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            pInputText
+            type="text"
+            (input)="onSearchInput($event)"
+            [placeholder]="'facility.roles.searchPlaceholder' | translate"
+            class="text-sm w-full sm:w-52"
+          />
+        </p-iconfield>
+        <p-button
+          icon="pi pi-plus"
+          [label]="'facility.roles.newRole' | translate"
+          size="small"
+          (click)="openCreate()"
+        />
+      </div>
+    </div>
+
+    <!-- Create role panel -->
+    @if (createOpen()) {
+      <div class="px-4 sm:px-6 py-5 border-b border-zinc-100 bg-zinc-50">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-semibold text-zinc-700">{{ 'facility.roles.newRolePanel' | translate }}</p>
+          <p-button
+            icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+            size="small" (click)="closeCreate()"
+          />
+        </div>
+        @if (createError()) {
+          <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ createError() }}</span>
+          </div>
+        }
+        <div [formGroup]="createForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'facility.roles.nameLabel' | translate }} <span class="text-red-400">*</span>
+            </label>
+            <input pInputText type="text" formControlName="name"
+              [placeholder]="'facility.roles.namePlaceholder' | translate" [fluid]="true"
+              [invalid]="createForm.get('name')!.invalid && createForm.get('name')!.touched" />
+            @if (createForm.get('name')!.invalid && createForm.get('name')!.touched) {
+              <p class="text-xs text-red-500">{{ 'facility.roles.fieldRequired' | translate }}</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'facility.roles.descriptionLabel' | translate }}
+            </label>
+            <input pInputText type="text" formControlName="description"
+              [placeholder]="'facility.roles.descriptionPlaceholder' | translate" [fluid]="true" />
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 mt-5">
+          <p-button type="button" [label]="'facility.roles.cancel' | translate" severity="secondary" (click)="closeCreate()" />
+          <p-button
+            type="button" icon="pi pi-check" [label]="'facility.roles.createRole' | translate"
+            [loading]="createSaving()" [disabled]="createSaving()"
+            loadingIcon="pi pi-spin pi-spinner" (click)="saveCreate()"
+          />
+        </div>
+      </div>
+    }
+
+    <!-- Delete error banner -->
+    @if (deleteError()) {
+      <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteError() }}
+      </div>
+    }
+
+    <!-- Desktop table -->
+    <div class="hidden sm:block">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.roles.roleCol' | translate }}</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.roles.permissionsCol' | translate }}</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (loading()) {
+            @for (i of [1, 2, 3]; track i) {
+              <tr class="border-b border-zinc-100">
+                <td class="px-6 py-4"><div class="h-4 w-40 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-20 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"></td>
+              </tr>
+            }
+          } @else if (!hasRoles()) {
+            <tr>
+              <td colspan="3" class="px-6 py-16 text-center">
+                <i class="pi pi-shield text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">{{ 'facility.roles.noRolesFound' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-1">{{ 'facility.roles.noRolesHint' | translate }}</p>
+              </td>
+            </tr>
+          } @else {
+            @for (role of filteredRoles(); track role.name) {
+
+              <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+
+                <!-- Role identity -->
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
+                      <i class="pi pi-shield text-xs text-violet-500"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <span class="font-semibold text-zinc-800 truncate block">{{ role.name }}</span>
+                      @if (role.description) {
+                        <p class="text-xs text-zinc-400 truncate">{{ role.description }}</p>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Permissions count -->
+                <td class="px-4 py-4">
+                  @if (permissionCount(role) > 0) {
+                    <span class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200">
+                      <i class="pi pi-key text-[10px]"></i>
+                      {{ 'facility.roles.permissionCount' | translate: { count: permissionCount(role) } }}
+                    </span>
+                  } @else {
+                    <span class="text-xs text-zinc-300">{{ 'facility.roles.noPermissions' | translate }}</span>
+                  }
+                </td>
+
+                <!-- Actions -->
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-1 justify-end">
+                    <p-button
+                      icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
+                      size="small" [title]="'facility.roles.editRole' | translate"
+                      [routerLink]="['/facility/roles', role.name]"
+                    />
+                    <p-button
+                      icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                      size="small" [title]="'facility.roles.deleteRole' | translate"
+                      (click)="confirmDelete(role.name)"
+                    />
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Delete confirmation row -->
+              @if (deleteConfirmingName() === role.name) {
+                <tr class="border-b border-zinc-100 bg-red-50">
+                  <td colspan="3" class="px-6 py-3">
+                    <div class="flex items-center justify-between gap-4">
+                      <p class="text-sm text-red-700 font-medium">
+                        <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                        <span [innerHTML]="'facility.roles.deleteConfirm' | translate: { name: role.name }"></span>
+                      </p>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <p-button type="button" [label]="'facility.roles.keep' | translate" severity="secondary" size="small" (click)="abortDelete()" />
+                        <p-button
+                          type="button" [label]="'facility.roles.yesDelete' | translate" severity="danger" size="small"
+                          [loading]="deleteInProgressName() === role.name"
+                          [disabled]="deleteInProgressName() === role.name"
+                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(role)"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile list -->
+    <div class="sm:hidden divide-y divide-zinc-100">
+
+      @if (loading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="px-4 py-4 flex items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-zinc-100 shrink-0"></div>
+              <div class="space-y-1.5">
+                <div class="h-3.5 w-36 rounded bg-zinc-100"></div>
+                <div class="h-3 w-24 rounded bg-zinc-50"></div>
+              </div>
+            </div>
+            <div class="h-4 w-8 rounded bg-zinc-100"></div>
+          </div>
+        }
+      } @else if (!hasRoles()) {
+        <div class="px-4 py-14 text-center">
+          <i class="pi pi-shield text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">{{ 'facility.roles.noRolesFound' | translate }}</p>
+        </div>
+      } @else {
+        @for (role of filteredRoles(); track role.name) {
+
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
+                  <i class="pi pi-shield text-xs text-violet-500"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-semibold text-zinc-800 truncate">{{ role.name }}</p>
+                  @if (role.description) {
+                    <p class="text-xs text-zinc-400 truncate">{{ role.description }}</p>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <p-button
+                  icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
+                  size="small" [routerLink]="['/facility/roles', role.name]"
+                />
+                <p-button
+                  icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                  size="small" (click)="confirmDelete(role.name)"
+                />
+              </div>
+            </div>
+            @if (permissionCount(role) > 0) {
+              <div class="mt-1.5 ml-10">
+                <span class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200">
+                  <i class="pi pi-key text-[10px]"></i>
+                  {{ 'facility.roles.permissionCount' | translate: { count: permissionCount(role) } }}
+                </span>
+              </div>
+            }
+          </div>
+
+          <!-- Delete confirmation (mobile) -->
+          @if (deleteConfirmingName() === role.name) {
+            <div class="bg-red-50 px-4 py-3 border-t border-red-100">
+              <p class="text-sm text-red-700 font-medium mb-2">
+                <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                <span [innerHTML]="'facility.roles.deleteConfirm' | translate: { name: role.name }"></span>
+              </p>
+              <div class="flex items-center gap-2">
+                <p-button type="button" [label]="'facility.roles.keep' | translate" severity="secondary" size="small" (click)="abortDelete()" />
+                <p-button
+                  type="button" [label]="'facility.roles.yesDelete' | translate" severity="danger" size="small"
+                  [loading]="deleteInProgressName() === role.name"
+                  [disabled]="deleteInProgressName() === role.name"
+                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(role)"
+                />
+              </div>
+            </div>
+          }
+
+        }
+      }
+
+    </div>
+
+  </div>
+
+</div>

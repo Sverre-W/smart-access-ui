@@ -8,11 +8,12 @@ export interface AppDefinition {
   initial: string;
   icon: string;
   rootRoute: string;
+  disabled?: boolean;
 }
 
 export const APPS: AppDefinition[] = [
   { id: 'univisit',       label: 'Univisit',       initial: 'U', icon: 'pi pi-home',   rootRoute: '/visitors'    },
-  { id: 'contractors',    label: 'Contractors',    initial: 'C', icon: 'pi pi-wrench', rootRoute: '/contractors' },
+  { id: 'contractors',    label: 'Contractors',    initial: 'C', icon: 'pi pi-wrench', rootRoute: '/contractors', disabled: true },
   { id: 'facility',       label: 'Facility',       initial: 'F', icon: 'pi pi-shield', rootRoute: '/facility'    },
   { id: 'reception-desk', label: 'Reception Desk', initial: 'R', icon: 'pi pi-inbox',  rootRoute: '/reception'   },
 ];

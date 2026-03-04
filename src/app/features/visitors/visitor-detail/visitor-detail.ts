@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -25,9 +26,11 @@ const VISITS_PAGE_SIZE = 10;
 export class VisitorDetail implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private location = inject(Location);
   private visitorService = inject(VisitorService);
   private translate = inject(TranslateService);
+
+  readonly canGoBack = signal(history.length > 1);
 
   // ── Visitor ──────────────────────────────────────────────────────────────
   readonly visitor = signal<VisitorDto | null>(null);
@@ -121,7 +124,7 @@ export class VisitorDetail implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/visitors/list']);
+    this.location.back();
   }
 
   fullName(v: VisitorDto): string {

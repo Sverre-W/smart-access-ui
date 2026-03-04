@@ -1,0 +1,51 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.card-editor-splitter {
+  flex: 1;
+  height: 100%;
+}
+
+.card-editor-sidebar {
+  width: 100%;
+  height: 100%;
+  padding: 0.75rem;
+  background-color: var(--p-surface-50, #f8f8f8);
+  border-right: 1px solid var(--p-surface-200, #e5e5e5);
+  min-width: 220px;
+  max-width: 320px;
+}
+
+.card-editor-content {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: var(--p-surface-100, #f0f0f0);
+}
+
+/* Outer shell: carries the shadow + border, sized to the scaled card dimensions */
+.card-editor-canvas-shadow {
+  display: inline-block;
+  flex-shrink: 0;
+  border: 1px solid var(--p-surface-400, #a3a3a3);
+  border-radius: 3px;
+  box-shadow:
+    0 4px 12px -2px rgba(0, 0, 0, 0.18),
+    0 2px 6px -2px rgba(0, 0, 0, 0.12);
+}
+
+/* Inner wrapper: clips Fabric's own internal DOM to the exact card boundary */
+.card-editor-canvas-wrapper {
+  display: block;
+  overflow: hidden;
+  /* width and height are bound to canvasNativeWidth / canvasNativeHeight (300-DPI px) */
+}

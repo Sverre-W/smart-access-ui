@@ -27,10 +27,14 @@ const APP_NAV: Record<string, NavItemDef[]> = {
   facility: [
     { navKey: 'dashboard',      icon: 'pi pi-home',       route: '/facility'                 },
     { navKey: 'agents',         icon: 'pi pi-users',      route: '/facility/agents'          },
+    { navKey: 'tenants',        icon: 'pi pi-building',   route: '/facility/tenants'         },
+    { navKey: 'roles',          icon: 'pi pi-shield',     route: '/facility/roles'           },
     { navKey: 'accessPolicies', icon: 'pi pi-lock',       route: '/facility/access-policies' },
     { navKey: 'locations',      icon: 'pi pi-map-marker', route: '/facility/locations'       },
   ],
-  'reception-desk': [],
+  'reception-desk': [
+    { navKey: 'arrivals', icon: 'pi pi-calendar-clock', route: '/reception/arrivals' },
+  ],
 };
 
 @Injectable({ providedIn: 'root' })

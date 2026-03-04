@@ -1,0 +1,222 @@
+<p-confirmdialog />
+
+<!-- Hidden file inputs -->
+<input #fileInput type="file" accept=".json" class="hidden" (change)="onFileSelected($event)" />
+<input #imageInput type="file" accept="image/*" class="hidden" (change)="onImageSelected($event)" />
+
+<!-- Context menu (right-click on canvas) -->
+<p-contextmenu #contextMenu [model]="contextMenuItems()" />
+
+<!-- Field name dialog (for add/rename image placeholder) -->
+<p-dialog
+  header="Field Name"
+  [visible]="placeholderNameDialogVisible()"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '320px' }"
+>
+  <div class="flex flex-col gap-3 pt-2">
+    <label for="field-name" class="text-sm font-medium">Enter field name</label>
+    <input
+      id="field-name"
+      pInputText
+      type="text"
+      [(ngModel)]="pendingFieldNameModel"
+      (keyup.enter)="confirmPlaceholderName()"
+      placeholder="e.g. photo"
+    />
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" (onClick)="cancelPlaceholderName()" />
+    <p-button label="OK" (onClick)="confirmPlaceholderName()" />
+  </ng-template>
+</p-dialog>
+
+<!-- Font size dialog -->
+<p-dialog
+  header="Font Size"
+  [visible]="fontSizeDialogVisible()"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '240px' }"
+>
+  <div class="flex flex-col gap-3 pt-2">
+    <label for="font-size" class="text-sm font-medium">Size (pt)</label>
+    <p-inputnumber
+      inputId="font-size"
+      [(ngModel)]="pendingFontSizeModel"
+      [min]="4"
+      [max]="300"
+      [showButtons]="true"
+    />
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" (onClick)="fontSizeDialogVisible.set(false)" />
+    <p-button label="OK" (onClick)="confirmFontSize()" />
+  </ng-template>
+</p-dialog>
+
+<!-- Text color dialog -->
+<p-dialog
+  header="Text Color"
+  [visible]="colorDialogVisible()"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '240px' }"
+>
+  <div class="flex flex-col gap-3 pt-2">
+    <label for="text-color" class="text-sm font-medium">Color</label>
+    <input id="text-color" type="color" [(ngModel)]="pendingColorModel" class="w-full h-10 cursor-pointer" />
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" (onClick)="colorDialogVisible.set(false)" />
+    <p-button label="OK" (onClick)="confirmColor()" />
+  </ng-template>
+</p-dialog>
+
+<!-- Text background color dialog -->
+<p-dialog
+  header="Text Background Color"
+  [visible]="textBgColorDialogVisible()"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '240px' }"
+>
+  <div class="flex flex-col gap-3 pt-2">
+    <label for="text-bg-color" class="text-sm font-medium">Background color</label>
+    <input
+      id="text-bg-color"
+      type="color"
+      [(ngModel)]="pendingTextBgColorModel"
+      class="w-full h-10 cursor-pointer"
+    />
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" (onClick)="textBgColorDialogVisible.set(false)" />
+    <p-button label="OK" (onClick)="confirmTextBgColor()" />
+  </ng-template>
+</p-dialog>
+
+<!-- Main layout -->
+<p-splitter [panelSizes]="[22, 78]" styleClass="card-editor-splitter h-full">
+  <!-- ── Sidebar ──────────────────────────────────────────────────────── -->
+  <ng-template pTemplate>
+    <div class="card-editor-sidebar overflow-y-auto">
+      <p-accordion [multiple]="true" [value]="['canvas', 'template', 'add']">
+        <!-- Canvas panel -->
+        <p-accordion-panel value="canvas">
+          <p-accordion-header>Canvas</p-accordion-header>
+          <p-accordion-content>
+            <div class="flex flex-col gap-3">
+              <label class="text-sm font-medium">Card Size</label>
+              <p-select
+                [options]="cardSizeOptions()"
+                [(ngModel)]="selectedCardSizeModel"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select a size"
+                styleClass="w-full"
+                appendTo="body"
+              />
+              <p-button
+                label="Clear Canvas"
+                severity="secondary"
+                icon="pi pi-trash"
+                styleClass="w-full"
+                (onClick)="clearCanvas()"
+              />
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
+
+        <p-divider styleClass="my-0" />
+
+        <!-- Template panel -->
+        <p-accordion-panel value="template">
+          <p-accordion-header>Template</p-accordion-header>
+          <p-accordion-content>
+            <div class="flex flex-col gap-2">
+              <p-button
+                label="Import"
+                severity="secondary"
+                icon="pi pi-upload"
+                styleClass="w-full"
+                (onClick)="triggerImport()"
+              />
+              <p-button
+                label="Save"
+                icon="pi pi-save"
+                styleClass="w-full"
+                (onClick)="onSave()"
+              />
+              <p-button
+                label="Export"
+                severity="secondary"
+                icon="pi pi-download"
+                styleClass="w-full"
+                (onClick)="onExport()"
+              />
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
+
+        <p-divider styleClass="my-0" />
+
+        <!-- Add panel -->
+        <p-accordion-panel value="add">
+          <p-accordion-header>Add</p-accordion-header>
+          <p-accordion-content>
+            <div class="flex flex-col gap-2">
+              <p-button
+                label="Add Text"
+                severity="secondary"
+                icon="pi pi-font"
+                styleClass="w-full"
+                (onClick)="addText()"
+              />
+              <p-button
+                label="Add Image"
+                severity="secondary"
+                icon="pi pi-image"
+                styleClass="w-full"
+                (onClick)="triggerAddImage()"
+              />
+              <p-button
+                label="Add Image Placeholder"
+                severity="secondary"
+                icon="pi pi-objects-column"
+                styleClass="w-full"
+                (onClick)="addImagePlaceholder()"
+              />
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
+      </p-accordion>
+    </div>
+  </ng-template>
+
+  <!-- ── Canvas area ─────────────────────────────────────────────────── -->
+  <ng-template pTemplate>
+    <div #contentArea class="card-editor-content">
+      <!-- Outer shell: sized to the scaled (visual) card dimensions, carries border + shadow -->
+      <div
+        class="card-editor-canvas-shadow"
+        [style.width.px]="canvasWrapperWidth()"
+        [style.height.px]="canvasWrapperHeight()"
+      >
+        <!-- Inner clip: native card dimensions, overflow:hidden clips Fabric's DOM;
+             scale() shrinks/grows it to fit the visual shadow shell -->
+        <div
+          #canvasHost
+          class="card-editor-canvas-wrapper"
+          [style.width.px]="canvasNativeWidth()"
+          [style.height.px]="canvasNativeHeight()"
+          [style.transform]="'scale(' + canvasScale() + ')'"
+          [style.transform-origin]="'top left'"
+        >
+          <canvas #fabricCanvas></canvas>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-splitter>

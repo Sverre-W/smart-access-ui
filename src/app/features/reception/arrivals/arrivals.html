@@ -1,0 +1,178 @@
+<div class="px-4 py-6 sm:p-8">
+
+  <!-- Page header -->
+  <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-zinc-800">{{ 'reception.arrivals.title' | translate }}</h1>
+      <p class="text-sm text-zinc-500 mt-1">{{ 'reception.arrivals.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  @if (error()) {
+    <div class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Card -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+    <!-- Day navigation header -->
+    <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+
+      <!-- Date label -->
+      <div class="flex items-center gap-2 min-w-0">
+        <i class="pi pi-calendar text-zinc-400 shrink-0"></i>
+        <h2 class="text-sm font-semibold text-zinc-700 truncate capitalize">{{ dateLabel() }}</h2>
+        @if (isToday()) {
+          <span class="inline-flex items-center rounded-full bg-[#238cff]/10 px-2 py-0.5 text-xs font-semibold text-[#238cff]">
+            {{ 'reception.arrivals.today' | translate }}
+          </span>
+        }
+      </div>
+
+      <!-- Navigation controls -->
+      <div class="flex items-center gap-1 shrink-0">
+
+        <!-- Previous day -->
+        <p-button
+          type="button"
+          (click)="previousDay()"
+          [disabled]="loading()"
+          icon="pi pi-chevron-left"
+          severity="secondary"
+          [text]="true"
+          [title]="'reception.arrivals.previousDay' | translate"
+          size="small"
+        />
+
+        <!-- Today button — only shown when not on today -->
+        @if (!isToday()) {
+          <p-button
+            type="button"
+            (click)="goToToday()"
+            [disabled]="loading()"
+            [label]="'reception.arrivals.today' | translate"
+            severity="info"
+            [text]="true"
+            size="small"
+          />
+        }
+
+        <!-- Next day -->
+        <p-button
+          type="button"
+          (click)="nextDay()"
+          [disabled]="loading()"
+          icon="pi pi-chevron-right"
+          severity="secondary"
+          [text]="true"
+          [title]="'reception.arrivals.nextDay' | translate"
+          size="small"
+        />
+
+        <!-- Loading spinner -->
+        @if (loading()) {
+          <span class="ml-1 flex items-center text-zinc-400">
+            <i class="pi pi-spin pi-spinner text-xs"></i>
+          </span>
+        }
+
+      </div>
+    </div>
+
+    <!-- Loading skeleton -->
+    @if (loading()) {
+      <div class="divide-y divide-zinc-100">
+        @for (n of [1, 2, 3, 4, 5]; track n) {
+          <div class="flex items-center gap-4 px-6 py-4 animate-pulse">
+            <div class="w-10 h-10 rounded-full bg-zinc-100 shrink-0"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3.5 w-44 rounded bg-zinc-100"></div>
+              <div class="h-3 w-28 rounded bg-zinc-50"></div>
+            </div>
+            <div class="h-3 w-20 rounded bg-zinc-100"></div>
+            <div class="h-6 w-16 rounded-full bg-zinc-100"></div>
+          </div>
+        }
+      </div>
+
+    <!-- Empty state -->
+    } @else if (!hasInvitations()) {
+      <div class="px-6 py-16 text-center">
+        <i class="pi pi-calendar text-3xl text-zinc-300 mb-3 block"></i>
+        <p class="text-sm font-medium text-zinc-500">{{ 'reception.arrivals.noArrivals' | translate }}</p>
+        <p class="text-xs text-zinc-400 mt-1">{{ 'reception.arrivals.noArrivalsHint' | translate }}</p>
+      </div>
+
+    <!-- Invitation rows -->
+    } @else {
+      <ul class="divide-y divide-zinc-100">
+        @for (inv of invitations(); track inv.visitor.id + inv.visit.id) {
+          <li>
+            <a
+              [routerLink]="['/visitors/onboarding', inv.visit.id, inv.visitor.id]"
+              class="flex items-center gap-4 px-4 sm:px-6 py-4 hover:bg-zinc-50 transition-colors cursor-pointer"
+            >
+              <!-- Avatar -->
+              <div
+                class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold select-none"
+                [style.background]="avatarColor(inv)"
+                [style.color]="avatarTextColor(inv)"
+              >
+                {{ initials(inv) }}
+              </div>
+
+              <!-- Name / company / visit -->
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-zinc-800 truncate">{{ fullName(inv) }}</p>
+                @if (inv.visitor.company) {
+                  <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+                }
+                @if (inv.visit.summary) {
+                  <p class="text-xs text-zinc-400 truncate">
+                    <i class="pi pi-briefcase mr-0.5 text-[10px]"></i>{{ inv.visit.summary }}
+                  </p>
+                }
+              </div>
+
+              <!-- Time -->
+              <div class="hidden sm:flex flex-col items-end shrink-0 text-xs text-zinc-400 gap-0.5">
+                @if (visitTime(inv)) {
+                  <span class="flex items-center gap-1">
+                    <i class="pi pi-clock text-[10px]"></i>
+                    {{ visitTime(inv) }}
+                    @if (visitEndTime(inv)) { – {{ visitEndTime(inv) }} }
+                  </span>
+                }
+                @if (inv.visitor.email) {
+                  <span class="truncate max-w-[180px]">{{ inv.visitor.email }}</span>
+                }
+              </div>
+
+              <!-- Check-in status badge -->
+              <div class="shrink-0">
+                <app-checkin-status-badge [status]="inv.checkInStatus" />
+              </div>
+
+              <i class="pi pi-chevron-right text-xs text-zinc-300 shrink-0"></i>
+            </a>
+          </li>
+        }
+      </ul>
+
+      <!-- Footer row count -->
+      <div class="px-4 sm:px-6 py-3 border-t border-zinc-100 text-xs text-zinc-400">
+        {{ invitations().length }}
+        {{ invitations().length === 1
+          ? ('reception.arrivals.visitor' | translate)
+          : ('reception.arrivals.visitors' | translate) }}
+        {{ 'reception.arrivals.scheduled' | translate }}
+      </div>
+    }
+
+  </div>
+
+</div>

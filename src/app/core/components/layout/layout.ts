@@ -39,6 +39,7 @@ export class Layout {
       id: app.id,
       label: this.translate.instant(`layout.apps.${app.id}`),
       icon: app.icon,
+      disabled: app.disabled,
       command: () => this.appSwitcher.switchApp(app.id),
     }));
   });

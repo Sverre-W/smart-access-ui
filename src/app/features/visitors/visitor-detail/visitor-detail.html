@@ -8,6 +8,7 @@
       severity="secondary"
       [text]="true"
       [rounded]="true"
+      [disabled]="!canGoBack()"
     />
     <div class="flex-1 min-w-0">
       @if (loading()) {

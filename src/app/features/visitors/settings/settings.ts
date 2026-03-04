@@ -1,11 +1,12 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import {
   VisitorService,
   TenantBadgeSettings,
@@ -16,6 +17,8 @@ import {
   OnboardingData,
   OnboardingDataType,
 } from '../services/visitor-service';
+import { CardEditor } from '../../../shared/components/card-editor/card-editor';
+import { CardSize } from '../../../shared/components/card-editor/card-editor.types';
 
 const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
 
@@ -24,7 +27,7 @@ const isLinked = (systemId: string) => systemId !== EMPTY_GUID;
 @Component({
   selector: 'app-visitors-settings',
   standalone: true,
-  imports: [FormsModule, TranslateModule, SelectModule, ButtonModule, ToggleSwitchModule, CheckboxModule, InputTextModule],
+  imports: [FormsModule, RouterLink, TranslateModule, SelectModule, ButtonModule, ToggleSwitchModule, InputTextModule, TextareaModule, CardEditor],
   templateUrl: './settings.html',
 })
 export class VisitorsSettings implements OnInit {
@@ -70,13 +73,30 @@ export class VisitorsSettings implements OnInit {
   readonly labelPrintingEnabled = signal(false);
   readonly selectedPrinterId = signal<string | null>(null);
 
-  // ── Notification form state (unwired) ─────────────────────────────────────
-  readonly notifyOrganizerOnConfirmation = signal(false);
-  readonly notifyOrganizerOnArrival = signal(false);
-  readonly sendConfirmationEmailOnQrAvailable = signal(false);
+  // ── Label template ────────────────────────────────────────────────────────
+  readonly labelTemplate = signal<string | null>(null);
 
   // ── Onboarding data items ─────────────────────────────────────────────────
   readonly onboardingDataItems = signal<OnboardingData[]>([]);
+
+  // ── Onboarded messages (self-onboarding only) ─────────────────────────────
+  readonly onboardedMessages = signal<string[]>([]);
+
+  // ── Label template ────────────────────────────────────────────────────────
+  readonly cardSizes: CardSize[] = [
+    // { label: 'CR80',         width: 85.6,  height: 54,    orientation: 'Landscape' },
+    // { label: 'CR80',         width: 54,    height: 85.6,  orientation: 'Portrait'  },
+    // { label: 'A7',           width: 105,   height: 74,    orientation: 'Landscape' },
+    // { label: 'A7',           width: 74,    height: 105,   orientation: 'Portrait'  },
+    // { label: 'Label 4×3 in', width: 101.6, height: 76.2,  orientation: 'Landscape' },
+    // { label: 'Label 4×6 in', width: 152.4, height: 101.6, orientation: 'Landscape' },
+    { label: 'VC500W', width: 50,   height: 75,   orientation: 'Portrait'  },
+    { label: 'VC500W', width: 75,   height: 50,   orientation: 'Landscape' },
+  ];
+
+  onCardTemplateSave(json: string): void {
+    this.labelTemplate.set(json);
+  }
 
   readonly dataTypeOptions: { label: string; value: OnboardingDataType }[] = [
     { label: 'Photo',   value: 'Photo'  },
@@ -104,6 +124,7 @@ export class VisitorsSettings implements OnInit {
       }
       if (settings.labelPrintingConfiguration?.enabled) {
         dependents.push(this.loadPrinters());
+        dependents.push(this.loadLabelTemplate());
       }
       await Promise.all(dependents);
     } catch {
@@ -146,8 +167,13 @@ export class VisitorsSettings implements OnInit {
   async onLabelPrintingChange(enabled: boolean): Promise<void> {
     this.labelPrintingEnabled.set(enabled);
     this.selectedPrinterId.set(null);
-    if (enabled && this.printers().length === 0) {
-      await this.loadPrinters();
+    if (enabled) {
+      const tasks: Promise<void>[] = [];
+      if (this.printers().length === 0) tasks.push(this.loadPrinters());
+      tasks.push(this.loadLabelTemplate());
+      await Promise.all(tasks);
+    } else {
+      this.labelTemplate.set(null);
     }
   }
 
@@ -168,15 +194,50 @@ export class VisitorsSettings implements OnInit {
     this.onboardingDataItems.update(items => items.filter((_, i) => i !== index));
   }
 
+  addMessage(): void {
+    this.onboardedMessages.update(msgs => [...msgs, '']);
+  }
+
+  updateMessage(index: number, value: string): void {
+    this.onboardedMessages.update(msgs => msgs.map((m, i) => (i === index ? value : m)));
+  }
+
+  removeMessage(index: number): void {
+    this.onboardedMessages.update(msgs => msgs.filter((_, i) => i !== index));
+  }
+
+  moveMessageUp(index: number): void {
+    if (index === 0) return;
+    this.onboardedMessages.update(msgs => {
+      const next = [...msgs];
+      [next[index - 1], next[index]] = [next[index], next[index - 1]];
+      return next;
+    });
+  }
+
+  moveMessageDown(index: number): void {
+    this.onboardedMessages.update(msgs => {
+      if (index === msgs.length - 1) return msgs;
+      const next = [...msgs];
+      [next[index], next[index + 1]] = [next[index + 1], next[index]];
+      return next;
+    });
+  }
+
   async save(): Promise<void> {
     this.saving.set(true);
     this.saveError.set(null);
     this.saveSuccess.set(false);
 
     const body = this.buildPayload();
+    const template = this.labelTemplate();
 
     try {
-      await this.visitorService.configureBadgeType(body);
+      const tasks: Promise<unknown>[] = [this.visitorService.configureBadgeType(body)];
+      if (this.labelPrintingEnabled() && template) {
+        tasks.push(this.visitorService.addTemplate({ purpose: 'label-print', template }));
+      }
+      await Promise.all(tasks);
       this.saveSuccess.set(true);
       setTimeout(() => this.saveSuccess.set(false), 3000);
     } catch {
@@ -203,6 +264,7 @@ export class VisitorsSettings implements OnInit {
     this.labelPrintingEnabled.set(printingEnabled);
     this.selectedPrinterId.set(settings.labelPrintingConfiguration?.printerId ?? null);
     this.onboardingDataItems.set(settings.requiredOnboardingData ?? []);
+    this.onboardedMessages.set(settings.onboardedMessages ?? []);
   }
 
   private async loadSystemDependents(systemId: string): Promise<void> {
@@ -217,6 +279,16 @@ export class VisitorsSettings implements OnInit {
   private async loadPrinters(): Promise<void> {
     const printers = await this.visitorService.getAvailablePrinters();
     this.printers.set(printers);
+  }
+
+  private async loadLabelTemplate(): Promise<void> {
+    try {
+      const result = await this.visitorService.getTemplate('label-print');
+      this.labelTemplate.set(result.template);
+    } catch {
+      // No template saved yet — leave the editor blank
+      this.labelTemplate.set(null);
+    }
   }
 
   private buildPayload(): TenantBadgeSettings {
@@ -240,7 +312,7 @@ export class VisitorsSettings implements OnInit {
       // Fields not managed by this form — fall back to existing or safe defaults
       badgeAssignmentTiming:  existing?.badgeAssignmentTiming  ?? 'OnVisitorOnboarding',
       onboardingMode:         existing?.onboardingMode         ?? null,
-      onboardedMessages:      existing?.onboardedMessages      ?? [],
+      onboardedMessages:      this.onboardedMessages(),
     };
   }
 }

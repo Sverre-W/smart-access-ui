@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   LocationService,
   BuildingDto,
@@ -20,8 +21,10 @@ import { FormsModule } from '@angular/forms';
 export class EditBuilding implements OnInit {
   private service = inject(LocationService);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private location = inject(Location);
   private fb = inject(FormBuilder);
+
+  readonly canGoBack = signal(history.length > 1);
 
   private buildingId = '';
 
@@ -101,7 +104,7 @@ export class EditBuilding implements OnInit {
   // ── Navigation ────────────────────────────────────────────────────────────
 
   goBack(): void {
-    void this.router.navigate(['/facility/locations']);
+    this.location.back();
   }
 
   // ── Save details ──────────────────────────────────────────────────────────

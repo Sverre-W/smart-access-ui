@@ -1,0 +1,246 @@
+<div class="px-4 py-6 sm:p-8 max-w-3xl mx-auto">
+
+  <!-- Back button + header -->
+  <div class="mb-8">
+    <button
+      type="button"
+      (click)="goBack()"
+      class="mb-4 flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-700 transition-colors"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+      <span>{{ 'facility.tenants.title' | translate }}</span>
+    </button>
+
+    @if (loading()) {
+      <div class="animate-pulse">
+        <div class="h-7 w-56 rounded bg-zinc-200 mb-2"></div>
+        <div class="h-4 w-36 rounded bg-zinc-100"></div>
+      </div>
+    } @else if (tenant()) {
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 mt-0.5">
+          <i class="pi pi-building text-blue-500"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-semibold text-zinc-800">{{ tenant()!.displayName }}</h1>
+            @if (tenant()!.isRootTenant) {
+              <span class="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">ROOT</span>
+            }
+          </div>
+          <p class="text-sm text-zinc-400 font-mono mt-0.5">{{ tenant()!.tenantId }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Load error -->
+  @if (error()) {
+    <div class="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (!loading() && tenant()) {
+
+    <!-- ── Settings card ──────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible mb-6">
+
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'facility.tenants.edit.settingsTitle' | translate }}</h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.tenants.edit.settingsDesc' | translate }}</p>
+      </div>
+
+      <div class="px-4 sm:px-6 py-5">
+
+        @if (settingsSuccess()) {
+          <div class="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <i class="pi pi-check-circle shrink-0"></i>
+            <span>{{ 'facility.tenants.edit.settingsSaved' | translate }}</span>
+          </div>
+        }
+        @if (settingsError()) {
+          <div class="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ settingsError() }}</span>
+          </div>
+        }
+
+        <div [formGroup]="settingsForm" class="space-y-4">
+
+          <!-- Display Name -->
+          <div class="grid grid-cols-1 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.displayNameLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input
+                pInputText type="text" formControlName="displayName"
+                [placeholder]="'facility.tenants.edit.displayNamePlaceholder' | translate"
+                [fluid]="true"
+                [invalid]="settingsForm.get('displayName')!.invalid && settingsForm.get('displayName')!.touched"
+              />
+              @if (settingsForm.get('displayName')!.invalid && settingsForm.get('displayName')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- IDP section label -->
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide pt-1">
+            {{ 'facility.tenants.edit.idpSection' | translate }}
+          </p>
+
+          <!-- Metadata URL + Client ID + Response Types -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.metadataUrlLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input
+                pInputText type="text" formControlName="metadataUrl"
+                placeholder="https://idp/.well-known/openid-configuration"
+                [fluid]="true"
+                [invalid]="settingsForm.get('metadataUrl')!.invalid && settingsForm.get('metadataUrl')!.touched"
+              />
+              @if (settingsForm.get('metadataUrl')!.invalid && settingsForm.get('metadataUrl')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.clientIdLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input
+                pInputText type="text" formControlName="clientId"
+                placeholder="my-client-id"
+                [fluid]="true"
+                [invalid]="settingsForm.get('clientId')!.invalid && settingsForm.get('clientId')!.touched"
+              />
+              @if (settingsForm.get('clientId')!.invalid && settingsForm.get('clientId')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.responseTypesLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input
+                pInputText type="text" formControlName="responseTypes"
+                placeholder="code"
+                [fluid]="true"
+                [invalid]="settingsForm.get('responseTypes')!.invalid && settingsForm.get('responseTypes')!.touched"
+              />
+              @if (settingsForm.get('responseTypes')!.invalid && settingsForm.get('responseTypes')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Redirect URIs -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.loginRedirectUriLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input
+                pInputText type="text" formControlName="loginRedirectUri"
+                placeholder="https://app/callback"
+                [fluid]="true"
+                [invalid]="settingsForm.get('loginRedirectUri')!.invalid && settingsForm.get('loginRedirectUri')!.touched"
+              />
+              @if (settingsForm.get('loginRedirectUri')!.invalid && settingsForm.get('loginRedirectUri')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.logoutRedirectUriLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input
+                pInputText type="text" formControlName="logoutRedirectUri"
+                placeholder="https://app/logout"
+                [fluid]="true"
+                [invalid]="settingsForm.get('logoutRedirectUri')!.invalid && settingsForm.get('logoutRedirectUri')!.touched"
+              />
+              @if (settingsForm.get('logoutRedirectUri')!.invalid && settingsForm.get('logoutRedirectUri')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex justify-end mt-5">
+          <p-button
+            type="button"
+            icon="pi pi-check"
+            [label]="'facility.tenants.edit.saveSettings' | translate"
+            [loading]="settingsSaving()"
+            [disabled]="settingsSaving()"
+            loadingIcon="pi pi-spin pi-spinner"
+            (click)="saveSettings()"
+          />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Features card ──────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'facility.tenants.edit.featuresTitle' | translate }}</h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.tenants.edit.featuresDesc' | translate }}</p>
+      </div>
+
+      <div class="px-4 sm:px-6 py-5">
+
+        @if (featuresSuccess()) {
+          <div class="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <i class="pi pi-check-circle shrink-0"></i>
+            <span>{{ 'facility.tenants.edit.featuresSaved' | translate }}</span>
+          </div>
+        }
+        @if (featuresError()) {
+          <div class="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ featuresError() }}</span>
+          </div>
+        }
+
+        <div class="divide-y divide-zinc-100">
+          @for (toggle of featureToggles; track toggle.flag) {
+            <div class="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-zinc-700">{{ toggle.labelKey | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-0.5">{{ toggle.descKey | translate }}</p>
+              </div>
+              <p-toggleswitch
+                [ngModel]="isFeatureEnabled()(toggle.flag)"
+                (ngModelChange)="toggleFeature(toggle.flag, $event)"
+                [disabled]="featuresSaving()"
+              />
+            </div>
+          }
+        </div>
+
+        <div class="flex justify-end mt-5">
+          <p-button
+            type="button"
+            icon="pi pi-check"
+            [label]="'facility.tenants.edit.saveFeatures' | translate"
+            [loading]="featuresSaving()"
+            [disabled]="featuresSaving()"
+            loadingIcon="pi pi-spin pi-spinner"
+            (click)="saveFeatures()"
+          />
+        </div>
+
+      </div>
+    </div>
+
+  }
+
+</div>

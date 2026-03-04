@@ -1,0 +1,397 @@
+<div class="p-4 sm:p-8">
+
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-semibold text-zinc-800">{{ 'facility.tenants.title' | translate }}</h1>
+    <p class="text-sm text-zinc-500 mt-1">{{ 'facility.tenants.subtitle' | translate }}</p>
+  </div>
+
+  <!-- Load error -->
+  @if (error()) {
+    <div class="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Tenants card -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+
+    <!-- Card header -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <div>
+        <h2 class="text-sm font-semibold text-zinc-700">
+          {{ 'facility.tenants.allTenants' | translate }}
+          @if (!loading()) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ allTenants().length }})</span>
+          }
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.tenants.allTenantsDesc' | translate }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-iconfield>
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            pInputText
+            type="text"
+            (input)="onSearchInput($event)"
+            [placeholder]="'facility.tenants.searchPlaceholder' | translate"
+            class="text-sm w-full sm:w-52"
+          />
+        </p-iconfield>
+        <p-button
+          icon="pi pi-plus"
+          [label]="'facility.tenants.newTenant' | translate"
+          size="small"
+          (click)="openCreate()"
+        />
+      </div>
+    </div>
+
+    <!-- Create tenant panel -->
+    @if (createOpen()) {
+      <div class="px-4 sm:px-6 py-5 border-b border-zinc-100 bg-zinc-50">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-semibold text-zinc-700">{{ 'facility.tenants.newTenantPanel' | translate }}</p>
+          <p-button
+            icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+            size="small" (click)="closeCreate()"
+          />
+        </div>
+        @if (createError()) {
+          <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ createError() }}</span>
+          </div>
+        }
+        <div [formGroup]="createForm" class="space-y-4">
+
+          <!-- Row 1: Tenant ID + Display Name + Default Role -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.tenantIdLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input pInputText type="text" formControlName="tenantId"
+                placeholder="e.g. acme-corp" [fluid]="true"
+                [invalid]="createForm.get('tenantId')!.invalid && createForm.get('tenantId')!.touched" />
+              @if (createForm.get('tenantId')!.invalid && createForm.get('tenantId')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.displayNameLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input pInputText type="text" formControlName="displayName"
+                placeholder="e.g. Acme Corporation" [fluid]="true"
+                [invalid]="createForm.get('displayName')!.invalid && createForm.get('displayName')!.touched" />
+              @if (createForm.get('displayName')!.invalid && createForm.get('displayName')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.defaultRoleLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input pInputText type="text" formControlName="defaultRole"
+                placeholder="admin" [fluid]="true"
+                [invalid]="createForm.get('defaultRole')!.invalid && createForm.get('defaultRole')!.touched" />
+              @if (createForm.get('defaultRole')!.invalid && createForm.get('defaultRole')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Row 2: IDP Metadata URL + Client ID + Response Types -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.metadataUrlLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input pInputText type="text" formControlName="metadataUrl"
+                placeholder="https://idp/.well-known/openid-configuration" [fluid]="true"
+                [invalid]="createForm.get('metadataUrl')!.invalid && createForm.get('metadataUrl')!.touched" />
+              @if (createForm.get('metadataUrl')!.invalid && createForm.get('metadataUrl')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.clientIdLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input pInputText type="text" formControlName="clientId"
+                placeholder="my-client-id" [fluid]="true"
+                [invalid]="createForm.get('clientId')!.invalid && createForm.get('clientId')!.touched" />
+              @if (createForm.get('clientId')!.invalid && createForm.get('clientId')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.responseTypesLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input pInputText type="text" formControlName="responseTypes"
+                placeholder="code" [fluid]="true"
+                [invalid]="createForm.get('responseTypes')!.invalid && createForm.get('responseTypes')!.touched" />
+              @if (createForm.get('responseTypes')!.invalid && createForm.get('responseTypes')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Row 3: Redirect URIs -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.loginRedirectUriLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input pInputText type="text" formControlName="loginRedirectUri"
+                placeholder="https://app/callback" [fluid]="true"
+                [invalid]="createForm.get('loginRedirectUri')!.invalid && createForm.get('loginRedirectUri')!.touched" />
+              @if (createForm.get('loginRedirectUri')!.invalid && createForm.get('loginRedirectUri')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.tenants.logoutRedirectUriLabel' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input pInputText type="text" formControlName="logoutRedirectUri"
+                placeholder="https://app/logout" [fluid]="true"
+                [invalid]="createForm.get('logoutRedirectUri')!.invalid && createForm.get('logoutRedirectUri')!.touched" />
+              @if (createForm.get('logoutRedirectUri')!.invalid && createForm.get('logoutRedirectUri')!.touched) {
+                <p class="text-xs text-red-500">{{ 'facility.tenants.fieldRequired' | translate }}</p>
+              }
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex items-center justify-end gap-2 mt-5">
+          <p-button type="button" [label]="'facility.tenants.cancel' | translate" severity="secondary" (click)="closeCreate()" />
+          <p-button
+            type="button" icon="pi pi-check" [label]="'facility.tenants.createTenant' | translate"
+            [loading]="createSaving()" [disabled]="createSaving()"
+            loadingIcon="pi pi-spin pi-spinner" (click)="saveCreate()"
+          />
+        </div>
+      </div>
+    }
+
+    <!-- Delete error banner -->
+    @if (deleteError()) {
+      <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteError() }}
+      </div>
+    }
+
+    <!-- Desktop table -->
+    <div class="hidden sm:block">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.tenants.tenantCol' | translate }}</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'facility.tenants.featuresCol' | translate }}</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (loading()) {
+            @for (i of [1, 2, 3]; track i) {
+              <tr class="border-b border-zinc-100">
+                <td class="px-6 py-4"><div class="h-4 w-40 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-28 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"></td>
+              </tr>
+            }
+          } @else if (!hasTenants()) {
+            <tr>
+              <td colspan="3" class="px-6 py-16 text-center">
+                <i class="pi pi-building text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">{{ 'facility.tenants.noTenantsFound' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-1">{{ 'facility.tenants.noTenantsHint' | translate }}</p>
+              </td>
+            </tr>
+          } @else {
+            @for (tenant of filteredTenants(); track tenant.tenantId) {
+
+              <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+
+                <!-- Tenant identity -->
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                      <i class="pi pi-building text-xs text-blue-500"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="font-semibold text-zinc-800 truncate">{{ tenant.displayName }}</span>
+                        @if (tenant.isRootTenant) {
+                          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 shrink-0">
+                            ROOT
+                          </span>
+                        }
+                      </div>
+                      <p class="text-xs text-zinc-400 font-mono truncate">{{ tenant.tenantId }}</p>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Feature flags -->
+                <td class="px-4 py-4">
+                  @if (featureBadges(tenant).length > 0) {
+                    <div class="flex flex-wrap gap-1">
+                      @for (badge of featureBadges(tenant); track badge) {
+                        <span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-zinc-100 text-zinc-500 border border-zinc-200">
+                          {{ badge }}
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-xs text-zinc-300">{{ 'facility.tenants.noFeatures' | translate }}</span>
+                  }
+                </td>
+
+                 <!-- Actions -->
+                 <td class="px-4 py-4">
+                   <div class="flex items-center gap-1 justify-end">
+                     <p-button
+                       icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
+                       size="small" [title]="'facility.tenants.editTenant' | translate"
+                       [routerLink]="['/facility/tenants', tenant.tenantId]"
+                     />
+                     @if (!tenant.isRootTenant) {
+                       <p-button
+                         icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                         size="small" title="Delete tenant" (click)="confirmDelete(tenant.tenantId)"
+                       />
+                     }
+                   </div>
+                 </td>
+              </tr>
+
+              <!-- Delete confirmation row -->
+              @if (deleteConfirmingId() === tenant.tenantId) {
+                <tr class="border-b border-zinc-100 bg-red-50">
+                   <td colspan="3" class="px-6 py-3">
+                    <div class="flex items-center justify-between gap-4">
+                      <p class="text-sm text-red-700 font-medium">
+                        <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                        <span [innerHTML]="'facility.tenants.deleteConfirm' | translate: { name: tenant.displayName }"></span>
+                      </p>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <p-button type="button" [label]="'facility.tenants.keep' | translate" severity="secondary" size="small" (click)="abortDelete()" />
+                        <p-button
+                          type="button" [label]="'facility.tenants.yesDelete' | translate" severity="danger" size="small"
+                          [loading]="deleteInProgressId() === tenant.tenantId"
+                          [disabled]="deleteInProgressId() === tenant.tenantId"
+                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(tenant)"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile list -->
+    <div class="sm:hidden divide-y divide-zinc-100">
+
+      @if (loading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="px-4 py-4 flex items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-zinc-100 shrink-0"></div>
+              <div class="space-y-1.5">
+                <div class="h-3.5 w-36 rounded bg-zinc-100"></div>
+                <div class="h-3 w-24 rounded bg-zinc-50"></div>
+              </div>
+            </div>
+            <div class="h-4 w-8 rounded bg-zinc-100"></div>
+          </div>
+        }
+      } @else if (!hasTenants()) {
+        <div class="px-4 py-14 text-center">
+          <i class="pi pi-building text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">{{ 'facility.tenants.noTenantsFound' | translate }}</p>
+        </div>
+      } @else {
+        @for (tenant of filteredTenants(); track tenant.tenantId) {
+
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                  <i class="pi pi-building text-xs text-blue-500"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <p class="font-semibold text-zinc-800 truncate">{{ tenant.displayName }}</p>
+                    @if (tenant.isRootTenant) {
+                      <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">ROOT</span>
+                    }
+                  </div>
+                  <p class="text-xs text-zinc-400 font-mono truncate">{{ tenant.tenantId }}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <p-button
+                  icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
+                  size="small" [routerLink]="['/facility/tenants', tenant.tenantId]"
+                />
+                @if (!tenant.isRootTenant) {
+                   <p-button
+                     icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                     size="small" (click)="confirmDelete(tenant.tenantId)"
+                   />
+                }
+              </div>
+            </div>
+            @if (featureBadges(tenant).length > 0) {
+              <div class="flex flex-wrap gap-1 mt-2 ml-10">
+                @for (badge of featureBadges(tenant); track badge) {
+                  <span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-zinc-100 text-zinc-500 border border-zinc-200">
+                    {{ badge }}
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Delete confirmation (mobile) -->
+          @if (deleteConfirmingId() === tenant.tenantId) {
+            <div class="bg-red-50 px-4 py-3 border-t border-red-100">
+              <p class="text-sm text-red-700 font-medium mb-2">
+                <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                <span [innerHTML]="'facility.tenants.deleteConfirm' | translate: { name: tenant.displayName }"></span>
+              </p>
+              <div class="flex items-center gap-2">
+                <p-button type="button" [label]="'facility.tenants.keep' | translate" severity="secondary" size="small" (click)="abortDelete()" />
+                <p-button
+                  type="button" [label]="'facility.tenants.yesDelete' | translate" severity="danger" size="small"
+                  [loading]="deleteInProgressId() === tenant.tenantId"
+                  [disabled]="deleteInProgressId() === tenant.tenantId"
+                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDelete(tenant)"
+                />
+              </div>
+            </div>
+          }
+
+        }
+      }
+
+    </div>
+
+  </div>
+
+</div>

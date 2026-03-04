@@ -1,0 +1,227 @@
+<div class="p-4 sm:p-8 max-w-3xl">
+
+  <!-- Back link -->
+  <div class="mb-6">
+    <p-button
+      icon="pi pi-arrow-left"
+      [label]="'facility.roles.edit.back' | translate"
+      severity="secondary"
+      [text]="true"
+      size="small"
+      (click)="goBack()"
+    />
+  </div>
+
+  <!-- Load error -->
+  @if (error()) {
+    <div class="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (loading()) {
+
+    <!-- Skeleton -->
+    <div class="space-y-6 animate-pulse">
+      <div class="h-7 w-52 rounded bg-zinc-200"></div>
+      <div class="rounded-xl border border-zinc-200 bg-white p-6 space-y-4">
+        <div class="h-4 w-24 rounded bg-zinc-100"></div>
+        <div class="h-9 rounded bg-zinc-100"></div>
+        <div class="h-9 rounded bg-zinc-100"></div>
+      </div>
+      <div class="rounded-xl border border-zinc-200 bg-white p-6 space-y-3">
+        <div class="h-4 w-36 rounded bg-zinc-100"></div>
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="h-8 rounded bg-zinc-100"></div>
+        }
+      </div>
+    </div>
+
+  } @else if (role()) {
+
+    <!-- Page header -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-1">
+        <div class="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
+          <i class="pi pi-shield text-sm text-violet-500"></i>
+        </div>
+        <h1 class="text-2xl font-semibold text-zinc-800">{{ role()!.name }}</h1>
+      </div>
+      @if (role()!.description) {
+        <p class="text-sm text-zinc-500 ml-12">{{ role()!.description }}</p>
+      }
+    </div>
+
+    <!-- ── Details section ──────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-6">
+      <div class="px-6 py-4 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'facility.roles.edit.detailsTitle' | translate }}</h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.roles.edit.detailsDesc' | translate }}</p>
+      </div>
+
+      <div class="px-6 py-5">
+
+        @if (detailsError()) {
+          <div class="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ detailsError() }}</span>
+          </div>
+        }
+
+        @if (detailsSuccess()) {
+          <div class="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <i class="pi pi-check-circle shrink-0"></i>
+            <span>{{ 'facility.roles.edit.detailsSaved' | translate }}</span>
+          </div>
+        }
+
+        <div [formGroup]="detailsForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'facility.roles.nameLabel' | translate }} <span class="text-red-400">*</span>
+            </label>
+            <input pInputText type="text" formControlName="name" [fluid]="true"
+              [invalid]="detailsForm.get('name')!.invalid && detailsForm.get('name')!.touched" />
+            @if (detailsForm.get('name')!.invalid && detailsForm.get('name')!.touched) {
+              <p class="text-xs text-red-500">{{ 'facility.roles.fieldRequired' | translate }}</p>
+            }
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'facility.roles.descriptionLabel' | translate }}
+            </label>
+            <input pInputText type="text" formControlName="description"
+              [placeholder]="'facility.roles.descriptionPlaceholder' | translate" [fluid]="true" />
+          </div>
+
+        </div>
+
+        <div class="flex justify-end mt-5">
+          <p-button
+            type="button"
+            icon="pi pi-check"
+            [label]="'facility.roles.edit.saveDetails' | translate"
+            [loading]="detailsSaving()"
+            [disabled]="detailsSaving()"
+            loadingIcon="pi pi-spin pi-spinner"
+            (click)="saveDetails()"
+          />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Permissions section ───────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+      <div class="px-6 py-4 border-b border-zinc-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-semibold text-zinc-700">{{ 'facility.roles.edit.permissionsTitle' | translate }}</h2>
+            <p class="text-xs text-zinc-400 mt-0.5">{{ 'facility.roles.edit.permissionsDesc' | translate }}</p>
+          </div>
+          @if (totalEnabled() > 0) {
+            <span class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200">
+              <i class="pi pi-key text-[10px]"></i>
+              {{ 'facility.roles.permissionCount' | translate: { count: totalEnabled() } }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="px-6 py-5">
+
+        @if (permissionsError()) {
+          <div class="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ permissionsError() }}</span>
+          </div>
+        }
+
+        @if (permissionsSuccess()) {
+          <div class="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <i class="pi pi-check-circle shrink-0"></i>
+            <span>{{ 'facility.roles.edit.permissionsSaved' | translate }}</span>
+          </div>
+        }
+
+        @if (appGroups().length === 0) {
+          <p class="text-sm text-zinc-400 text-center py-6">{{ 'facility.roles.edit.noApplications' | translate }}</p>
+        } @else {
+          <div class="space-y-6">
+            @for (group of appGroups(); track group.application) {
+
+              <div>
+                <!-- Application header -->
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="w-5 h-5 rounded bg-zinc-100 flex items-center justify-center shrink-0">
+                    <i class="pi pi-box text-[10px] text-zinc-400"></i>
+                  </div>
+                  <span class="text-xs font-semibold text-zinc-500 uppercase tracking-wide">{{ group.application }}</span>
+                </div>
+
+                <!-- Standard permissions -->
+                @if (group.permissions.length > 0) {
+                  <div class="rounded-lg border border-zinc-100 divide-y divide-zinc-50 mb-2">
+                    @for (row of group.permissions; track row.permission) {
+                      <label class="flex items-center gap-3 px-4 py-2.5 hover:bg-zinc-50/70 cursor-pointer transition-colors">
+                        <input
+                          type="checkbox"
+                          class="w-4 h-4 rounded border-zinc-300 text-violet-600 accent-violet-600 cursor-pointer"
+                          [checked]="isEnabled(row.application, row.permission)"
+                          (change)="togglePermission(row.application, row.permission, $any($event.target).checked)"
+                        />
+                        <span class="text-sm text-zinc-700 font-mono select-none">{{ row.permission }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+
+                <!-- Root-only permissions -->
+                @if (group.rootPermissions.length > 0) {
+                  <div class="rounded-lg border border-amber-100 bg-amber-50/30 divide-y divide-amber-50 mb-2">
+                    <div class="px-4 py-1.5">
+                      <span class="text-[10px] font-semibold text-amber-600 uppercase tracking-wide">
+                        {{ 'facility.roles.edit.rootTenantOnly' | translate }}
+                      </span>
+                    </div>
+                    @for (row of group.rootPermissions; track row.permission) {
+                      <label class="flex items-center gap-3 px-4 py-2.5 hover:bg-amber-50/50 cursor-pointer transition-colors">
+                        <input
+                          type="checkbox"
+                          class="w-4 h-4 rounded border-zinc-300 accent-amber-500 cursor-pointer"
+                          [checked]="isEnabled(row.application, row.permission)"
+                          (change)="togglePermission(row.application, row.permission, $any($event.target).checked)"
+                        />
+                        <span class="text-sm text-zinc-700 font-mono select-none">{{ row.permission }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+
+              </div>
+
+            }
+          </div>
+        }
+
+        <div class="flex justify-end mt-6">
+          <p-button
+            type="button"
+            icon="pi pi-check"
+            [label]="'facility.roles.edit.savePermissions' | translate"
+            [loading]="permissionsSaving()"
+            [disabled]="permissionsSaving()"
+            loadingIcon="pi pi-spin pi-spinner"
+            (click)="savePermissions()"
+          />
+        </div>
+
+      </div>
+    </div>
+
+  }
+
+</div>

@@ -16,6 +16,7 @@
             [icon]="app.icon + ' text-xl'"
             severity="secondary"
             [text]="true"
+            [disabled]="app.disabled"
             styleClass="flex flex-col items-center gap-2 rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-5 w-full h-full"
             (click)="selectApp(app.id)"
           />

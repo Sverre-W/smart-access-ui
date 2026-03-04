@@ -1,4 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -49,7 +50,10 @@ export class EditVisit implements OnInit {
   private visitorService = inject(VisitorService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private location = inject(Location);
   private translate = inject(TranslateService);
+
+  readonly canGoBack = signal(history.length > 1);
 
   readonly visit = signal<VisitDto | null>(null);
   readonly loading = signal(true);
@@ -241,7 +245,7 @@ export class EditVisit implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/visitors']);
+    this.location.back();
   }
 
   navigateToOnboarding(inv: VisitorInvitationDto): void {

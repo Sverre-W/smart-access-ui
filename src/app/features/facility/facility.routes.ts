@@ -10,6 +10,14 @@ export const facilityRoutes: Routes = [
     loadComponent: () => import('./agents/agents').then(m => m.FacilityAgents),
   },
   {
+    path: 'tenants',
+    loadComponent: () => import('./tenants/tenants').then(m => m.FacilityTenants),
+  },
+  {
+    path: 'tenants/:tenantId',
+    loadComponent: () => import('./tenants/edit-tenant').then(m => m.EditTenant),
+  },
+  {
     path: 'access-policies',
     loadComponent: () => import('./access-policies/access-policies').then(m => m.FacilityAccessPolicies),
   },
@@ -32,5 +40,13 @@ export const facilityRoutes: Routes = [
   {
     path: 'locations/buildings/:buildingId',
     loadComponent: () => import('./locations/edit-building').then(m => m.EditBuilding),
+  },
+  {
+    path: 'roles',
+    loadComponent: () => import('./roles/roles').then(m => m.FacilityRoles),
+  },
+  {
+    path: 'roles/:roleName',
+    loadComponent: () => import('./roles/edit-role').then(m => m.EditRole),
   },
 ];

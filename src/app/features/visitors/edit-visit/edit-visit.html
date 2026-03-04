@@ -8,6 +8,7 @@
       severity="secondary"
       [text]="true"
       [rounded]="true"
+      [disabled]="!canGoBack()"
     />
     <div class="flex-1 min-w-0">
       @if (loading()) {
@@ -215,6 +216,7 @@
                   (click)="goBack()"
                   [label]="'visitors.editVisit.back' | translate"
                   severity="secondary"
+                  [disabled]="!canGoBack()"
                 />
                 <p-button
                   type="submit"

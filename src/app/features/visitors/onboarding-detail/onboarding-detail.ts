@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import {
@@ -20,9 +21,11 @@ import { formatLocalDateTime } from '../../../shared/utils/date-utils';
 })
 export class OnboardingDetail implements OnInit {
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private location = inject(Location);
   private visitorService = inject(VisitorService);
   private translate = inject(TranslateService);
+
+  readonly canGoBack = signal(history.length > 1);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -110,12 +113,7 @@ export class OnboardingDetail implements OnInit {
   }
 
   goBack(): void {
-    const visitId = this.visit()?.id;
-    if (visitId) {
-      this.router.navigate(['/visitors/edit', visitId]);
-    } else {
-      this.router.navigate(['/visitors']);
-    }
+    this.location.back();
   }
 
   formatDate(iso: string | null): string {
