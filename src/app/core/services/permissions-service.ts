@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 const APP_BACKEND_MAP: Record<string, string[]> = {
   'univisit':       ['Visitors Service'],
   'facility':       ['Settings Server', 'Agent Server', 'Access Policies', 'Locations Service'],
-  'reception-desk': ['Reception Desk'],
+  'reception-desk': ['Visitors Service'],
 };
 
 @Injectable({

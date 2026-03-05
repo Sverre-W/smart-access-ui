@@ -9,8 +9,7 @@ import {
 import { OAuthService } from 'angular-oauth2-oidc';
 import { BehaviorSubject, Observable, throwError, from } from 'rxjs';
 import { catchError, filter, finalize, switchMap, take } from 'rxjs/operators';
-
-const API_PREFIX = 'https://dev.axxession.local';
+import { ConfigService } from './services/config-service';
 
 // Module-level refresh state — shared across all concurrent requests
 let isRefreshing = false;
@@ -20,8 +19,14 @@ function withBearer(req: HttpRequest<unknown>, token: string): HttpRequest<unkno
   return req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
 }
 
-function isApiRequest(url: string): boolean {
-  return url.startsWith(API_PREFIX);
+/** Returns the scheme+host portion of a URL (e.g. "https://uat.axxession.com"). */
+function originOf(url: string): string {
+  try {
+    const { origin } = new URL(url);
+    return origin;
+  } catch {
+    return '';
+  }
 }
 
 /**
@@ -37,9 +42,22 @@ export const authInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> => {
   const oauth = inject(OAuthService);
+  const config = inject(ConfigService);
+
+  // Derive the allowed origins from the runtime config so the interceptor works
+  // in every environment (dev, UAT, prod) without hardcoded URLs.
+  const appSettings = config.app;
+  const allowedOrigins = appSettings
+    ? [...new Set([
+        originOf(appSettings.settingsServer),
+        originOf(appSettings.baseEndpoint),
+      ].filter(Boolean))]
+    : [];
+
+  const isApiRequest = allowedOrigins.some(origin => req.url.startsWith(origin));
 
   // Skip non-API requests (e.g. /api/settings proxied locally, OIDC discovery)
-  if (!isApiRequest(req.url)) {
+  if (!isApiRequest) {
     return next(req);
   }
 
