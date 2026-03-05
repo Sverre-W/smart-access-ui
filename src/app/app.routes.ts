@@ -6,6 +6,15 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/home').then(m => m.Home),
   },
   {
+    path: 'visitors/confirm',
+    loadComponent: () =>
+      import('./features/reception/onboarding/shell/onboarding-shell')
+        .then(m => m.OnboardingShell),
+    loadChildren: () =>
+      import('./features/visitors/confirm.routes')
+        .then(m => m.confirmVisitRoutes),
+  },
+  {
     path: 'visitors',
     loadChildren: () =>
       import('./features/visitors/visitors.routes')

@@ -11,10 +11,12 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { KioskSessionService } from '../services/kiosk-session-service';
 import { FaceDetectorService } from '../services/face-detector-service';
-import { LabelDataDto, VisitorService } from '../../../visitors/services/visitor-service';
+
+/** How many milliseconds of continuous valid-face before the photo is taken. */
+const CAPTURE_DELAY_MS = 3000;
 
 @Component({
   selector: 'app-onboarding-selfie',
@@ -27,9 +29,9 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
 
   // ── Services ────────────────────────────────────────────────────────────────
 
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private session = inject(KioskSessionService);
-  private visitorService = inject(VisitorService);
   private faceDetector = inject(FaceDetectorService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -38,49 +40,58 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
   private videoEl = viewChild<ElementRef<HTMLVideoElement>>('videoEl');
   private canvasEl = viewChild<ElementRef<HTMLCanvasElement>>('canvasEl');
 
+  // ── Route query params ──────────────────────────────────────────────────────
+
+  private label = 'Photo';
+  private returnTo = '/reception/onboarding/done';
+
   // ── State Signals ───────────────────────────────────────────────────────────
 
-  readonly borderColor = signal<'transparent' | 'green' | 'red'>('transparent');
+  /** Whether the face is currently valid (drives border colour). */
+  readonly faceValid = signal(false);
+
+  /** Countdown digit shown in the oval (3 → 2 → 1 → capture). Null = not counting. */
+  readonly countdown = signal<number | null>(null);
+
   readonly statusMessage = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
 
-  /** Timestamp (performance.now()) when the face first became continuously valid. */
-  private faceValidSince = signal<number | null>(null);
+  /** Timestamp when the face first became continuously valid. */
+  private faceValidSince: number | null = null;
 
-  /** Guard: ensures capture + print is triggered only once per page visit. */
-  private captureStarted = signal(false);
+  /** Last countdown digit rendered — avoids redundant cdr.markForCheck calls. */
+  private lastCountdownRendered: number | null = null;
 
-  /** Active requestAnimationFrame handle, stored for cleanup on destroy. */
+  /** Guard: capture runs at most once per page visit. */
+  private captureStarted = false;
+
   private rafId: number | null = null;
-
-  /** Active MediaStream — stopped on destroy. */
   private activeStream: MediaStream | null = null;
 
   // ── Computed ────────────────────────────────────────────────────────────────
 
-  readonly viewfinderBorder = computed(() => {
-    const c = this.borderColor();
-    if (c === 'green') return 'rgba(0, 255, 0, 0.3)';
-    if (c === 'red') return 'rgba(255, 0, 0, 0.3)';
-    return 'transparent';
-  });
+  readonly borderCss = computed(() =>
+    this.faceValid()
+      ? '6px solid rgba(34,197,94,0.8)'
+      : '6px solid transparent'
+  );
 
   // ── Lifecycle ───────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
-    // Reset any selfie from a previous kiosk session so stale data is never sent.
-    this.session.face.set(null);
+    const params = this.route.snapshot.queryParamMap;
+    this.label    = params.get('label')    ?? 'Photo';
+    this.returnTo = params.get('returnTo') ?? '/reception/onboarding/done';
   }
 
   ngAfterViewInit(): void {
-    const videoRef = this.videoEl();
+    const videoRef  = this.videoEl();
     const canvasRef = this.canvasEl();
     if (!videoRef || !canvasRef) return;
 
-    const video = videoRef.nativeElement;
+    const video  = videoRef.nativeElement;
     const canvas = canvasRef.nativeElement;
 
-    // Request the front-facing camera directly — no pre-enumeration needed.
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: 'user' } })
       .then(async stream => {
@@ -91,14 +102,13 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
           video.addEventListener('loadedmetadata', () => resolve(), { once: true });
         });
 
-        // Sync canvas to actual video dimensions.
-        canvas.width = video.videoWidth || 400;
-        canvas.height = video.videoHeight || 400;
+        // Canvas internal resolution = square matching the video crop.
+        const size = Math.min(video.videoWidth || 640, video.videoHeight || 640);
+        canvas.width  = size;
+        canvas.height = size;
 
-        // Load face detection model (lazy — downloads once per session).
-        await this.faceDetector.initialize(canvas);
-
-        this.startDetectionLoop(video, canvas);
+        await this.faceDetector.initialize();
+        this.startLoop(video, canvas);
       })
       .catch(err => {
         this.errorMessage.set('Camera access denied: ' + String(err));
@@ -107,97 +117,108 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
-    }
+    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+    this.stopCamera();
+    this.faceDetector.dispose();
+  }
+
+  goBack(): void {
+    this.router.navigateByUrl(this.returnTo);
+  }
+
+  // ── Private ─────────────────────────────────────────────────────────────────
+
+  private stopCamera(): void {
     if (this.activeStream) {
       for (const track of this.activeStream.getTracks()) track.stop();
       this.activeStream = null;
     }
-    this.faceDetector.dispose();
   }
 
-  // ── Private: Detection Loop ─────────────────────────────────────────────────
+  private startLoop(video: HTMLVideoElement, canvas: HTMLCanvasElement): void {
+    const loop = (timestamp: number) => {
+      if (this.captureStarted) return;
 
-  /**
-   * Runs a requestAnimationFrame loop that:
-   *  1. Draws each video frame to the canvas (with oval guide overlay).
-   *  2. Checks face validity via FaceDetectorService.
-   *  3. Accumulates valid-face time; once 2 000 ms of continuous validity
-   *     is reached, triggers capture and stops the loop.
-   */
-  private startDetectionLoop(videoEl: HTMLVideoElement, canvasEl: HTMLCanvasElement): void {
-    const loop = () => {
-      if (this.captureStarted()) return;
+      // ── Detect ──────────────────────────────────────────────────────────────
+      const { faceValid, hint } = this.faceDetector.detect(video, timestamp);
 
-      const timestamp = performance.now();
+      // ── Countdown logic ─────────────────────────────────────────────────────
+      let countdown: number | null = null;
 
-      // predictWebcam draws the frame + oval overlay and returns a JPEG
-      // data-URL when exactly one valid face is detected; null otherwise.
-      const base64 = this.faceDetector.predictWebcam(videoEl, canvasEl, timestamp);
+      if (faceValid) {
+        if (this.faceValidSince === null) {
+          this.faceValidSince = timestamp;
+        }
 
-      if (base64) {
-        this.borderColor.set('green');
+        const elapsed = timestamp - this.faceValidSince;
+        const remaining = CAPTURE_DELAY_MS - elapsed;
 
-        if (!this.faceValidSince()) {
-          this.faceValidSince.set(timestamp);
-        } else if (timestamp - this.faceValidSince()! >= 2000) {
-          // 2 seconds of continuous valid face — trigger capture.
-          this.captureStarted.set(true);
-          this.capture(base64, canvasEl);
+        if (remaining <= 0) {
+          // Time's up — capture.
+          this.captureStarted = true;
+          this.faceDetector.drawOverlay(video, canvas, true, '', null);
+          this.capture(canvas);
           return;
         }
+
+        // Show ceiling of remaining seconds: 3 → 2 → 1
+        countdown = Math.ceil(remaining / 1000);
       } else {
-        this.borderColor.set('transparent');
-        this.faceValidSince.set(null);
+        this.faceValidSince = null;
       }
 
-      this.cdr.markForCheck();
+      // ── Draw overlay ────────────────────────────────────────────────────────
+      this.faceDetector.drawOverlay(video, canvas, faceValid, hint, countdown);
+
+      // ── Update Angular signals only when something changed ──────────────────
+      const newValid = faceValid;
+      const newCountdown = countdown;
+
+      if (
+        this.faceValid()   !== newValid ||
+        this.lastCountdownRendered !== newCountdown
+      ) {
+        this.faceValid.set(newValid);
+        this.countdown.set(newCountdown);
+        this.lastCountdownRendered = newCountdown;
+        this.cdr.markForCheck();
+      }
+
       this.rafId = requestAnimationFrame(loop);
     };
 
     this.rafId = requestAnimationFrame(loop);
   }
 
-  // ── Private: Capture & Print ────────────────────────────────────────────────
+  private capture(canvas: HTMLCanvasElement): void {
+    // Capture from the raw video feed — no overlay, no scrim, no oval.
+    const video = this.videoEl()?.nativeElement;
+    let base64: string;
 
-  private async capture(base64: string, _canvasEl: HTMLCanvasElement): Promise<void> {
-    this.session.face.set(base64);
-
-    const visitor = this.session.visitor();
-
-    if (!visitor) {
-      this.router.navigate(['/reception/onboarding/done']);
-      return;
+    if (video && video.readyState >= 2) {
+      const offscreen = document.createElement('canvas');
+      offscreen.width  = canvas.width;
+      offscreen.height = canvas.height;
+      const ctx = offscreen.getContext('2d')!;
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      const srcSize = Math.min(vw, vh);
+      const srcX = (vw - srcSize) / 2;
+      const srcY = (vh - srcSize) / 2;
+      ctx.drawImage(video, srcX, srcY, srcSize, srcSize, 0, 0, offscreen.width, offscreen.height);
+      base64 = offscreen.toDataURL('image/jpeg', 0.9);
+    } else {
+      // Fallback: use the overlay canvas if video is unavailable.
+      base64 = canvas.toDataURL('image/jpeg', 0.9);
     }
 
-    this.statusMessage.set('Printing label…');
+    this.session.setDoc(this.label, base64);
+
+    this.stopCamera();
+    this.statusMessage.set('Photo captured!');
+    this.faceValid.set(true);
     this.cdr.markForCheck();
 
-    const printBody: LabelDataDto = {
-      visitId: visitor.visitId,
-      visitorId: visitor.visitorId,
-      badgeId: visitor.badgeId,
-      faceImageBase64: base64,
-    };
-
-    try {
-      await Promise.all([
-        this.visitorService.printLabel(printBody),
-        new Promise(r => setTimeout(r, 2000)),
-      ]);
-
-      this.statusMessage.set('Label printed successfully!');
-      this.cdr.markForCheck();
-
-      await new Promise(r => setTimeout(r, 100));
-      this.router.navigate(['/reception/onboarding/done']);
-    } catch (err) {
-      this.statusMessage.set(null);
-      this.errorMessage.set('Something went wrong: ' + String(err));
-      this.cdr.markForCheck();
-
-      setTimeout(() => this.router.navigate(['/reception/onboarding/done']), 5000);
-    }
+    setTimeout(() => this.router.navigateByUrl(this.returnTo), 600);
   }
 }

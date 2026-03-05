@@ -1,0 +1,242 @@
+<div class="min-h-screen bg-zinc-50 flex flex-col items-center justify-start py-10 px-4">
+  <div class="w-full max-w-md flex flex-col gap-6">
+
+    <!-- ── Brand header ──────────────────────────────────────────────────────── -->
+    <div class="flex items-center gap-2 self-center">
+      <i class="pi pi-shield text-[#238cff] text-2xl"></i>
+      <span class="text-lg font-bold text-zinc-800 tracking-tight">Smart Access</span>
+    </div>
+
+    <!-- ── Loading skeleton ──────────────────────────────────────────────────── -->
+    @if (pageState() === 'loading') {
+      <div class="flex flex-col gap-4 animate-pulse">
+        <div class="h-6 w-48 rounded bg-zinc-200 self-center"></div>
+        <div class="rounded-2xl border border-zinc-200 bg-white p-6 flex flex-col gap-4">
+          <div class="flex gap-4 items-center">
+            <div class="w-14 h-14 rounded-full bg-zinc-200 shrink-0"></div>
+            <div class="flex-1 flex flex-col gap-2">
+              <div class="h-4 w-40 rounded bg-zinc-200"></div>
+              <div class="h-3 w-28 rounded bg-zinc-100"></div>
+            </div>
+          </div>
+          @for (n of [1, 2, 3]; track n) {
+            <div class="h-12 rounded-xl bg-zinc-100"></div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ── Not found ──────────────────────────────────────────────────────────── -->
+    @if (pageState() === 'not-found') {
+      <div class="rounded-2xl border border-zinc-200 bg-white shadow-sm p-8 flex flex-col items-center gap-4 text-center">
+        <div class="w-14 h-14 rounded-full bg-zinc-100 flex items-center justify-center">
+          <i class="pi pi-search text-zinc-400 text-2xl"></i>
+        </div>
+        <div>
+          <p class="text-base font-semibold text-zinc-800">{{ 'visitors.confirmVisit.notFoundTitle' | translate }}</p>
+          <p class="text-sm text-zinc-500 mt-1">{{ 'visitors.confirmVisit.notFoundMessage' | translate }}</p>
+        </div>
+      </div>
+    }
+
+    <!-- ── Load error ─────────────────────────────────────────────────────────── -->
+    @if (pageState() === 'error') {
+      <div class="rounded-2xl border border-red-200 bg-red-50 p-6 flex flex-col items-center gap-3 text-center">
+        <i class="pi pi-exclamation-circle text-red-400 text-2xl"></i>
+        <p class="text-sm text-red-600">{{ loadError() }}</p>
+      </div>
+    }
+
+    <!-- ── Success ────────────────────────────────────────────────────────────── -->
+    @if (pageState() === 'success') {
+      <div class="rounded-2xl border border-green-200 bg-white shadow-sm p-8 flex flex-col items-center gap-4 text-center">
+        <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center">
+          <i class="pi pi-check-circle text-green-500 text-3xl"></i>
+        </div>
+        <div>
+          <p class="text-xl font-semibold text-zinc-800">{{ 'visitors.confirmVisit.successTitle' | translate }}</p>
+          <p class="text-sm text-zinc-500 mt-1">
+            {{ 'visitors.confirmVisit.successMessage' | translate: { name: firstName || visitorName() } }}
+          </p>
+        </div>
+        @if (visit()) {
+          <div class="w-full rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 flex flex-col gap-2 text-sm text-left">
+            @if (visit()!.summary) {
+              <p class="font-semibold text-zinc-700">{{ visit()!.summary }}</p>
+            }
+            @if (visitTimeRange()) {
+              <p class="text-xs text-zinc-500 flex items-center gap-1.5">
+                <i class="pi pi-calendar text-zinc-400"></i>
+                {{ visitTimeRange() }}
+              </p>
+            }
+            @if (visit()!.location) {
+              <p class="text-xs text-zinc-500 flex items-center gap-1.5">
+                <i class="pi pi-map-marker text-zinc-400"></i>
+                {{ visit()!.location!.name }}
+              </p>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── Main form ──────────────────────────────────────────────────────────── -->
+    @if (pageState() === 'ready' || pageState() === 'submitting') {
+      <div class="flex flex-col gap-5">
+
+        <!-- Heading -->
+        <div class="text-center">
+          <h1 class="text-2xl font-bold text-zinc-800">{{ 'visitors.confirmVisit.formTitle' | translate }}</h1>
+          <p class="text-sm text-zinc-500 mt-1">
+            {{ 'visitors.confirmVisit.formSubtitle' | translate }}
+          </p>
+        </div>
+
+        <!-- ── Visit info card ──────────────────────────────────────────────── -->
+        @if (visit()) {
+          <div class="rounded-2xl border border-zinc-200 bg-white shadow-sm px-5 py-4 flex flex-col gap-2">
+            @if (visit()!.summary) {
+              <p class="text-sm font-semibold text-zinc-700">{{ visit()!.summary }}</p>
+            }
+            @if (visitTimeRange()) {
+              <p class="text-xs text-zinc-500 flex items-center gap-1.5">
+                <i class="pi pi-calendar text-zinc-400"></i>
+                {{ visitTimeRange() }}
+              </p>
+            }
+            @if (visit()!.location) {
+              <p class="text-xs text-zinc-500 flex items-center gap-1.5">
+                <i class="pi pi-map-marker text-zinc-400"></i>
+                {{ visit()!.location!.name }}
+              </p>
+            }
+          </div>
+        }
+
+        <!-- ── Visitor form card ────────────────────────────────────────────── -->
+        <div class="rounded-2xl border border-zinc-200 bg-white shadow-sm p-5 flex flex-col gap-5">
+
+          <!-- Avatar + email (non-editable) -->
+          <div class="flex items-center gap-4">
+            <div
+              class="w-14 h-14 rounded-full shrink-0 flex items-center justify-center text-base font-bold select-none"
+              [style.background]="avatarColor()"
+              [style.color]="avatarTextColor()"
+            >
+              {{ initials() }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-zinc-800 truncate">
+                {{ firstName }} {{ lastName }}
+              </p>
+              @if (invitation()!.visitor.email) {
+                <p class="text-xs text-zinc-400 truncate">{{ invitation()!.visitor.email }}</p>
+              }
+            </div>
+          </div>
+
+          <div class="h-px bg-zinc-100"></div>
+
+          <!-- First name -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-semibold text-zinc-500 uppercase tracking-wide" for="firstName">
+              {{ 'visitors.confirmVisit.firstNameLabel' | translate }}
+            </label>
+            <input
+              id="firstName"
+              type="text"
+              [(ngModel)]="firstName"
+              [placeholder]="'visitors.confirmVisit.firstNameLabel' | translate"
+              autocomplete="given-name"
+              class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-800 placeholder-zinc-400 outline-none focus:border-[#238cff] focus:bg-white transition-colors"
+            />
+          </div>
+
+          <!-- Last name -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-semibold text-zinc-500 uppercase tracking-wide" for="lastName">
+              {{ 'visitors.confirmVisit.lastNameLabel' | translate }}
+            </label>
+            <input
+              id="lastName"
+              type="text"
+              [(ngModel)]="lastName"
+              [placeholder]="'visitors.confirmVisit.lastNameLabel' | translate"
+              autocomplete="family-name"
+              class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-800 placeholder-zinc-400 outline-none focus:border-[#238cff] focus:bg-white transition-colors"
+            />
+          </div>
+
+          <!-- Company -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-semibold text-zinc-500 uppercase tracking-wide" for="company">
+              {{ 'visitors.confirmVisit.companyLabel' | translate }}
+            </label>
+            <input
+              id="company"
+              type="text"
+              [(ngModel)]="company"
+              [placeholder]="'visitors.confirmVisit.companyPlaceholder' | translate"
+              autocomplete="organization"
+              class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-800 placeholder-zinc-400 outline-none focus:border-[#238cff] focus:bg-white transition-colors"
+            />
+          </div>
+
+          <!-- License plate -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-semibold text-zinc-500 uppercase tracking-wide" for="licensePlate">
+              {{ 'visitors.confirmVisit.licensePlateLabel' | translate }}
+              <span class="normal-case font-normal text-zinc-400">{{ 'visitors.confirmVisit.licensePlateOptional' | translate }}</span>
+            </label>
+            <input
+              id="licensePlate"
+              type="text"
+              [(ngModel)]="licensePlate"
+              [placeholder]="'visitors.confirmVisit.licensePlatePlaceholder' | translate"
+              autocomplete="off"
+              class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-800 placeholder-zinc-400 outline-none focus:border-[#238cff] focus:bg-white transition-colors uppercase"
+            />
+          </div>
+
+        </div>
+
+        <!-- ── Submit error ───────────────────────────────────────────────────── -->
+        @if (submitError()) {
+          <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ submitError() }}</span>
+          </div>
+        }
+
+        <!-- ── Action buttons ─────────────────────────────────────────────────── -->
+        <div class="flex flex-col gap-3">
+          <button
+            (click)="confirm()"
+            [disabled]="pageState() === 'submitting'"
+            class="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-white text-sm transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed bg-[#238cff] hover:bg-[#1a72d4]"
+          >
+            @if (pageState() === 'submitting') {
+              <i class="pi pi-spin pi-spinner"></i>
+              {{ 'visitors.confirmVisit.confirmingLabel' | translate }}
+            } @else {
+              <i class="pi pi-check"></i>
+              {{ 'visitors.confirmVisit.confirmAttendance' | translate }}
+            }
+          </button>
+
+          <button
+            (click)="decline()"
+            [disabled]="pageState() === 'submitting'"
+            class="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-zinc-600 text-sm border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <i class="pi pi-times"></i>
+            {{ 'visitors.confirmVisit.decline' | translate }}
+          </button>
+        </div>
+
+      </div>
+    }
+
+  </div>
+</div>

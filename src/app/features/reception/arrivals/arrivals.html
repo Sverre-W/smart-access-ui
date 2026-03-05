@@ -113,7 +113,7 @@
         @for (inv of invitations(); track inv.visitor.id + inv.visit.id) {
           <li>
             <a
-              [routerLink]="['/visitors/onboarding', inv.visit.id, inv.visitor.id]"
+              [routerLink]="['/reception/onboarding/checkin', inv.visit.id, inv.visitor.id]"
               class="flex items-center gap-4 px-4 sm:px-6 py-4 hover:bg-zinc-50 transition-colors cursor-pointer"
             >
               <!-- Avatar -->

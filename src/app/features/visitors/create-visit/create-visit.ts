@@ -60,10 +60,10 @@ export class CreateVisit implements OnInit {
       }
     });
 
-    // Pre-search with the logged-in user's email so their name appears immediately
+    // Pre-search with the logged-in user's email and auto-select if found
     const email = this.oauthService.getIdentityClaims()?.['email'] as string | undefined;
     if (email) {
-      this.loadOrganizers(email);
+      this.loadOrganizers(email, /* autoSelect */ true);
     }
   }
 
@@ -142,7 +142,7 @@ export class CreateVisit implements OnInit {
     return !!(ctrl?.invalid && ctrl.touched);
   }
 
-  private async loadOrganizers(query: string): Promise<void> {
+  private async loadOrganizers(query: string, autoSelect = false): Promise<void> {
     try {
       const results = await this.visitorService.getOrganizersByDateRange();
       const q = query.toLowerCase();
@@ -152,6 +152,13 @@ export class CreateVisit implements OnInit {
         (o.lastName ?? '').toLowerCase().includes(q),
       );
       this.organizerSuggestions.set(filtered);
+
+      if (autoSelect) {
+        const exact = filtered.find(o => o.email.toLowerCase() === q);
+        if (exact) {
+          this.form.get('organizer')!.setValue(exact);
+        }
+      }
     } catch {
       this.organizerSuggestions.set([]);
     }

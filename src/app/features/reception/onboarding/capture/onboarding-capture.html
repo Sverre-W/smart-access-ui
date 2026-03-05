@@ -1,0 +1,116 @@
+<div class="flex flex-col px-4 py-6 sm:px-8 sm:py-6 gap-4">
+
+  <!-- Page header -->
+  <div class="shrink-0 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3 min-w-0">
+      <i [class]="dataTypeIcon()" class="text-xl text-zinc-500 shrink-0"></i>
+      <div class="min-w-0">
+        <h1 class="text-2xl font-semibold text-zinc-800 truncate">{{ label }}</h1>
+        <p class="text-sm text-zinc-500 mt-0.5">
+          @if (!preview()) {
+            Position the document clearly in the frame, then tap Capture
+          } @else {
+            Review the photo — confirm or retake
+          }
+        </p>
+      </div>
+    </div>
+    <button
+      type="button"
+      (click)="cancel()"
+      class="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-600 transition-colors shrink-0"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+      Back
+    </button>
+  </div>
+
+  <!-- Main card -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs flex flex-col items-center gap-6 p-6">
+
+    <!-- Live viewfinder (hidden once preview is shown) -->
+    @if (!preview()) {
+      <div class="relative w-full flex justify-center">
+        <video #videoEl autoplay playsinline muted
+          style="
+            width: 100%;
+            max-width: 640px;
+            border-radius: 0.5rem;
+            display: block;
+            background: #000;
+          ">
+        </video>
+
+        <!-- Hidden canvas used only for snapshot -->
+        <canvas #canvasEl style="display: none"></canvas>
+
+        <!-- Overlay hint when camera not ready yet -->
+        @if (!cameraReady()) {
+          <div class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40">
+            <div class="flex items-center gap-2 text-white text-sm">
+              <i class="pi pi-spin pi-spinner"></i>
+              <span>Starting camera…</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Capture button -->
+      <button
+        type="button"
+        [disabled]="!cameraReady()"
+        (click)="takePhoto()"
+        class="flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition
+               bg-[#238cff] hover:bg-[#1a7ae0] disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        <i class="pi pi-camera"></i>
+        Capture
+      </button>
+    }
+
+    <!-- Preview (shown after snapshot) -->
+    @if (preview()) {
+      <!-- Hidden canvas stays in DOM so the ref is available -->
+      <canvas #canvasEl style="display: none"></canvas>
+
+      <img
+        [src]="preview()"
+        alt="Captured document"
+        style="width: 100%; max-width: 640px; border-radius: 0.5rem; display: block;"
+      />
+
+      <!-- Confirm / Retake buttons -->
+      <div class="flex gap-3">
+        <button
+          type="button"
+          (click)="retake()"
+          class="flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-5 py-2.5
+                 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition"
+        >
+          <i class="pi pi-refresh"></i>
+          Retake
+        </button>
+
+        <button
+          type="button"
+          (click)="confirmPhoto()"
+          class="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold
+                 text-white bg-[#238cff] hover:bg-[#1a7ae0] transition"
+        >
+          <i class="pi pi-check"></i>
+          Use this photo
+        </button>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (errorMessage()) {
+      <div class="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 w-full max-w-lg">
+        <i class="pi pi-exclamation-circle"></i>
+        {{ errorMessage() }}
+      </div>
+    }
+
+  </div>
+
+</div>

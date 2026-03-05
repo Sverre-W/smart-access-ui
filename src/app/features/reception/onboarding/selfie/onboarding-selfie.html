@@ -1,51 +1,67 @@
 <div class="flex flex-col px-4 py-6 sm:px-8 sm:py-6 gap-4">
 
   <!-- Page header -->
-  <div class="shrink-0">
-    <h1 class="text-2xl font-semibold text-zinc-800">Take a Photo</h1>
-    <p class="text-sm text-zinc-500 mt-1">Look straight at the camera and hold still for 2 seconds</p>
+  <div class="shrink-0 flex items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-semibold text-zinc-800">Take a Photo</h1>
+      <p class="text-sm text-zinc-500 mt-1">Look straight at the camera and hold still for 3 seconds</p>
+    </div>
+    <button
+      type="button"
+      (click)="goBack()"
+      class="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-600 transition-colors shrink-0"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+      Back
+    </button>
   </div>
 
-  <!-- Main card — takes remaining height, scrolls if needed -->
+  <!-- Main card -->
   <div class="rounded-xl border border-zinc-200 bg-white shadow-xs flex flex-col items-center justify-center gap-6 p-6">
 
-    <!-- Viewfinder: video feed with canvas overlay stacked on top -->
+    <!-- Viewfinder: canvas is the sole display surface; video is hidden source -->
     <div
-      class="relative rounded-lg overflow-hidden"
-      [style.border-color]="viewfinderBorder()"
-      style="border-width: 6px; border-style: solid; box-sizing: content-box; transition: border-color 0.3s"
+      class="rounded-lg overflow-hidden transition-all duration-300"
+      [style.border]="borderCss()"
     >
-      <!-- Mirrored live video feed -->
-      <video #videoEl autoplay playsinline muted
-        style="
-          width: clamp(280px, min(40vh, 40vw), 560px);
-          height: clamp(280px, min(40vh, 40vw), 560px);
-          object-fit: cover;
-          transform: scaleX(-1);
-          display: block;
-        ">
-      </video>
+      <!-- Hidden video — pixel source only -->
+      <video #videoEl autoplay playsinline muted style="display: none"></video>
 
-      <!-- Canvas overlay for oval guide — same size as video, positioned absolute -->
+      <!-- Canvas renders video frames + oval guide + countdown every RAF tick -->
       <canvas #canvasEl
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: scaleX(-1)">
+        style="
+          display: block;
+          width: clamp(280px, min(48vh, 48vw), 560px);
+          height: clamp(280px, min(48vh, 48vw), 560px);
+          transform: scaleX(-1);
+        ">
       </canvas>
     </div>
 
-    <!-- Status message: shown while printing or on success -->
+    <!-- Status row -->
     @if (statusMessage()) {
-      <div class="flex items-center gap-2 text-zinc-600">
-        <i class="pi pi-spin pi-spinner text-sm"></i>
+      <div class="flex items-center gap-2 text-green-600">
+        <i class="pi pi-check-circle text-sm"></i>
         <span class="text-sm font-medium">{{ statusMessage() }}</span>
+      </div>
+    } @else if (faceValid() && countdown() !== null) {
+      <div class="flex items-center gap-2 text-green-600">
+        <i class="pi pi-camera text-sm"></i>
+        <span class="text-sm font-medium">Hold still — taking photo in {{ countdown() }}…</span>
+      </div>
+    } @else if (faceValid()) {
+      <div class="flex items-center gap-2 text-green-600">
+        <i class="pi pi-check text-sm"></i>
+        <span class="text-sm font-medium">Face detected — hold still</span>
       </div>
     } @else {
       <div class="flex items-center gap-2 text-zinc-500">
         <i class="pi pi-camera text-sm"></i>
-        <span class="text-sm font-medium">Hold your face steady inside the frame</span>
+        <span class="text-sm font-medium">Hold your face steady inside the oval</span>
       </div>
     }
 
-    <!-- Error message: shown in red when the print API fails -->
+    <!-- Error message -->
     @if (errorMessage()) {
       <div class="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
         <i class="pi pi-exclamation-circle"></i>

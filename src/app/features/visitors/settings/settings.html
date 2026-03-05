@@ -187,6 +187,23 @@
           </div>
         </div>
 
+        <!-- Token generation timing -->
+        <div class="border-t border-zinc-100 pt-5">
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-4">{{ 'visitors.settings.tokenTiming' | translate }}</p>
+          <div class="flex flex-col gap-1.5 sm:grid sm:grid-cols-[180px_1fr] sm:items-center sm:gap-4">
+            <label class="text-sm font-medium text-zinc-600" for="badgeAssignmentTiming">{{ 'visitors.settings.generateTokenOn' | translate }}</label>
+            <p-select
+              [options]="badgeAssignmentTimingOptions"
+              [ngModel]="selectedBadgeAssignmentTiming()"
+              (ngModelChange)="selectedBadgeAssignmentTiming.set($event)"
+              optionLabel="label"
+              optionValue="value"
+              [disabled]="!canUpdateSettings()"
+              [fluid]="true"
+            />
+          </div>
+        </div>
+
         <!-- Label printing -->
         <div class="border-t border-zinc-100 pt-5 space-y-4">
 

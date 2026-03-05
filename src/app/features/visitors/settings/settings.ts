@@ -17,6 +17,7 @@ import {
   PrinterDto,
   OnboardingData,
   OnboardingDataType,
+  BadgeAssignmentTiming,
 } from '../services/visitor-service';
 import { CardEditor } from '../../../shared/components/card-editor/card-editor';
 import { CardSize } from '../../../shared/components/card-editor/card-editor.types';
@@ -108,6 +109,15 @@ export class VisitorsSettings implements OnInit {
     { label: 'Image',   value: 'Image'  },
     { label: 'Page',    value: 'Page'   },
   ];
+
+  readonly badgeAssignmentTimingOptions: { label: string; value: BadgeAssignmentTiming }[] = [
+    { label: this.translate.instant('visitors.settings.timingOnCreation'),     value: 'OnVisitorCreation'     },
+    { label: this.translate.instant('visitors.settings.timingOnConfirmation'), value: 'OnVisitorConfirmation' },
+    { label: this.translate.instant('visitors.settings.timingOnOnboarding'),   value: 'OnVisitorOnboarding'  },
+  ];
+
+  // ── Onboarding token timing ───────────────────────────────────────────────
+  readonly selectedBadgeAssignmentTiming = signal<BadgeAssignmentTiming>('OnVisitorOnboarding');
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -269,6 +279,7 @@ export class VisitorsSettings implements OnInit {
     this.selectedPrinterId.set(settings.labelPrintingConfiguration?.printerId ?? null);
     this.onboardingDataItems.set(settings.requiredOnboardingData ?? []);
     this.onboardedMessages.set(settings.onboardedMessages ?? []);
+    this.selectedBadgeAssignmentTiming.set(settings.badgeAssignmentTiming ?? 'OnVisitorOnboarding');
   }
 
   private async loadSystemDependents(systemId: string): Promise<void> {
@@ -314,7 +325,7 @@ export class VisitorsSettings implements OnInit {
         printerId: printingEnabled ? this.selectedPrinterId() : null,
       },
       // Fields not managed by this form — fall back to existing or safe defaults
-      badgeAssignmentTiming:  existing?.badgeAssignmentTiming  ?? 'OnVisitorOnboarding',
+      badgeAssignmentTiming:  this.selectedBadgeAssignmentTiming(),
       onboardingMode:         existing?.onboardingMode         ?? null,
       onboardedMessages:      this.onboardedMessages(),
     };

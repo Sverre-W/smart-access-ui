@@ -8,22 +8,24 @@ const MODEL_URL =
 
 const WASM_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm';
 
-/** Bounding-box size window (canvas pixels) that constitutes a valid face. */
-const BBOX_MIN_PX = 170;
-const BBOX_MAX_PX = 250;
+/**
+ * Face must occupy between 15% and 80% of the canvas width to be considered valid.
+ * This is deliberately wide so real-world conditions (distance, camera FOV) work.
+ */
+const BBOX_MIN_FRACTION = 0.15;
+const BBOX_MAX_FRACTION = 0.80;
 
 /** How far the face centre may stray from the canvas centre (fraction of canvas dimension). */
-const CENTRE_TOLERANCE = 0.11;
+const CENTRE_TOLERANCE = 0.25;
 
-/** Upward Y offset applied to the expected face centre (fraction of canvas height). */
-const UPWARD_Y_OFFSET = 0.2;
+// ─── Public types ─────────────────────────────────────────────────────────────
 
-// ─── Oval style helpers ───────────────────────────────────────────────────────
-
-const STROKE_INVALID = 'rgba(255,0,0,0.6)';
-const STROKE_VALID = 'rgba(0,255,0,0.6)';
-const LINE_WIDTH_INVALID = 3;
-const LINE_WIDTH_VALID = 6;
+export interface FaceDetectionResult {
+  /** True when exactly one properly-positioned face is detected. */
+  faceValid: boolean;
+  /** Contextual hint for the user when faceValid is false. */
+  hint: string;
+}
 
 // ─── Service ─────────────────────────────────────────────────────────────────
 
@@ -31,208 +33,213 @@ const LINE_WIDTH_VALID = 6;
  * FaceDetectorService
  *
  * Wraps the MediaPipe BlazeFace short-range model.
+ * Detection runs against the live <video> element directly (not a canvas),
+ * which is the recommended pattern for VIDEO running mode.
  *
- * Usage pattern:
- *  1. Call `initialize()` once (or let `predictWebcam` do it lazily).
- *  2. Call `predictWebcam(videoEl, canvasEl, timestamp)` each RAF tick.
- *  3. Call `dispose()` when the page/component is destroyed.
- *
- * The service is lazy — the heavy Wasm/model download only happens on the first
- * call to `initialize()`.  Subsequent calls to `initialize()` are no-ops.
+ * Usage:
+ *  1. Call `initialize()` once and await it.
+ *  2. Call `detect(videoEl, timestamp)` each RAF tick — returns FaceDetectionResult.
+ *  3. Draw the video frame + overlay onto your canvas using `drawOverlay()`.
+ *  4. Call `dispose()` on component destroy.
  */
 @Injectable({ providedIn: 'root' })
 export class FaceDetectorService {
-  // ── Private state ──────────────────────────────────────────────────────────
 
   private faceDetector: FaceDetector | undefined;
-
-  /**
-   * Cached promise so that concurrent callers waiting for the first init
-   * all resolve together rather than each triggering a duplicate download.
-   */
   private initPromise: Promise<void> | null = null;
 
   // ── Public API ─────────────────────────────────────────────────────────────
 
-  /**
-   * Lazily initialises the BlazeFace detector.
-   * Safe to call multiple times — only runs once.
-   *
-   * @param canvasEl  The canvas element that will be used for GPU rendering.
-   *                  Pass the same canvas you will later pass to predictWebcam.
-   */
-  initialize(canvasEl?: HTMLCanvasElement): Promise<void> {
-    if (this.initPromise) {
-      // Already initialised or in-flight — return the shared promise.
-      return this.initPromise;
-    }
-
-    this.initPromise = this.createDetector(canvasEl);
+  initialize(): Promise<void> {
+    if (this.initPromise) return this.initPromise;
+    this.initPromise = this.createDetector();
     return this.initPromise;
   }
 
   /**
-   * Process one video frame:
-   *  1. Crops the video to a centred square and draws it to the canvas.
-   *  2. Runs face detection on the canvas contents.
-   *  3. Draws the oval guide overlay on top.
-   *
-   * @param videoEl   The live webcam `<video>` element.
-   * @param canvasEl  The `<canvas>` overlay element (same size as the viewfinder).
-   * @param timestamp Monotonically-increasing millisecond timestamp (e.g. from rAF / performance.now()).
-   * @returns         Base64 JPEG data-URL if exactly one valid face was detected, `null` otherwise.
+   * Run face detection against the current video frame.
+   * Does NOT draw anything — drawing is handled separately by drawOverlay().
    */
-  predictWebcam(
-    videoEl: HTMLVideoElement,
-    canvasEl: HTMLCanvasElement,
-    timestamp: number
-  ): string | null {
-    // Guard: detector must be ready before we can do anything.
-    if (!this.faceDetector) {
-      return null;
+  detect(videoEl: HTMLVideoElement, timestamp: number): FaceDetectionResult {
+    if (!this.faceDetector || videoEl.readyState < 2) {
+      return { faceValid: false, hint: 'Position your face in the oval' };
     }
 
-    const ctx = canvasEl.getContext('2d');
-    if (!ctx) {
-      return null;
+    const result = this.faceDetector.detectForVideo(videoEl, timestamp);
+    const detections = result.detections;
+
+    if (detections.length === 0) {
+      return { faceValid: false, hint: 'Position your face in the oval' };
+    }
+    if (detections.length > 1) {
+      return { faceValid: false, hint: 'Only one face should be visible' };
     }
 
-    // ── Step 1: Draw centred-square crop from video to canvas ─────────────────
-    const { videoWidth, videoHeight } = videoEl;
-    const size = Math.min(videoWidth, videoHeight);
-    const srcX = (videoWidth - size) / 2;
-    const srcY = (videoHeight - size) / 2;
-
-    ctx.drawImage(videoEl, srcX, srcY, size, size, 0, 0, canvasEl.width, canvasEl.height);
-
-    // ── Step 2: Run face detection on the canvas (already a square crop) ─────
-    const result = this.faceDetector.detectForVideo(canvasEl, timestamp);
-
-    // ── Step 3: Evaluate face validity ────────────────────────────────────────
-    const faceValid = this.isFaceValid(result.detections, canvasEl.width, canvasEl.height);
-
-    // ── Step 4: Draw oval guide on top of the video frame ────────────────────
-    this.drawOvalGuide(ctx, canvasEl.width, canvasEl.height, faceValid);
-
-    // ── Step 5: Return captured image or null ─────────────────────────────────
-    if (faceValid) {
-      return canvasEl.toDataURL('image/jpeg', 0.9);
+    const box = detections[0].boundingBox;
+    if (!box) {
+      return { faceValid: false, hint: 'Position your face in the oval' };
     }
 
-    return null;
+    const vw = videoEl.videoWidth;
+    const vh = videoEl.videoHeight;
+    const size = Math.min(vw, vh); // square crop size
+
+    // bbox coords from detectForVideo are in the video's native pixel space.
+    // Translate to the square-crop coordinate space used by drawOverlay.
+    const cropOffsetX = (vw - size) / 2;
+    const cropOffsetY = (vh - size) / 2;
+
+    const bboxX = box.originX - cropOffsetX;
+    const bboxY = box.originY - cropOffsetY;
+    const bboxW = box.width;
+    const bboxH = box.height;
+
+    // ── Size check (as fraction of the square crop) ───────────────────────────
+    const wFrac = bboxW / size;
+    const hFrac = bboxH / size;
+
+    if (wFrac < BBOX_MIN_FRACTION || wFrac > BBOX_MAX_FRACTION) {
+      return {
+        faceValid: false,
+        hint: wFrac < BBOX_MIN_FRACTION ? 'Move closer to the camera' : 'Move further from the camera',
+      };
+    }
+    if (hFrac < BBOX_MIN_FRACTION || hFrac > BBOX_MAX_FRACTION) {
+      return {
+        faceValid: false,
+        hint: hFrac < BBOX_MIN_FRACTION ? 'Move closer to the camera' : 'Move further from the camera',
+      };
+    }
+
+    // ── Centre check (in square-crop space, Y shifted upward) ─────────────────
+    const faceCentreX = bboxX + bboxW / 2;
+    const faceCentreY = bboxY + bboxH / 2;
+
+    const targetX = size / 2;
+    const targetY = size / 2; // oval is drawn at true centre now
+
+    if (
+      Math.abs(faceCentreX - targetX) > size * CENTRE_TOLERANCE ||
+      Math.abs(faceCentreY - targetY) > size * CENTRE_TOLERANCE
+    ) {
+      return { faceValid: false, hint: 'Centre your face in the oval' };
+    }
+
+    return { faceValid: true, hint: '' };
   }
 
   /**
-   * Releases all Wasm / GPU resources held by the detector.
-   * Call this in the component's `ngOnDestroy`.
+   * Draw one frame to the canvas:
+   *  1. Crops the video to a centred square — sharp, no blur.
+   *  2. Draws a blurred copy of the same frame clipped to the area OUTSIDE the oval.
+   *  3. Draws a dark scrim (also clipped outside the oval) on top of the blur.
+   *  4. Draws the oval border (green when valid, white otherwise).
+   *  5. Draws hint text below oval or countdown number inside oval.
+   *
+   * The result: clear video inside the oval, blurred+darkened outside.
    */
+  drawOverlay(
+    videoEl: HTMLVideoElement,
+    canvasEl: HTMLCanvasElement,
+    faceValid: boolean,
+    hint: string,
+    countdown: number | null,
+  ): void {
+    const ctx = canvasEl.getContext('2d');
+    if (!ctx || videoEl.readyState < 2) return;
+
+    const cw = canvasEl.width;
+    const ch = canvasEl.height;
+
+    const vw = videoEl.videoWidth;
+    const vh = videoEl.videoHeight;
+    const srcSize = Math.min(vw, vh);
+    const srcX = (vw - srcSize) / 2;
+    const srcY = (vh - srcSize) / 2;
+
+    const centreX = cw / 2;
+    const centreY = ch / 2;
+    const radiusX = (cw * 0.55) / 2;
+    const radiusY = (ch * 0.72) / 2;
+
+    // ── 1. Clear sharp video frame (full canvas) ──────────────────────────────
+    ctx.filter = 'none';
+    ctx.drawImage(videoEl, srcX, srcY, srcSize, srcSize, 0, 0, cw, ch);
+
+    // ── 2. Blurred + darkened layer clipped to OUTSIDE the oval ───────────────
+    ctx.save();
+
+    // Clip path = full rect minus the oval (even-odd rule gives us the outside).
+    ctx.beginPath();
+    ctx.rect(0, 0, cw, ch);
+    ctx.ellipse(centreX, centreY, radiusX, radiusY, 0, 0, Math.PI * 2);
+    ctx.clip('evenodd');
+
+    // Blurred video — drawn slightly larger so blur edge doesn't expose gaps.
+    const bleed = 16;
+    ctx.filter = 'blur(10px)';
+    ctx.drawImage(videoEl, srcX, srcY, srcSize, srcSize, -bleed, -bleed, cw + bleed * 2, ch + bleed * 2);
+
+    // Dark scrim on top of the blur (no additional filter needed).
+    ctx.filter = 'none';
+    ctx.fillStyle = 'rgba(0,0,0,0.40)';
+    ctx.fillRect(0, 0, cw, ch);
+
+    ctx.restore();
+
+    // ── 3. Oval border ────────────────────────────────────────────────────────
+    const strokeColor = faceValid ? 'rgba(34,197,94,0.9)' : 'rgba(255,255,255,0.7)';
+    const lineWidth   = faceValid ? 6 : 3;
+
+    ctx.beginPath();
+    ctx.ellipse(centreX, centreY, radiusX, radiusY, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+
+    // ── 4. Countdown number inside oval OR hint text below oval ───────────────
+    // Counter-mirror the canvas CSS scaleX(-1) so text is legible.
+    const fontSize = Math.round(cw * 0.045);
+    ctx.save();
+    ctx.translate(centreX, 0);
+    ctx.scale(-1, 1);
+    ctx.translate(-centreX, 0);
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = 6;
+
+    if (countdown !== null) {
+      ctx.font = `bold ${Math.round(cw * 0.28)}px sans-serif`;
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      ctx.fillText(String(countdown), centreX, centreY + Math.round(cw * 0.09));
+    } else if (hint) {
+      ctx.font = `600 ${fontSize}px sans-serif`;
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.fillText(hint, centreX, centreY + radiusY + Math.round(ch * 0.06));
+    }
+
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  }
+
   dispose(): void {
     this.faceDetector?.close();
     this.faceDetector = undefined;
-    // Reset initPromise so initialize() can be called again if the service
-    // is somehow reused (e.g. in tests or after hot-reload).
     this.initPromise = null;
   }
 
-  // ── Private helpers ────────────────────────────────────────────────────────
+  // ── Private ────────────────────────────────────────────────────────────────
 
-  /** Performs the actual async detector creation.  Called exactly once. */
-  private async createDetector(canvasEl?: HTMLCanvasElement): Promise<void> {
+  private async createDetector(): Promise<void> {
     const vision = await FilesetResolver.forVisionTasks(WASM_CDN);
-
     this.faceDetector = await FaceDetector.createFromOptions(vision, {
       baseOptions: {
         modelAssetPath: MODEL_URL,
-        delegate: 'GPU',
+        delegate: 'CPU',
       },
-      // GPU delegate requires a canvas element to create the WebGL context.
-      ...(canvasEl ? { canvas: canvasEl } : {}),
       runningMode: 'VIDEO',
       minDetectionConfidence: 0.5,
       minSuppressionThreshold: 0.3,
     });
-  }
-
-  /**
-   * Returns true when all spec-defined validity conditions are met:
-   *  - Exactly one face detected.
-   *  - Bounding-box width AND height both within [170, 250] canvas pixels.
-   *  - Face centre within 11% of canvas dimensions from the (adjusted) canvas centre.
-   *    The expected Y centre is shifted 20% upward to account for the top of the head.
-   */
-  private isFaceValid(
-    detections: ReturnType<FaceDetector['detectForVideo']>['detections'],
-    canvasW: number,
-    canvasH: number
-  ): boolean {
-    if (detections.length !== 1) {
-      return false;
-    }
-
-    const detection = detections[0];
-    const box = detection.boundingBox;
-
-    // boundingBox is optional in the MediaPipe types — guard defensively.
-    if (!box) {
-      return false;
-    }
-
-    // ── Size check ────────────────────────────────────────────────────────────
-    // The detection runs on the canvas (square crop), so bbox coords are already
-    // in canvas-pixel space — no scaling needed.
-    const { originX, originY, width, height } = box;
-
-    if (width < BBOX_MIN_PX || width > BBOX_MAX_PX) {
-      return false;
-    }
-    if (height < BBOX_MIN_PX || height > BBOX_MAX_PX) {
-      return false;
-    }
-
-    // ── Centre check ──────────────────────────────────────────────────────────
-    const faceCentreX = originX + width / 2;
-    const faceCentreY = originY + height / 2;
-
-    const canvasCentreX = canvasW / 2;
-    // The expected face centre Y is shifted 20% upward from the true canvas centre.
-    const canvasCentreY = canvasH / 2 - canvasH * UPWARD_Y_OFFSET;
-
-    const toleranceX = canvasW * CENTRE_TOLERANCE;
-    const toleranceY = canvasH * CENTRE_TOLERANCE;
-
-    if (Math.abs(faceCentreX - canvasCentreX) > toleranceX) {
-      return false;
-    }
-    if (Math.abs(faceCentreY - canvasCentreY) > toleranceY) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Draws an oval/ellipse guide in the centre of the canvas.
-   *
-   * - Width : 60% of canvas width
-   * - Height: 75% of canvas height
-   * - Stroke: red (invalid) or green (valid)
-   * - Line width: 3px (invalid) or 6px (valid)
-   */
-  private drawOvalGuide(
-    ctx: CanvasRenderingContext2D,
-    canvasW: number,
-    canvasH: number,
-    faceValid: boolean
-  ): void {
-    const centreX = canvasW / 2;
-    const centreY = canvasH / 2;
-    const radiusX = (canvasW * 0.6) / 2;
-    const radiusY = (canvasH * 0.75) / 2;
-
-    ctx.beginPath();
-    ctx.ellipse(centreX, centreY, radiusX, radiusY, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = faceValid ? STROKE_VALID : STROKE_INVALID;
-    ctx.lineWidth = faceValid ? LINE_WIDTH_VALID : LINE_WIDTH_INVALID;
-    ctx.stroke();
   }
 }

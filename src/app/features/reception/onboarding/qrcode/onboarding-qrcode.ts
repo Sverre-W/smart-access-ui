@@ -160,13 +160,13 @@ export class OnboardingQrcode implements OnInit, AfterViewInit, OnDestroy {
         this.scannerControls?.stop();
 
         if (associations.length === 1) {
-          // Single match — check in directly and go to selfie.
+          // Single match — go straight to the check-in overview.
           const { visitId, visitorId } = associations[0];
           this.debugInfo.update(d => ({ ...d, visitId, visitorId }));
-          return this.visitorService.checkInVisitor(visitorId, visitId).then(visitor => {
-            this.session.visitor.set(visitor);
-            this.router.navigate(['/reception/onboarding/selfie']);
-          });
+          this.session.visitId.set(visitId);
+          this.session.visitorId.set(visitorId);
+          this.router.navigate(['/reception/onboarding/checkin', visitId, visitorId]);
+          return Promise.resolve();
         }
 
         // Multiple matches — let the guard pick the visit.
