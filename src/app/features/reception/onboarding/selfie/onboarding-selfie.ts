@@ -20,7 +20,7 @@ import { LabelDataDto, VisitorService } from '../../../visitors/services/visitor
   selector: 'app-onboarding-selfie',
   imports: [],
   templateUrl: './onboarding-selfie.html',
-  host: { class: 'flex flex-col flex-1 min-h-0 overflow-hidden' },
+  host: { class: 'block' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {

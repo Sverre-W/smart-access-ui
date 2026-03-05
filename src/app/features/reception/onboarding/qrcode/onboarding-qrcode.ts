@@ -20,7 +20,7 @@ import { VisitorService } from '../../../visitors/services/visitor-service';
 @Component({
   selector: 'app-onboarding-qrcode',
   templateUrl: './onboarding-qrcode.html',
-  host: { class: 'flex flex-col flex-1 min-h-0 overflow-hidden' },
+  host: { class: 'block' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OnboardingQrcode implements OnInit, AfterViewInit, OnDestroy {

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
   selector: 'app-onboarding-home',
   imports: [],
   templateUrl: './onboarding-home.html',
-  host: { class: 'flex flex-col flex-1 min-h-0 overflow-hidden' },
+  host: { class: 'block' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OnboardingHome {

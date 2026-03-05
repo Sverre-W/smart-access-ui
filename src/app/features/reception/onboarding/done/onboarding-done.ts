@@ -6,7 +6,7 @@ import { KioskSessionService } from '../services/kiosk-session-service';
   selector: 'app-onboarding-done',
   imports: [],
   templateUrl: './onboarding-done.html',
-  host: { class: 'flex flex-col flex-1 min-h-0 overflow-hidden' },
+  host: { class: 'block' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OnboardingDone implements OnInit, OnDestroy {
