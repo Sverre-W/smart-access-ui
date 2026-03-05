@@ -27,6 +27,7 @@ const FEATURE_TOGGLES: FeatureToggle[] = [
   { flag: FeatureFlags.Notifications,    labelKey: 'facility.tenants.edit.featureNotifications', descKey: 'facility.tenants.edit.featureNotificationsDesc' },
   { flag: FeatureFlags.AccessPolicies,   labelKey: 'facility.tenants.edit.featureAccessPolicies', descKey: 'facility.tenants.edit.featureAccessPoliciesDesc' },
   { flag: FeatureFlags.Locations,        labelKey: 'facility.tenants.edit.featureLocations',  descKey: 'facility.tenants.edit.featureLocationsDesc' },
+  { flag: FeatureFlags.Users,            labelKey: 'facility.tenants.edit.featureUsers',       descKey: 'facility.tenants.edit.featureUsersDesc' },
 ];
 
 @Component({

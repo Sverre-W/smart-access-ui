@@ -1,0 +1,20 @@
+import { Routes } from '@angular/router';
+
+export const settingsRoutes: Routes = [
+  {
+    path: '',
+    loadComponent: () => import('./dashboard/dashboard').then(m => m.SettingsDashboard),
+  },
+  {
+    path: 'users',
+    loadComponent: () => import('./users/users').then(m => m.SettingsUsers),
+  },
+  {
+    path: 'users/:userId',
+    loadComponent: () => import('./users/edit-user').then(m => m.EditUser),
+  },
+  {
+    path: 'users/groups/:groupId',
+    loadComponent: () => import('./users/edit-group').then(m => m.EditGroup),
+  },
+];

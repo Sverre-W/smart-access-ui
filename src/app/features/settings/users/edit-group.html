@@ -1,0 +1,296 @@
+<div class="p-4 sm:p-8 space-y-6 max-w-3xl">
+
+  <!-- ── Back + header ────────────────────────────────────────────────────── -->
+  <div>
+    <button type="button" (click)="goBack()"
+      class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-800 transition-colors mb-4">
+      <i class="pi pi-arrow-left text-xs"></i>
+      {{ 'settings.users.editGroup.backButton' | translate }}
+    </button>
+
+    @if (loading()) {
+      <div class="space-y-2 animate-pulse">
+        <div class="h-6 w-48 rounded bg-zinc-200"></div>
+        <div class="h-4 w-32 rounded bg-zinc-100"></div>
+      </div>
+    } @else if (group()) {
+      <h1 class="text-xl font-semibold text-zinc-800">{{ group()!.name }}</h1>
+      <p class="mt-1 text-sm text-zinc-400 font-mono">{{ group()!.path }}</p>
+    }
+  </div>
+
+  <!-- ── Load error ───────────────────────────────────────────────────────── -->
+  @if (error()) {
+    <div class="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (!loading() && group()) {
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         DETAILS CARD
+    ═════════════════════════════════════════════════════════════════════ -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">{{ 'settings.users.editGroup.detailsTitle' | translate }}</h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.editGroup.detailsSubtitle' | translate }}</p>
+      </div>
+
+      @if (detailsSuccess()) {
+        <div class="mx-4 sm:mx-6 mt-4 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          <i class="pi pi-check-circle shrink-0"></i>
+          {{ 'settings.users.editGroup.detailsSaved' | translate }}
+        </div>
+      }
+      @if (detailsError()) {
+        <div class="mx-4 sm:mx-6 mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <i class="pi pi-exclamation-circle shrink-0"></i>
+          <span>{{ detailsError() }}</span>
+        </div>
+      }
+
+      <div class="px-4 sm:px-6 py-5">
+        @if (detailsForm(); as form) {
+        <div [formGroup]="form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.editGroup.fieldName' | translate }} <span class="text-red-400">*</span>
+            </label>
+            <input pInputText type="text" formControlName="name" [fluid]="true"
+              [invalid]="form.get('name')!.invalid && form.get('name')!.touched" />
+            @if (form.get('name')!.invalid && form.get('name')!.touched) {
+              <p class="text-xs text-red-500">{{ 'settings.users.editGroup.validName' | translate }}</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.editGroup.fieldDescription' | translate }}
+            </label>
+            <input pInputText type="text" formControlName="description"
+              [placeholder]="'settings.users.editGroup.placeholderDescription' | translate" [fluid]="true" />
+          </div>
+        </div>
+        }
+      </div>
+
+      <div class="px-4 sm:px-6 py-4 border-t border-zinc-100 flex justify-end">
+        <p-button type="button" icon="pi pi-check" [label]="'settings.users.editGroup.saveDetails' | translate"
+          [loading]="detailsSaving()" [disabled]="detailsSaving()"
+          loadingIcon="pi pi-spin pi-spinner" (click)="saveDetails()" />
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         MEMBERS CARD
+    ═════════════════════════════════════════════════════════════════════ -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">
+          {{ 'settings.users.editGroup.membersTitle' | translate }}
+          <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ members().length }})</span>
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.editGroup.membersSubtitle' | translate }}</p>
+      </div>
+
+      @if (membersError()) {
+        <div class="mx-4 sm:mx-6 mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <i class="pi pi-exclamation-circle shrink-0"></i>
+          <span>{{ membersError() }}</span>
+        </div>
+      }
+
+      <!-- Current members list -->
+      @if (members().length > 0) {
+        <div class="divide-y divide-zinc-100">
+          @for (member of members(); track member.id) {
+            <div class="px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-7 h-7 rounded-full bg-[#238cff]/10 flex items-center justify-center shrink-0">
+                  <i class="pi pi-user text-xs text-[#238cff]"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-zinc-800 truncate">{{ fullName(member) }}</p>
+                  <p class="text-xs text-zinc-400 truncate">{{ member.email }}</p>
+                </div>
+              </div>
+
+              @if (removeMemberConfirmingId() === member.id) {
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="text-xs text-red-600 font-medium hidden sm:inline">
+                    {{ 'settings.users.editGroup.removeMember' | translate }}
+                  </span>
+                  <p-button type="button" [label]="'settings.users.editGroup.keep' | translate"
+                    severity="secondary" size="small" (click)="abortRemoveMember()" />
+                  <p-button type="button" [label]="'settings.users.editGroup.remove' | translate"
+                    severity="danger" size="small"
+                    [loading]="removeMemberInProgressId() === member.id"
+                    [disabled]="removeMemberInProgressId() === member.id"
+                    loadingIcon="pi pi-spin pi-spinner" (click)="executeRemoveMember(member)" />
+                </div>
+              } @else {
+                <p-button icon="pi pi-times" severity="danger" [text]="true" [rounded]="true"
+                  size="small" [title]="'settings.users.editGroup.removeMemberTitle' | translate"
+                  (click)="confirmRemoveMember(member.id)" />
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="px-6 py-8 text-center">
+          <i class="pi pi-users text-2xl text-zinc-300 mb-2 block"></i>
+          <p class="text-sm text-zinc-400">{{ 'settings.users.editGroup.membersEmpty' | translate }}</p>
+        </div>
+      }
+
+      <!-- Add member section -->
+      <div class="px-4 sm:px-6 py-4 border-t border-zinc-100 bg-zinc-50/60">
+        <p class="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-3">
+          {{ 'settings.users.editGroup.addMemberTitle' | translate }}
+        </p>
+        @if (availableUsers().length === 0 && !memberSearch()) {
+          <p class="text-xs text-zinc-400">{{ 'settings.users.editGroup.allUsersMembers' | translate }}</p>
+        } @else {
+          <div class="flex items-center gap-2 mb-3">
+            <div class="relative flex-1">
+              <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400"></i>
+              <input pInputText type="text" (input)="onMemberSearchInput($event)"
+                [placeholder]="'settings.users.editGroup.searchUsers' | translate"
+                class="pl-8 text-sm w-full" />
+            </div>
+          </div>
+          @if (availableUsers().length > 0) {
+            <div class="space-y-1 max-h-52 overflow-y-auto">
+              @for (user of availableUsers(); track user.id) {
+                <div class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg hover:bg-white border border-transparent hover:border-zinc-200 transition-colors">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-6 h-6 rounded-full bg-[#238cff]/10 flex items-center justify-center shrink-0">
+                      <i class="pi pi-user text-[10px] text-[#238cff]"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-sm font-medium text-zinc-700 truncate">{{ fullName(user) }}</p>
+                      <p class="text-xs text-zinc-400 truncate">{{ user.email }}</p>
+                    </div>
+                  </div>
+                  <p-button icon="pi pi-plus" [label]="'settings.users.editGroup.add' | translate"
+                    size="small" severity="secondary"
+                    [loading]="membersSaving()" [disabled]="membersSaving()"
+                    (click)="addMember(user)" />
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-xs text-zinc-400">{{ 'settings.users.editGroup.noUsersMatch' | translate }}</p>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         ROLES CARD
+    ═════════════════════════════════════════════════════════════════════ -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">
+          {{ 'settings.users.editGroup.rolesTitle' | translate }}
+          <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ assignedRoles().length }})</span>
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.editGroup.rolesSubtitle' | translate }}</p>
+      </div>
+
+      @if (rolesError()) {
+        <div class="mx-4 sm:mx-6 mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <i class="pi pi-exclamation-circle shrink-0"></i>
+          <span>{{ rolesError() }}</span>
+        </div>
+      }
+
+      <!-- Assigned roles list -->
+      @if (assignedRoles().length > 0) {
+        <div class="divide-y divide-zinc-100">
+          @for (role of assignedRoles(); track role.name) {
+            <div class="px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-7 h-7 rounded-md bg-violet-50 flex items-center justify-center shrink-0">
+                  <i class="pi pi-shield text-xs text-violet-500"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-zinc-800 truncate">{{ role.name }}</p>
+                  @if (role.description) {
+                    <p class="text-xs text-zinc-400 truncate">{{ role.description }}</p>
+                  }
+                </div>
+              </div>
+
+              @if (removeRoleConfirmingName() === role.name) {
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="text-xs text-red-600 font-medium hidden sm:inline">
+                    {{ 'settings.users.editGroup.removeRole' | translate }}
+                  </span>
+                  <p-button type="button" [label]="'settings.users.editGroup.keep' | translate"
+                    severity="secondary" size="small" (click)="abortRemoveRole()" />
+                  <p-button type="button" [label]="'settings.users.editGroup.remove' | translate"
+                    severity="danger" size="small"
+                    [loading]="removeRoleInProgressName() === role.name"
+                    [disabled]="removeRoleInProgressName() === role.name"
+                    loadingIcon="pi pi-spin pi-spinner" (click)="executeRemoveRole(role)" />
+                </div>
+              } @else {
+                <p-button icon="pi pi-times" severity="danger" [text]="true" [rounded]="true"
+                  size="small" [title]="'settings.users.editGroup.removeRoleTitle' | translate"
+                  (click)="confirmRemoveRole(role.name)" />
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="px-6 py-8 text-center">
+          <i class="pi pi-shield text-2xl text-zinc-300 mb-2 block"></i>
+          <p class="text-sm text-zinc-400">{{ 'settings.users.editGroup.rolesEmpty' | translate }}</p>
+        </div>
+      }
+
+      <!-- Add role section -->
+      <div class="px-4 sm:px-6 py-4 border-t border-zinc-100 bg-zinc-50/60">
+        <p class="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-3">
+          {{ 'settings.users.editGroup.assignRoleTitle' | translate }}
+        </p>
+        @if (availableRoles().length === 0 && !rolesSearch()) {
+          <p class="text-xs text-zinc-400">{{ 'settings.users.editGroup.allRolesAssigned' | translate }}</p>
+        } @else {
+          <div class="flex items-center gap-2 mb-3">
+            <div class="relative flex-1">
+              <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400"></i>
+              <input pInputText type="text" (input)="onRolesSearchInput($event)"
+                [placeholder]="'settings.users.editGroup.filterRoles' | translate"
+                class="pl-8 text-sm w-full" />
+            </div>
+          </div>
+          @if (availableRoles().length > 0) {
+            <div class="space-y-1 max-h-52 overflow-y-auto">
+              @for (role of availableRoles(); track role.name) {
+                <div class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg hover:bg-white border border-transparent hover:border-zinc-200 transition-colors">
+                  <div class="min-w-0">
+                    <p class="text-sm font-medium text-zinc-700 truncate">{{ role.name }}</p>
+                    @if (role.description) {
+                      <p class="text-xs text-zinc-400 truncate">{{ role.description }}</p>
+                    }
+                  </div>
+                  <p-button icon="pi pi-plus" [label]="'settings.users.editGroup.assign' | translate"
+                    size="small" severity="secondary"
+                    [loading]="rolesSaving()" [disabled]="rolesSaving()"
+                    (click)="assignRole(role)" />
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-xs text-zinc-400">{{ 'settings.users.editGroup.noRolesMatch' | translate }}</p>
+          }
+        }
+      </div>
+    </div>
+
+  }
+
+</div>

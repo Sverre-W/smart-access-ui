@@ -16,6 +16,7 @@ export enum FeatureFlags {
   Notifications    = 64,
   AccessPolicies   = 128,
   Locations        = 256,
+  Users            = 512,
 }
 
 // ─── Shared ───────────────────────────────────────────────────────────────────

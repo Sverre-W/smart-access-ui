@@ -16,6 +16,7 @@ export const APPS: AppDefinition[] = [
   { id: 'contractors',    label: 'Contractors',    initial: 'C', icon: 'pi pi-wrench', rootRoute: '/contractors', disabled: true },
   { id: 'facility',       label: 'Facility',       initial: 'F', icon: 'pi pi-shield', rootRoute: '/facility'    },
   { id: 'reception-desk', label: 'Reception Desk', initial: 'R', icon: 'pi pi-inbox',  rootRoute: '/reception'   },
+  { id: 'settings',      label: 'Settings',       initial: 'S', icon: 'pi pi-cog',    rootRoute: '/settings'    },
 ];
 
 @Injectable({ providedIn: 'root' })

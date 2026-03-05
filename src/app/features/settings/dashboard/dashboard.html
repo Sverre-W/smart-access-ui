@@ -1,0 +1,27 @@
+<div class="p-4 sm:p-8 space-y-6">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <div>
+    <h1 class="text-xl font-semibold text-zinc-800">Settings</h1>
+    <p class="mt-1 text-sm text-zinc-400">Manage your Smart Access configuration.</p>
+  </div>
+
+  <!-- ── Quick-nav cards ───────────────────────────────────────────────────── -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+    <!-- User Management -->
+    <a [routerLink]="['/settings/users']"
+       class="rounded-xl border border-zinc-200 bg-white shadow-xs p-5 flex items-start gap-4 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+      <div class="w-10 h-10 rounded-lg bg-[#238cff]/10 flex items-center justify-center shrink-0">
+        <i class="pi pi-users text-base text-[#238cff]"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">User Management</p>
+        <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">Manage users, roles and group memberships.</p>
+      </div>
+      <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
+    </a>
+
+  </div>
+
+</div>

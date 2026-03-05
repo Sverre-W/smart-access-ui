@@ -40,6 +40,7 @@ export interface AppSettings {
 }
 
 export interface TenantDetails {
+  id: string;
   name: string;
   isRootTenant: boolean;
 }

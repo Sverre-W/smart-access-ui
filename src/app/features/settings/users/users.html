@@ -1,0 +1,900 @@
+<div class="p-4 sm:p-8 space-y-6">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold text-zinc-800">{{ 'settings.users.title' | translate }}</h1>
+      <p class="mt-1 text-sm text-zinc-400">{{ 'settings.users.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       USERS CARD
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+
+    <!-- Card header -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <div>
+        <h2 class="text-sm font-semibold text-zinc-700">
+          {{ 'settings.users.users.title' | translate }}
+          @if (!usersLoading()) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ allUsers().length }})</span>
+          }
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.users.subtitle' | translate }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-iconfield>
+          <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+          <input pInputText type="text" (input)="onUserSearchInput($event)"
+            [placeholder]="'settings.users.users.searchPlaceholder' | translate"
+            class="text-sm w-full sm:w-52" />
+        </p-iconfield>
+        <p-button icon="pi pi-plus" [label]="'settings.users.users.newUser' | translate"
+          size="small" (click)="openCreateUser()" />
+      </div>
+    </div>
+
+    <!-- Load error -->
+    @if (usersError()) {
+      <div class="mx-4 sm:mx-6 mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <i class="pi pi-exclamation-circle shrink-0"></i>
+        <span>{{ usersError() }}</span>
+      </div>
+    }
+
+    <!-- Create user panel -->
+    @if (createUserOpen()) {
+      <div class="px-4 sm:px-6 py-5 border-b border-zinc-100 bg-zinc-50">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-semibold text-zinc-700">{{ 'settings.users.createUser.title' | translate }}</p>
+          <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+            size="small" (click)="closeCreateUser()" />
+        </div>
+        @if (createUserError()) {
+          <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ createUserError() }}</span>
+          </div>
+        }
+        <div [formGroup]="createUserForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.createUser.fieldUsername' | translate }} <span class="text-red-400">*</span>
+            </label>
+            <input pInputText type="text" formControlName="username"
+              [placeholder]="'settings.users.createUser.placeholderUsername' | translate" [fluid]="true"
+              [invalid]="createUserForm.get('username')!.invalid && createUserForm.get('username')!.touched" />
+            @if (createUserForm.get('username')!.invalid && createUserForm.get('username')!.touched) {
+              <p class="text-xs text-red-500">{{ 'settings.users.createUser.validUsername' | translate }}</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.createUser.fieldFirstName' | translate }} <span class="text-red-400">*</span>
+            </label>
+            <input pInputText type="text" formControlName="firstName"
+              [placeholder]="'settings.users.createUser.placeholderFirstName' | translate" [fluid]="true"
+              [invalid]="createUserForm.get('firstName')!.invalid && createUserForm.get('firstName')!.touched" />
+            @if (createUserForm.get('firstName')!.invalid && createUserForm.get('firstName')!.touched) {
+              <p class="text-xs text-red-500">{{ 'settings.users.createUser.validFirstName' | translate }}</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.createUser.fieldLastName' | translate }} <span class="text-red-400">*</span>
+            </label>
+            <input pInputText type="text" formControlName="lastName"
+              [placeholder]="'settings.users.createUser.placeholderLastName' | translate" [fluid]="true"
+              [invalid]="createUserForm.get('lastName')!.invalid && createUserForm.get('lastName')!.touched" />
+            @if (createUserForm.get('lastName')!.invalid && createUserForm.get('lastName')!.touched) {
+              <p class="text-xs text-red-500">{{ 'settings.users.createUser.validLastName' | translate }}</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.createUser.fieldEmail' | translate }} <span class="text-red-400">*</span>
+            </label>
+            <input pInputText type="email" formControlName="email"
+              [placeholder]="'settings.users.createUser.placeholderEmail' | translate" [fluid]="true"
+              [invalid]="createUserForm.get('email')!.invalid && createUserForm.get('email')!.touched" />
+            @if (createUserForm.get('email')!.invalid && createUserForm.get('email')!.touched) {
+              <p class="text-xs text-red-500">{{ 'settings.users.createUser.validEmail' | translate }}</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.createUser.fieldPassword' | translate }} <span class="text-red-400">*</span>
+            </label>
+            <input pInputText type="password" formControlName="password" placeholder="••••••••" [fluid]="true"
+              [invalid]="createUserForm.get('password')!.invalid && createUserForm.get('password')!.touched" />
+            @if (createUserForm.get('password')!.invalid && createUserForm.get('password')!.touched) {
+              <p class="text-xs text-red-500">{{ 'settings.users.createUser.validPassword' | translate }}</p>
+            }
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 mt-5">
+          <p-button type="button" [label]="'settings.users.createUser.cancel' | translate"
+            severity="secondary" (click)="closeCreateUser()" />
+          <p-button type="button" icon="pi pi-check" [label]="'settings.users.createUser.submit' | translate"
+            [loading]="createUserSaving()" [disabled]="createUserSaving()"
+            loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateUser()" />
+        </div>
+      </div>
+    }
+
+    <!-- Delete error banner -->
+    @if (deleteUserError()) {
+      <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteUserError() }}
+      </div>
+    }
+
+    <!-- Desktop table -->
+    <div class="hidden sm:block">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+              {{ 'settings.users.users.colUser' | translate }}
+            </th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+              {{ 'settings.users.users.colEmail' | translate }}
+            </th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+              {{ 'settings.users.users.colStatus' | translate }}
+            </th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (usersLoading()) {
+            @for (i of [1, 2, 3, 4]; track i) {
+              <tr class="border-b border-zinc-100">
+                <td class="px-6 py-4"><div class="h-4 w-44 rounded bg-zinc-100 animate-pulse"></div></td>
+                 <td class="px-4 py-4"><div class="h-4 w-36 rounded bg-zinc-100 animate-pulse"></div></td>
+                 <td class="px-4 py-4"><div class="h-4 w-14 rounded bg-zinc-100 animate-pulse"></div></td>
+                 <td class="px-4 py-4"></td>
+              </tr>
+            }
+          } @else if (!hasUsers()) {
+            <tr>
+              <td colspan="4" class="px-6 py-16 text-center">
+                <i class="pi pi-user text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.users.emptyTitle' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-1">{{ 'settings.users.users.emptyHint' | translate }}</p>
+              </td>
+            </tr>
+          } @else {
+            @for (user of filteredUsers(); track user.id) {
+
+              <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+
+                <!-- Identity -->
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-[#238cff]/10 flex items-center justify-center shrink-0">
+                      <i class="pi pi-user text-xs text-[#238cff]"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <span class="font-semibold text-zinc-800 truncate block">{{ fullName(user) }}</span>
+                      <p class="text-xs text-zinc-400 truncate">{{ user.username }}</p>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Email -->
+                <td class="px-4 py-4 text-sm text-zinc-600">{{ user.email }}</td>
+
+                <!-- Status -->
+                <td class="px-4 py-4">
+                  @if (user.enabled) {
+                    <span class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
+                      <i class="pi pi-check-circle text-[10px]"></i>
+                      {{ 'settings.users.users.statusActive' | translate }}
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-500 border border-zinc-200">
+                      <i class="pi pi-ban text-[10px]"></i>
+                      {{ 'settings.users.users.statusDisabled' | translate }}
+                    </span>
+                  }
+                </td>
+
+                <!-- Actions -->
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-1 justify-end">
+                    <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
+                      size="small" [title]="'settings.users.users.editTitle' | translate"
+                      [routerLink]="['/settings/users', user.id]" />
+                    <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                      size="small" [title]="'settings.users.users.deleteTitle' | translate"
+                      (click)="confirmDeleteUser(user.id)" />
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Delete confirmation row -->
+              @if (deleteUserConfirmingId() === user.id) {
+                <tr class="border-b border-zinc-100 bg-red-50">
+                  <td colspan="4" class="px-6 py-3">
+                    <div class="flex items-center justify-between gap-4">
+                      <p class="text-sm text-red-700 font-medium">
+                        <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                        <span [innerHTML]="'settings.users.users.deleteConfirm' | translate: { name: fullName(user) }"></span>
+                      </p>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <p-button type="button" [label]="'settings.users.users.keep' | translate"
+                          severity="secondary" size="small" (click)="abortDeleteUser()" />
+                        <p-button type="button" [label]="'settings.users.users.yesDelete' | translate"
+                          severity="danger" size="small"
+                          [loading]="deleteUserInProgressId() === user.id"
+                          [disabled]="deleteUserInProgressId() === user.id"
+                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteUser(user)" />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile list -->
+    <div class="sm:hidden divide-y divide-zinc-100">
+
+      @if (usersLoading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="px-4 py-4 flex items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-full bg-zinc-100 shrink-0"></div>
+              <div class="space-y-1.5">
+                <div class="h-3.5 w-36 rounded bg-zinc-100"></div>
+                <div class="h-3 w-24 rounded bg-zinc-50"></div>
+              </div>
+            </div>
+          </div>
+        }
+      } @else if (!hasUsers()) {
+        <div class="px-4 py-14 text-center">
+          <i class="pi pi-user text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.users.emptyTitle' | translate }}</p>
+        </div>
+      } @else {
+        @for (user of filteredUsers(); track user.id) {
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-full bg-[#238cff]/10 flex items-center justify-center shrink-0">
+                  <i class="pi pi-user text-xs text-[#238cff]"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-semibold text-zinc-800 truncate">{{ fullName(user) }}</p>
+                  <p class="text-xs text-zinc-400 truncate">{{ user.email }}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
+                  size="small" [routerLink]="['/settings/users', user.id]" />
+                <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                  size="small" (click)="confirmDeleteUser(user.id)" />
+              </div>
+            </div>
+          </div>
+
+          @if (deleteUserConfirmingId() === user.id) {
+            <div class="bg-red-50 px-4 py-3 border-t border-red-100">
+              <p class="text-sm text-red-700 font-medium mb-2">
+                <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                <span [innerHTML]="'settings.users.users.deleteConfirm' | translate: { name: fullName(user) }"></span>
+              </p>
+              <div class="flex items-center gap-2">
+                <p-button type="button" [label]="'settings.users.users.keep' | translate"
+                  severity="secondary" size="small" (click)="abortDeleteUser()" />
+                <p-button type="button" [label]="'settings.users.users.yesDelete' | translate"
+                  severity="danger" size="small"
+                  [loading]="deleteUserInProgressId() === user.id"
+                  [disabled]="deleteUserInProgressId() === user.id"
+                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteUser(user)" />
+              </div>
+            </div>
+          }
+        }
+      }
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       GROUPS CARD
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+
+    <!-- Card header -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <div>
+        <h2 class="text-sm font-semibold text-zinc-700">
+          {{ 'settings.users.groups.title' | translate }}
+          @if (!groupsLoading()) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ allGroups().length }})</span>
+          }
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.groups.subtitle' | translate }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-iconfield>
+          <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+          <input pInputText type="text" (input)="onGroupSearchInput($event)"
+            [placeholder]="'settings.users.groups.searchPlaceholder' | translate"
+            class="text-sm w-full sm:w-52" />
+        </p-iconfield>
+        <p-button icon="pi pi-plus" [label]="'settings.users.groups.newGroup' | translate"
+          size="small" (click)="openCreateGroup()" />
+      </div>
+    </div>
+
+    <!-- Load error -->
+    @if (groupsError()) {
+      <div class="mx-4 sm:mx-6 mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <i class="pi pi-exclamation-circle shrink-0"></i>
+        <span>{{ groupsError() }}</span>
+      </div>
+    }
+
+    <!-- Create group panel -->
+    @if (createGroupOpen()) {
+      <div class="px-4 sm:px-6 py-5 border-b border-zinc-100 bg-zinc-50">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-semibold text-zinc-700">{{ 'settings.users.createGroup.title' | translate }}</p>
+          <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+            size="small" (click)="closeCreateGroup()" />
+        </div>
+        @if (createGroupError()) {
+          <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ createGroupError() }}</span>
+          </div>
+        }
+        <div [formGroup]="createGroupForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.createGroup.fieldName' | translate }} <span class="text-red-400">*</span>
+            </label>
+            <input pInputText type="text" formControlName="name"
+              [placeholder]="'settings.users.createGroup.placeholderName' | translate" [fluid]="true"
+              [invalid]="createGroupForm.get('name')!.invalid && createGroupForm.get('name')!.touched" />
+            @if (createGroupForm.get('name')!.invalid && createGroupForm.get('name')!.touched) {
+              <p class="text-xs text-red-500">{{ 'settings.users.createGroup.validName' | translate }}</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.createGroup.fieldDescription' | translate }}
+            </label>
+            <input pInputText type="text" formControlName="description"
+              [placeholder]="'settings.users.createGroup.placeholderDescription' | translate" [fluid]="true" />
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 mt-5">
+          <p-button type="button" [label]="'settings.users.createGroup.cancel' | translate"
+            severity="secondary" (click)="closeCreateGroup()" />
+          <p-button type="button" icon="pi pi-check" [label]="'settings.users.createGroup.submit' | translate"
+            [loading]="createGroupSaving()" [disabled]="createGroupSaving()"
+            loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateGroup()" />
+        </div>
+      </div>
+    }
+
+    <!-- Delete error banner -->
+    @if (deleteGroupError()) {
+      <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteGroupError() }}
+      </div>
+    }
+
+    <!-- Desktop table -->
+    <div class="hidden sm:block">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+              {{ 'settings.users.groups.colGroup' | translate }}
+            </th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+              {{ 'settings.users.groups.colPath' | translate }}
+            </th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (groupsLoading()) {
+            @for (i of [1, 2, 3]; track i) {
+              <tr class="border-b border-zinc-100">
+                <td class="px-6 py-4"><div class="h-4 w-40 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-32 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"></td>
+              </tr>
+            }
+          } @else if (!hasGroups()) {
+            <tr>
+              <td colspan="3" class="px-6 py-16 text-center">
+                <i class="pi pi-sitemap text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.groups.emptyTitle' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-1">{{ 'settings.users.groups.emptyHint' | translate }}</p>
+              </td>
+            </tr>
+          } @else {
+            @for (group of filteredGroups(); track group.id) {
+
+              <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+
+                <!-- Identity -->
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+                      <i class="pi pi-sitemap text-xs text-amber-500"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <span class="font-semibold text-zinc-800 truncate block">{{ group.name }}</span>
+                      @if (group.description) {
+                        <p class="text-xs text-zinc-400 truncate">{{ group.description }}</p>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Path -->
+                <td class="px-4 py-4 text-xs text-zinc-400 font-mono truncate max-w-[200px]">{{ group.path }}</td>
+
+                <!-- Actions -->
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-1 justify-end">
+                    <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
+                      size="small" [title]="'settings.users.groups.editTitle' | translate"
+                      [routerLink]="['/settings/users/groups', group.id]" />
+                    <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                      size="small" [title]="'settings.users.groups.deleteTitle' | translate"
+                      (click)="confirmDeleteGroup(group.id)" />
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Delete confirmation row -->
+              @if (deleteGroupConfirmingId() === group.id) {
+                <tr class="border-b border-zinc-100 bg-red-50">
+                  <td colspan="3" class="px-6 py-3">
+                    <div class="flex items-center justify-between gap-4">
+                      <p class="text-sm text-red-700 font-medium">
+                        <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                        <span [innerHTML]="'settings.users.groups.deleteConfirm' | translate: { name: group.name }"></span>
+                      </p>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <p-button type="button" [label]="'settings.users.groups.keep' | translate"
+                          severity="secondary" size="small" (click)="abortDeleteGroup()" />
+                        <p-button type="button" [label]="'settings.users.groups.yesDelete' | translate"
+                          severity="danger" size="small"
+                          [loading]="deleteGroupInProgressId() === group.id"
+                          [disabled]="deleteGroupInProgressId() === group.id"
+                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteGroup(group)" />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile list -->
+    <div class="sm:hidden divide-y divide-zinc-100">
+
+      @if (groupsLoading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="px-4 py-4 flex items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-zinc-100 shrink-0"></div>
+              <div class="space-y-1.5">
+                <div class="h-3.5 w-36 rounded bg-zinc-100"></div>
+                <div class="h-3 w-24 rounded bg-zinc-50"></div>
+              </div>
+            </div>
+          </div>
+        }
+      } @else if (!hasGroups()) {
+        <div class="px-4 py-14 text-center">
+          <i class="pi pi-sitemap text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.groups.emptyTitle' | translate }}</p>
+        </div>
+      } @else {
+        @for (group of filteredGroups(); track group.id) {
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+                  <i class="pi pi-sitemap text-xs text-amber-500"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-semibold text-zinc-800 truncate">{{ group.name }}</p>
+                  @if (group.description) {
+                    <p class="text-xs text-zinc-400 truncate">{{ group.description }}</p>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
+                  size="small" [routerLink]="['/settings/users/groups', group.id]" />
+                <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                  size="small" (click)="confirmDeleteGroup(group.id)" />
+              </div>
+            </div>
+          </div>
+
+          @if (deleteGroupConfirmingId() === group.id) {
+            <div class="bg-red-50 px-4 py-3 border-t border-red-100">
+              <p class="text-sm text-red-700 font-medium mb-2">
+                <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                <span [innerHTML]="'settings.users.groups.deleteConfirm' | translate: { name: group.name }"></span>
+              </p>
+              <div class="flex items-center gap-2">
+                <p-button type="button" [label]="'settings.users.groups.keep' | translate"
+                  severity="secondary" size="small" (click)="abortDeleteGroup()" />
+                <p-button type="button" [label]="'settings.users.groups.yesDelete' | translate"
+                  severity="danger" size="small"
+                  [loading]="deleteGroupInProgressId() === group.id"
+                  [disabled]="deleteGroupInProgressId() === group.id"
+                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteGroup(group)" />
+              </div>
+            </div>
+          }
+        }
+      }
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       ROLES CARD
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+
+    <!-- Card header -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <div>
+        <h2 class="text-sm font-semibold text-zinc-700">
+          {{ 'settings.users.roles.title' | translate }}
+          @if (!rolesLoading()) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ allRoles().length }})</span>
+          }
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.roles.subtitle' | translate }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-iconfield>
+          <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+          <input pInputText type="text" (input)="onRoleSearchInput($event)"
+            [placeholder]="'settings.users.roles.searchPlaceholder' | translate"
+            class="text-sm w-full sm:w-52" />
+        </p-iconfield>
+        <p-button icon="pi pi-plus" [label]="'settings.users.roles.newRole' | translate"
+          size="small" (click)="openCreateRole()" />
+      </div>
+    </div>
+
+    <!-- Load error -->
+    @if (rolesError()) {
+      <div class="mx-4 sm:mx-6 mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <i class="pi pi-exclamation-circle shrink-0"></i>
+        <span>{{ rolesError() }}</span>
+      </div>
+    }
+
+    <!-- Create role panel -->
+    @if (createRoleOpen()) {
+      <div class="px-4 sm:px-6 py-5 border-b border-zinc-100 bg-zinc-50">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-semibold text-zinc-700">{{ 'settings.users.createRole.title' | translate }}</p>
+          <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+            size="small" (click)="closeCreateRole()" />
+        </div>
+        @if (createRoleError()) {
+          <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ createRoleError() }}</span>
+          </div>
+        }
+        <div [formGroup]="createRoleForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.createRole.fieldName' | translate }} <span class="text-red-400">*</span>
+            </label>
+            <input pInputText type="text" formControlName="name"
+              [placeholder]="'settings.users.createRole.placeholderName' | translate" [fluid]="true"
+              [invalid]="createRoleForm.get('name')!.invalid && createRoleForm.get('name')!.touched" />
+            @if (createRoleForm.get('name')!.invalid && createRoleForm.get('name')!.touched) {
+              <p class="text-xs text-red-500">{{ 'settings.users.createRole.validName' | translate }}</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.users.createRole.fieldDescription' | translate }}
+            </label>
+            <input pInputText type="text" formControlName="description"
+              [placeholder]="'settings.users.createRole.placeholderDescription' | translate" [fluid]="true" />
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 mt-5">
+          <p-button type="button" [label]="'settings.users.createRole.cancel' | translate"
+            severity="secondary" (click)="closeCreateRole()" />
+          <p-button type="button" icon="pi pi-check" [label]="'settings.users.createRole.submit' | translate"
+            [loading]="createRoleSaving()" [disabled]="createRoleSaving()"
+            loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateRole()" />
+        </div>
+      </div>
+    }
+
+    <!-- Delete error banner -->
+    @if (deleteRoleError()) {
+      <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteRoleError() }}
+      </div>
+    }
+
+    <!-- Desktop table -->
+    <div class="hidden sm:block">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+              {{ 'settings.users.roles.colRole' | translate }}
+            </th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (rolesLoading()) {
+            @for (i of [1, 2, 3]; track i) {
+              <tr class="border-b border-zinc-100">
+                <td class="px-6 py-4"><div class="h-4 w-40 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"></td>
+              </tr>
+            }
+          } @else if (!hasRoles()) {
+            <tr>
+              <td colspan="2" class="px-6 py-16 text-center">
+                <i class="pi pi-shield text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.roles.emptyTitle' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-1">{{ 'settings.users.roles.emptyHint' | translate }}</p>
+              </td>
+            </tr>
+          } @else {
+            @for (role of filteredRoles(); track role.id) {
+
+              <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+
+                <!-- Identity -->
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
+                      <i class="pi pi-shield text-xs text-violet-500"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <span class="font-semibold text-zinc-800 truncate block">{{ role.name }}</span>
+                      @if (role.description) {
+                        <p class="text-xs text-zinc-400 truncate">{{ role.description }}</p>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-1 justify-end">
+                    <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
+                      size="small" [title]="'settings.users.roles.editTitle' | translate"
+                      (click)="openEditRole(role)" />
+                    <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                      size="small" [title]="'settings.users.roles.deleteTitle' | translate"
+                      (click)="confirmDeleteRole(role.id)" />
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Edit role panel -->
+              @if (editRoleId() === role.id) {
+                <tr class="border-b border-zinc-100 bg-zinc-50">
+                  <td colspan="2" class="px-6 py-5">
+                    <div class="flex items-center justify-between mb-4">
+                      <p class="text-sm font-semibold text-zinc-700">{{ 'settings.users.editRole.title' | translate }}</p>
+                      <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+                        size="small" (click)="closeEditRole()" />
+                    </div>
+                    @if (editRoleError()) {
+                      <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+                        <i class="pi pi-exclamation-circle shrink-0"></i>
+                        <span>{{ editRoleError() }}</span>
+                      </div>
+                    }
+                    <div [formGroup]="editRoleForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-zinc-700">
+                          {{ 'settings.users.editRole.fieldName' | translate }} <span class="text-red-400">*</span>
+                        </label>
+                        <input pInputText type="text" formControlName="name" [fluid]="true"
+                          [invalid]="editRoleForm.get('name')!.invalid && editRoleForm.get('name')!.touched" />
+                        @if (editRoleForm.get('name')!.invalid && editRoleForm.get('name')!.touched) {
+                          <p class="text-xs text-red-500">{{ 'settings.users.editRole.validName' | translate }}</p>
+                        }
+                      </div>
+                      <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-zinc-700">
+                          {{ 'settings.users.editRole.fieldDescription' | translate }}
+                        </label>
+                        <input pInputText type="text" formControlName="description"
+                          [placeholder]="'settings.users.editRole.placeholderDescription' | translate" [fluid]="true" />
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 mt-5">
+                      <p-button type="button" [label]="'settings.users.editRole.cancel' | translate"
+                        severity="secondary" (click)="closeEditRole()" />
+                      <p-button type="button" icon="pi pi-check" [label]="'settings.users.editRole.submit' | translate"
+                        [loading]="editRoleSaving()" [disabled]="editRoleSaving()"
+                        loadingIcon="pi pi-spin pi-spinner" (click)="saveEditRole(role)" />
+                    </div>
+                  </td>
+                </tr>
+              }
+
+              <!-- Delete confirmation row -->
+              @if (deleteRoleConfirmingId() === role.id) {
+                <tr class="border-b border-zinc-100 bg-red-50">
+                  <td colspan="2" class="px-6 py-3">
+                    <div class="flex items-center justify-between gap-4">
+                      <p class="text-sm text-red-700 font-medium">
+                        <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                        <span [innerHTML]="'settings.users.roles.deleteConfirm' | translate: { name: role.name }"></span>
+                      </p>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <p-button type="button" [label]="'settings.users.roles.keep' | translate"
+                          severity="secondary" size="small" (click)="abortDeleteRole()" />
+                        <p-button type="button" [label]="'settings.users.roles.yesDelete' | translate"
+                          severity="danger" size="small"
+                          [loading]="deleteRoleInProgressId() === role.id"
+                          [disabled]="deleteRoleInProgressId() === role.id"
+                          loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteRole(role)" />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile list -->
+    <div class="sm:hidden divide-y divide-zinc-100">
+
+      @if (rolesLoading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="px-4 py-4 flex items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-zinc-100 shrink-0"></div>
+              <div class="space-y-1.5">
+                <div class="h-3.5 w-36 rounded bg-zinc-100"></div>
+                <div class="h-3 w-24 rounded bg-zinc-50"></div>
+              </div>
+            </div>
+          </div>
+        }
+      } @else if (!hasRoles()) {
+        <div class="px-4 py-14 text-center">
+          <i class="pi pi-shield text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.roles.emptyTitle' | translate }}</p>
+        </div>
+      } @else {
+        @for (role of filteredRoles(); track role.id) {
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
+                  <i class="pi pi-shield text-xs text-violet-500"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-semibold text-zinc-800 truncate">{{ role.name }}</p>
+                  @if (role.description) {
+                    <p class="text-xs text-zinc-400 truncate">{{ role.description }}</p>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
+                  size="small" (click)="openEditRole(role)" />
+                <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                  size="small" (click)="confirmDeleteRole(role.id)" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit role panel (mobile) -->
+          @if (editRoleId() === role.id) {
+            <div class="bg-zinc-50 px-4 py-4 border-t border-zinc-100">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-semibold text-zinc-700">{{ 'settings.users.editRole.title' | translate }}</p>
+                <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+                  size="small" (click)="closeEditRole()" />
+              </div>
+              @if (editRoleError()) {
+                <div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 flex items-center gap-2">
+                  <i class="pi pi-exclamation-circle shrink-0"></i>
+                  <span>{{ editRoleError() }}</span>
+                </div>
+              }
+              <div [formGroup]="editRoleForm" class="space-y-3">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">
+                    {{ 'settings.users.editRole.fieldName' | translate }} <span class="text-red-400">*</span>
+                  </label>
+                  <input pInputText type="text" formControlName="name" [fluid]="true"
+                    [invalid]="editRoleForm.get('name')!.invalid && editRoleForm.get('name')!.touched" />
+                  @if (editRoleForm.get('name')!.invalid && editRoleForm.get('name')!.touched) {
+                    <p class="text-xs text-red-500">{{ 'settings.users.editRole.validName' | translate }}</p>
+                  }
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-zinc-700">
+                    {{ 'settings.users.editRole.fieldDescription' | translate }}
+                  </label>
+                  <input pInputText type="text" formControlName="description"
+                    [placeholder]="'settings.users.editRole.placeholderDescription' | translate" [fluid]="true" />
+                </div>
+              </div>
+              <div class="flex items-center justify-end gap-2 mt-4">
+                <p-button type="button" [label]="'settings.users.editRole.cancel' | translate"
+                  severity="secondary" size="small" (click)="closeEditRole()" />
+                <p-button type="button" icon="pi pi-check" [label]="'settings.users.editRole.submit' | translate"
+                  [loading]="editRoleSaving()" [disabled]="editRoleSaving()"
+                  loadingIcon="pi pi-spin pi-spinner" size="small" (click)="saveEditRole(role)" />
+              </div>
+            </div>
+          }
+
+          @if (deleteRoleConfirmingId() === role.id) {
+            <div class="bg-red-50 px-4 py-3 border-t border-red-100">
+              <p class="text-sm text-red-700 font-medium mb-2">
+                <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                <span [innerHTML]="'settings.users.roles.deleteConfirm' | translate: { name: role.name }"></span>
+              </p>
+              <div class="flex items-center gap-2">
+                <p-button type="button" [label]="'settings.users.roles.keep' | translate"
+                  severity="secondary" size="small" (click)="abortDeleteRole()" />
+                <p-button type="button" [label]="'settings.users.roles.yesDelete' | translate"
+                  severity="danger" size="small"
+                  [loading]="deleteRoleInProgressId() === role.id"
+                  [disabled]="deleteRoleInProgressId() === role.id"
+                  loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteRole(role)" />
+              </div>
+            </div>
+          }
+        }
+      }
+
+    </div>
+  </div>
+
+</div>
+

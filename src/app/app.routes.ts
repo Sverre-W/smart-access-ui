@@ -51,6 +51,12 @@ export const routes: Routes = [
         .then(m => m.confirmVisitRoutes),
   },
   {
+    path: 'settings',
+    loadChildren: () =>
+      import('./features/settings/settings.routes')
+        .then(m => m.settingsRoutes)
+  },
+  {
     path: '**',
     redirectTo: '',
   },

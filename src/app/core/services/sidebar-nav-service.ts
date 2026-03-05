@@ -39,6 +39,10 @@ const APP_NAV: Record<string, NavItemDef[]> = {
     { navKey: 'arrivals', icon: 'pi pi-calendar-clock', route: '/reception/arrivals', requiredApp: 'Visitors Service', requiredPermissions: ['Visits:Read'] },
     { navKey: 'guidedOnboarding', icon: 'pi pi-qrcode', route: '/reception/onboarding/home' },
   ],
+  settings: [
+    { navKey: 'dashboard',       icon: 'pi pi-home',  route: '/settings'       },
+    { navKey: 'userManagement',  icon: 'pi pi-users', route: '/settings/users' },
+  ],
 };
 
 @Injectable({ providedIn: 'root' })
