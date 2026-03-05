@@ -1,0 +1,40 @@
+{
+  "id": "guided-onboarding-13",
+  "seq": "13",
+  "title": "Add guidedOnboarding sidebar nav item and all i18n translation keys in all 4 locale files",
+  "status": "completed",
+  "depends_on": ["12"],
+  "parallel": false,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md",
+    "src/app/core/services/sidebar-nav-service.ts",
+    "public/assets/i18n/en.json"
+  ],
+  "acceptance_criteria": [
+    "In sidebar-nav-service.ts: { navKey: 'guidedOnboarding', icon: 'pi pi-qrcode', route: '/reception/onboarding/home' } added to the reception-desk array",
+    "In public/assets/i18n/en.json: key layout.nav.guidedOnboarding added with value 'Guided Onboarding'",
+    "In public/assets/i18n/en.json: reception.onboarding section added with keys: scanQrCode, scanYourFace, somethingWentWrong, printingLabel, labelPrinted, done, startOver, start, debugQrValue, debugBadgeId, debugError",
+    "In public/assets/i18n/nl.json: same keys added with Dutch translations",
+    "In public/assets/i18n/fr.json: same keys added with French translations",
+    "In public/assets/i18n/ar.json: same keys added with Arabic translations",
+    "All 4 locale files remain valid JSON after edits",
+    "No other keys in any locale file are modified",
+    "No TypeScript errors in sidebar-nav-service.ts"
+  ],
+  "deliverables": [
+    "src/app/core/services/sidebar-nav-service.ts",
+    "public/assets/i18n/en.json",
+    "public/assets/i18n/nl.json",
+    "public/assets/i18n/fr.json",
+    "public/assets/i18n/ar.json"
+  ],
+  "started_at": "2026-03-05T00:00:00Z",
+  "completed_at": "2026-03-05T00:00:00Z",
+  "completion_summary": "Added guidedOnboarding sidebar nav item and all reception.onboarding i18n keys across all 4 locale files (en/nl/fr/ar)"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "guided-onboarding-05",
+  "seq": "05",
+  "title": "Add visitorCheckedInAsync(url) method to VisitorService",
+  "status": "completed",
+  "depends_on": [],
+  "parallel": true,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md",
+    "src/app/features/visitors/services/visitor-service.ts"
+  ],
+  "acceptance_criteria": [
+    "Method visitorCheckedInAsync(url: string): Promise<VisitorWithAccessDto> added to the existing VisitorService",
+    "Implementation: return firstValueFrom(this.http.get<VisitorWithAccessDto>(url))",
+    "The url parameter is the raw URL decoded from the QR code — NOT a constructed endpoint",
+    "firstValueFrom is imported from rxjs",
+    "VisitorWithAccessDto type is used correctly (already exists in the file)",
+    "No other code in visitor-service.ts is modified",
+    "No TypeScript errors"
+  ],
+  "deliverables": [
+    "src/app/features/visitors/services/visitor-service.ts"
+  ],
+  "agent_id": "coder-agent",
+  "started_at": "2026-03-05T00:00:00Z",
+  "completed_at": "2026-03-05T00:00:00Z",
+  "completion_summary": "Added visitorCheckedInAsync(url: string): Promise<VisitorWithAccessDto> to the QR Code section of VisitorService using firstValueFrom"
+}

@@ -1,0 +1,44 @@
+{
+  "id": "guided-onboarding-10",
+  "seq": "10",
+  "title": "Create OnboardingQrcode component — live camera QR scanning with state border and error handling",
+  "status": "completed",
+  "agent_id": "coder-agent",
+  "started_at": "2026-03-05T00:00:00Z",
+  "completed_at": "2026-03-05T00:01:00Z",
+  "completion_summary": "Created OnboardingQrcode with ZXing BrowserQRCodeReader, OnPush+signals, green/red border, dedup guard, debug overlay, destroy cleanup",
+  "depends_on": ["01", "02", "03", "04", "05", "06", "07"],
+  "parallel": true,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md",
+    "src/app/features/visitors/services/visitor-service.ts"
+  ],
+  "acceptance_criteria": [
+    "Files created at src/app/features/reception/onboarding/qrcode/onboarding-qrcode.ts and onboarding-qrcode.html",
+    "Injects KioskSessionService, VisitorService, CameraService, Router, ChangeDetectorRef via inject()",
+    "Uses @zxing/browser BrowserQRCodeReader for frame-by-frame QR scanning",
+    "Live camera feed in square viewfinder: clamp(400px, min(50vh, 50vw), 800px), mirrored with transform: scaleX(-1), object-fit: cover",
+    "25px border on viewfinder: transparent=idle, rgba(0,255,0,0.3)=success, rgba(255,0,0,0.3)=error",
+    "Bold hint text 'Scan QR Code' below viewfinder at 3rem",
+    "On QR detected: calls visitorService.visitorCheckedInAsync(url), stores visitor in KioskSessionService, green border, waits max(API time, 2000ms), navigates to /reception/onboarding/selfie",
+    "On API error: red border, shows 'Something went wrong' below viewfinder, navigates to /reception/onboarding/home after 5000ms",
+    "Duplicate scan guard: ignores same QR value if already successfully scanned",
+    "Debug mode: ?debug=true shows overlay with raw QR value, badge ID, scan errors",
+    "Cleanup on destroy: stops camera stream, stops scanner",
+    "ChangeDetectionStrategy.OnPush with manual ChangeDetectorRef.detectChanges() calls as needed",
+    "Uses inject() pattern, no constructor injection",
+    "No standalone: true in decorator (Angular 21 default)",
+    "No TypeScript errors"
+  ],
+  "deliverables": [
+    "src/app/features/reception/onboarding/qrcode/onboarding-qrcode.ts",
+    "src/app/features/reception/onboarding/qrcode/onboarding-qrcode.html"
+  ],
+  "extra": null
+}

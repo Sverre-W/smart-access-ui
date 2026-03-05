@@ -1,0 +1,37 @@
+{
+  "id": "guided-onboarding-07",
+  "seq": "07",
+  "title": "Create OnboardingShell component — full-screen kiosk wrapper with Univisit title and router-outlet",
+  "status": "completed",
+  "depends_on": ["02", "06"],
+  "parallel": true,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md"
+  ],
+  "acceptance_criteria": [
+    "Files created at src/app/features/reception/onboarding/shell/onboarding-shell.ts and onboarding-shell.html",
+    "Component fills full screen: 100vw × 100vh, white background, overflow hidden, no scroll",
+    "Large centred bold title 'Univisit' at top: 5rem font size, bold, letter-spacing applied",
+    "Content area below title contains <router-outlet> filling remaining space with flex column layout, centred",
+    "RouterOutlet imported in component imports array",
+    "Roboto font loaded via @import in component styles or inline <link> in template",
+    "ChangeDetectionStrategy.OnPush applied",
+    "Uses inject() pattern, no constructor injection",
+    "No standalone: true in decorator (Angular 21 default)",
+    "No TypeScript errors"
+  ],
+  "deliverables": [
+    "src/app/features/reception/onboarding/shell/onboarding-shell.ts",
+    "src/app/features/reception/onboarding/shell/onboarding-shell.html"
+  ],
+  "agent_id": "coder-agent",
+  "started_at": "2026-03-05T00:00:00Z",
+  "completed_at": "2026-03-05T00:00:00Z",
+  "completion_summary": "Created OnboardingShell: full-screen kiosk wrapper with Univisit title, router-outlet, Roboto via SCSS @import, OnPush CD"
+}

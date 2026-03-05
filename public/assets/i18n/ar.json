@@ -23,7 +23,8 @@
       "locations": "المواقع",
       "tenants": "المستأجرون",
       "roles": "الأدوار",
-      "arrivals": "الوصولات"
+      "arrivals": "الوصولات",
+      "guidedOnboarding": "التسجيل الموجّه"
     }
   },
   "home": {
@@ -533,6 +534,19 @@
       "visitor": "زائر",
       "visitors": "زوار",
       "scheduled": "مجدول"
+    },
+    "onboarding": {
+      "scanQrCode": "امسح رمز QR",
+      "scanYourFace": "امسح وجهك",
+      "somethingWentWrong": "حدث خطأ ما",
+      "printingLabel": "جارٍ طباعة البطاقة...",
+      "labelPrinted": "تمت طباعة البطاقة بنجاح",
+      "done": "تم",
+      "startOver": "ابدأ من جديد",
+      "start": "ابدأ",
+      "debugQrValue": "QR",
+      "debugBadgeId": "شارة",
+      "debugError": "خطأ"
     }
   }
 }

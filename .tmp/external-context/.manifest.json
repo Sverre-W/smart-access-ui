@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-03-01T00:00:00Z",
+  "libraries": {
+    "primeng": {
+      "files": [
+        {
+          "filename": "menu-popup.md",
+          "topic": "p-menu popup mode with button toggle",
+          "tech_stack": "Angular standalone components",
+          "version": "v19 (19.1.4)",
+          "fetched": "2026-03-01T00:00:00Z",
+          "source": "Context7 API + v19.primeng.org/menu"
+        },
+        {
+          "filename": "menu-item-interface.md",
+          "topic": "MenuItem interface — all properties",
+          "tech_stack": "Angular",
+          "version": "v19 (19.1.4)",
+          "fetched": "2026-03-01T00:00:00Z",
+          "source": "v19.primeng.org/menu#api"
+        },
+        {
+          "filename": "tiered-menu.md",
+          "topic": "TieredMenu component — popup mode and comparison with p-menu",
+          "tech_stack": "Angular standalone components",
+          "version": "v19 (19.1.4)",
+          "fetched": "2026-03-01T00:00:00Z",
+          "source": "v19.primeng.org/tieredmenu"
+        },
+        {
+          "filename": "primeicons.md",
+          "topic": "PrimeIcons usage — CSS classes, constants, styles.scss",
+          "tech_stack": "Angular",
+          "version": "v19 (19.1.4)",
+          "fetched": "2026-03-01T00:00:00Z",
+          "source": "v19.primeng.org/icons"
+        }
+      ]
+    }
+  }
+}

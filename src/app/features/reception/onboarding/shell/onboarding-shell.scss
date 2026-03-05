@@ -1,0 +1,10 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  /* Subtract the 4rem (64px) sticky nav from the layout */
+  height: calc(100vh - 4rem);
+  overflow: hidden;
+  background: white;
+  font-family: 'Roboto', sans-serif;
+}

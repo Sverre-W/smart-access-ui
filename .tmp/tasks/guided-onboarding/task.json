@@ -1,0 +1,35 @@
+{
+  "id": "guided-onboarding",
+  "name": "Guided Onboarding Kiosk",
+  "status": "active",
+  "objective": "Add a full-screen kiosk flow under /reception/onboarding: QR scan → selfie capture → done, with services, shell, pages, routing, nav and i18n.",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md",
+    "src/app/features/visitors/services/visitor-service.ts",
+    "src/app/features/reception/reception.routes.ts",
+    "src/app/app.routes.ts",
+    "src/app/core/services/sidebar-nav-service.ts",
+    "public/assets/i18n/en.json",
+    "package.json"
+  ],
+  "exit_criteria": [
+    "npm packages installed (@zxing/browser, @zxing/library, @mediapipe/tasks-vision)",
+    "All 4 onboarding pages render correctly",
+    "OnboardingShell is full-screen with no main nav/sidebar visible",
+    "Sidebar nav 'Guided Onboarding' link appears under reception-desk",
+    "QR scan → API call → navigate to selfie (with 2s minimum display)",
+    "Face detection loop runs, oval overlay draws correctly",
+    "2s valid face hold triggers capture + print API call",
+    "Done page auto-navigates to /reception/arrivals after 5s",
+    "All translation keys added in all 4 locales",
+    "Build passes with no TypeScript errors"
+  ],
+  "subtask_count": 13,
+  "completed_count": 0,
+  "created_at": "2026-03-05T00:00:00Z"
+}

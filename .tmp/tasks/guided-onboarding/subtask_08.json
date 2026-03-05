@@ -1,0 +1,36 @@
+{
+  "id": "guided-onboarding-08",
+  "seq": "08",
+  "title": "Create OnboardingHome component — oversized START button navigating to /reception/onboarding/qrcode",
+  "status": "completed",
+  "agent_id": "coder-agent",
+  "started_at": "2026-03-05T00:00:00Z",
+  "completed_at": "2026-03-05T00:10:00Z",
+  "depends_on": ["02", "06"],
+  "parallel": true,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md"
+  ],
+  "acceptance_criteria": [
+    "Files created at src/app/features/reception/onboarding/home/onboarding-home.ts and onboarding-home.html",
+    "Router injected via inject(Router)",
+    "Single START button centred on screen with play icon (pi pi-play)",
+    "Button has 8vh font size and 16vh height for oversized touch target",
+    "Button click calls router.navigate(['/reception/onboarding/qrcode'])",
+    "ChangeDetectionStrategy.OnPush applied",
+    "Uses inject() pattern, no constructor injection",
+    "No standalone: true in decorator (Angular 21 default)",
+    "No TypeScript errors"
+  ],
+  "deliverables": [
+    "src/app/features/reception/onboarding/home/onboarding-home.ts",
+    "src/app/features/reception/onboarding/home/onboarding-home.html"
+  ],
+  "completion_summary": "OnboardingHome created: full-screen centred layout, oversized ▶ START button (8vh font, 16vh height, #238cff) navigates to /reception/onboarding/qrcode. OnPush, inject(), no standalone:true."
+}

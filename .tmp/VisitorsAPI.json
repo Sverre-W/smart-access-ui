@@ -1,0 +1,4470 @@
+{
+  "x-generator": "NSwag v14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Visitors Service API",
+    "description": "The Web API for managing visits and visitors in SmartAccess ecosystem",
+    "termsOfService": "https://axxession.com/smartaccess/terms",
+    "contact": {
+      "name": "Contact",
+      "url": "https://axxession.com/smartaccess/contact"
+    },
+    "license": {
+      "name": "License",
+      "url": "https://axxession.com/smartaccess/license"
+    },
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": ""
+    }
+  ],
+  "paths": {
+    "/api/v1/visits/{visitId}/visitors": {
+      "post": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Changes the visitors list of a Visit",
+        "description": "Adds and/or removes visitors from the visitors list",
+        "operationId": "AddRemoveVisitors",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "VisitVisitorsChangeInputDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitVisitorsChangeInputDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits/{visitId}/approve": {
+      "post": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Approves a Visit",
+        "description": "Marks a visit as approved",
+        "operationId": "ApproveVisit",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "ApproveVisitRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveVisitRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits/{visitId}/cancel": {
+      "post": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Cancels a Visits",
+        "description": "Marks a visit as canceled",
+        "operationId": "CancelVisit",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "VisitCancelRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitCancelRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits/{visitId}/end": {
+      "post": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Ends a Visits",
+        "description": "Marks a visit as finished",
+        "operationId": "EndVisit",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits": {
+      "get": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Get all visits",
+        "description": "Returns a paged list of Visits",
+        "operationId": "GetAllVisits",
+        "parameters": [
+          {
+            "name": "Filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "SortDir",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortOrder"
+            },
+            "x-position": 3
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 4
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOfVisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Schedule a new Visit",
+        "description": "Schedule a new visit with the given data",
+        "operationId": "ScheduleVisit",
+        "requestBody": {
+          "x-name": "VisitInputDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitInputDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits/{visitId}": {
+      "get": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Get visit by ID",
+        "description": "Returns a visit by its ID",
+        "operationId": "GetVisitById",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits/invitation/{invitationId}": {
+      "get": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Get visit by invitation ID",
+        "description": "Returns a visit by its invitation ID",
+        "operationId": "GetVisitByInvitationId",
+        "parameters": [
+          {
+            "name": "invitationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/visits/{visitId}/parking": {
+      "post": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Sets parking availability",
+        "description": "Sets  whether parking is available for this visit",
+        "operationId": "MarkParkingAvailable",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "MarkParkingAvailableRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkParkingAvailableRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits/{visitId}/reject": {
+      "post": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Rejects a Visit",
+        "description": "Marks a visit as rejected",
+        "operationId": "RejectVisit",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "RejectVisitRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectVisitRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits/{visitId}/relocate": {
+      "post": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Relocates a Visit",
+        "description": "Changes the location of a visit",
+        "operationId": "RelocateVisit",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "VisitLocationInputDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitLocationInputDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits/{visitId}/reschedule": {
+      "post": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Reschedules a Visit",
+        "description": "Changes the start and/or end times of a visit",
+        "operationId": "RescheduleVisit",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "VisitTimesInputDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitTimesInputDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits/{visitId}/start": {
+      "post": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Starts a Visit",
+        "description": "Marks a visit as started",
+        "operationId": "StartVisit",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "VisitTimesInputDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitTimesInputDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visitors/{visitorId}/announce/{visitId}": {
+      "get": {
+        "tags": [
+          "Visitors"
+        ],
+        "summary": "Announce a Visitor",
+        "description": "Announce the arrival a visitor for a visit",
+        "operationId": "AnnounceVisitor",
+        "parameters": [
+          {
+            "name": "visitorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visitors/{visitorId}/confirm/{visitId}": {
+      "post": {
+        "tags": [
+          "Visitors"
+        ],
+        "summary": "Confirms a Visitor",
+        "description": "Confirm the visitor for the visit with the given Id",
+        "operationId": "ConfirmVisitor",
+        "parameters": [
+          {
+            "name": "visitorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "requestBody": {
+          "x-name": "ConfirmVisitorRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmVisitorRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 3
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/invitations": {
+      "get": {
+        "tags": [
+          "Visitors"
+        ],
+        "summary": "Get all visitor invitations",
+        "description": "Returns a paged list of Visitor invitations",
+        "operationId": "GetAllVisitorInvitations",
+        "parameters": [
+          {
+            "name": "Filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Host",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "SortDir",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortOrder"
+            },
+            "x-position": 4
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 5
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 6
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOfVisitorInvitationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visitors": {
+      "get": {
+        "tags": [
+          "Visitors"
+        ],
+        "summary": "Get all visitors",
+        "description": "Returns a paged list of Visitors",
+        "operationId": "GetAllVisitors",
+        "parameters": [
+          {
+            "name": "Filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Role",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/VisitorRole"
+                }
+              ]
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "SortDir",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortOrder"
+            },
+            "x-position": 4
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 5
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 6
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOfVisitorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visitors/{visitorId}/visits": {
+      "get": {
+        "tags": [
+          "Visitors"
+        ],
+        "summary": "Get visits of a visitor",
+        "description": "Returns a paged list of visits of a visitor by its id",
+        "operationId": "GetAllVisitsOfVisitor",
+        "parameters": [
+          {
+            "name": "visitorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "SortDir",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortOrder"
+            },
+            "x-position": 4
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 5
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 6
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOfVisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visitors/{visitorId}/visits/{visitId}": {
+      "get": {
+        "tags": [
+          "Visitors"
+        ],
+        "summary": "Get one visit of a visitor",
+        "description": "Returns a single visit of a visitor by its email and visit ID",
+        "operationId": "GetOneVisitOfVisitor",
+        "parameters": [
+          {
+            "name": "visitorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visitors/{visitorId}/info/visits/{visitId}": {
+      "get": {
+        "tags": [
+          "Visitors"
+        ],
+        "summary": "Get visit info for a visitor",
+        "description": "Returns a limited visit info for a visitor. Allows anonymous access",
+        "operationId": "GetVisitInfoForVisitor",
+        "parameters": [
+          {
+            "name": "visitorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/visitors/email/{email}": {
+      "get": {
+        "tags": [
+          "Visitors"
+        ],
+        "summary": "Get visitor by email",
+        "description": "Returns a visitor by its email",
+        "operationId": "GetVisitorByEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visitors/{visitorId}": {
+      "get": {
+        "tags": [
+          "Visitors"
+        ],
+        "summary": "Get visitor by ID",
+        "description": "Returns a visitor by its ID",
+        "operationId": "GetVisitorById",
+        "parameters": [
+          {
+            "name": "visitorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Visitors"
+        ],
+        "summary": "Updates a Visitor",
+        "description": "Update the visitor with the given ID",
+        "operationId": "UpdateVisitorById",
+        "parameters": [
+          {
+            "name": "visitorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateVisitorByIdRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVisitorByIdRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/qr": {
+      "get": {
+        "tags": [
+          "QrCode"
+        ],
+        "summary": "Returns a QR code",
+        "description": "Returns a png with the provided QR code",
+        "operationId": "GetQrCode",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/locations": {
+      "get": {
+        "tags": [
+          "Locations"
+        ],
+        "summary": "Get all locations",
+        "description": "Returns a paged list of Locations",
+        "operationId": "GetAllLocations",
+        "parameters": [
+          {
+            "name": "Filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "SortDir",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortOrder"
+            },
+            "x-position": 3
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 4
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOfLocationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Locations"
+        ],
+        "summary": "Registers a new location",
+        "description": "Registers a new location which is local for the Visitors service",
+        "operationId": "RegisterLocation",
+        "requestBody": {
+          "x-name": "LocationInputDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationInputDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/locations/{locationId}": {
+      "get": {
+        "tags": [
+          "Locations"
+        ],
+        "summary": "Get location by ID",
+        "description": "Returns a location by its ID",
+        "operationId": "GetLocationById",
+        "parameters": [
+          {
+            "name": "locationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/access/config": {
+      "post": {
+        "tags": [
+          "Access Control"
+        ],
+        "summary": "Configure badgeType per tenant",
+        "description": "Stores the visitor's badgeType per tenant",
+        "operationId": "ConfigureBadgeType",
+        "requestBody": {
+          "x-name": "TenantBadgeSettings",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantBadgeSettings"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantBadgeSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Access Control"
+        ],
+        "summary": "Get badgeType configuration per tenant",
+        "description": "Retrieves the visitor's badgeType configuration for the specified tenant",
+        "operationId": "GetBadgeSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantBadgeSettings"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/acsystems": {
+      "get": {
+        "tags": [
+          "Access Control"
+        ],
+        "summary": "Get available access control systems",
+        "description": "Retrieves a list of available access control systems that can be used for visitor access policies.",
+        "operationId": "GetAccessControlSystems",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AcSystemDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/acsystems/{systemId}/rules": {
+      "get": {
+        "tags": [
+          "Access Control"
+        ],
+        "summary": "Get available access control rules",
+        "description": "Retrieves a list of available access control rules for the given ac system",
+        "operationId": "GetAccessControlRules",
+        "parameters": [
+          {
+            "name": "systemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AcRuleDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/acsystems/{systemId}/badgetypes": {
+      "get": {
+        "tags": [
+          "Access Control"
+        ],
+        "summary": "Get available access control badge types",
+        "description": "Retrieves a list of available access control badge types for the given ac system",
+        "operationId": "GetAccessControlBadgeTypes",
+        "parameters": [
+          {
+            "name": "systemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AcBadgeTypeDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/printers": {
+      "get": {
+        "tags": [
+          "Access Control"
+        ],
+        "summary": "Get available printers",
+        "description": "Retrieves a list of available printers for printing visitor labels",
+        "operationId": "GetAvailablePrinters",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PrinterDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visits/organizers": {
+      "get": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Get visit organizers by date range",
+        "description": "Returns a list of unique visit organizers' names for visits taking place within the specified date range.",
+        "operationId": "GetOrganizersByDateRange",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrganizerDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/token/{token}/association": {
+      "get": {
+        "tags": [
+          "Access Control"
+        ],
+        "summary": "Get the visit and visitor associated with this token",
+        "description": "Get the visit and visitor associated with this token",
+        "operationId": "GetTokenAssociation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "purpose",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VisitorTokenAssociationDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/visits/{visitId}/organizers": {
+      "get": {
+        "tags": [
+          "Visits"
+        ],
+        "summary": "Get the name of visit organizers",
+        "description": "Returns a list of visit organizers' names for a specific visit.",
+        "operationId": "GetVisitOrganizers",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/visitors/onboarding/images": {
+      "get": {
+        "tags": [
+          "Access Control"
+        ],
+        "summary": "Get visitor onboarding images",
+        "description": "Returns onboarding images filtered by visit and/or visitor. At least one filter parameter must be provided.",
+        "operationId": "GetVisitorOnboardingImages",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "visitorId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VisitorOnboardingImageDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/visitors/label/print": {
+      "post": {
+        "tags": [
+          "Visitors",
+          "Access Control"
+        ],
+        "summary": "Print a label for a visitor",
+        "description": "Start a printer's job for printing a visitor's label",
+        "operationId": "PrintLabel",
+        "requestBody": {
+          "x-name": "LabelDataDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LabelDataDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/visitors/label/template/{purpose}": {
+      "get": {
+        "tags": [
+          "Visitors",
+          "Access Control"
+        ],
+        "summary": "Gets a label template",
+        "description": "Retrieves a label template for requested purpose",
+        "operationId": "GetTemplate",
+        "parameters": [
+          {
+            "name": "purpose",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateDataDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Visitors",
+          "Access Control"
+        ],
+        "summary": "Deletes a label template",
+        "description": "Deletes a label template for requested purpose",
+        "operationId": "DeleteTemplate",
+        "parameters": [
+          {
+            "name": "purpose",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateDataDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/visitors/label/template": {
+      "post": {
+        "tags": [
+          "Visitors",
+          "Access Control"
+        ],
+        "summary": "Adds a label template",
+        "description": "Stores the JSON templatedata for requested purpose",
+        "operationId": "AddTemplate",
+        "requestBody": {
+          "x-name": "TemplateDataDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateDataDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateDataDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/visitors/{visitorId}/checkin/{visitId}": {
+      "get": {
+        "tags": [
+          "Visitors",
+          "Access Control"
+        ],
+        "summary": "CheckIn a Visitor",
+        "description": "CheckIn a visitor for a visit",
+        "operationId": "CheckInVisitor",
+        "parameters": [
+          {
+            "name": "visitorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "visitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitorWithAccessDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/visitors/onboard": {
+      "post": {
+        "tags": [
+          "Access Control"
+        ],
+        "summary": "Visitor onboarded",
+        "description": "Records that a visitor has been onboarded with additional data",
+        "operationId": "VisitorOnboarded",
+        "requestBody": {
+          "x-name": "VisitorOnboardingDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitorOnboardingDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "VisitDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AbstractDtoOfGuid"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "$ref": "#/components/schemas/VisitState"
+              },
+              "invitationId": {
+                "type": "string"
+              },
+              "visitorInvitations": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/VisitorInvitationDto"
+                }
+              },
+              "organizers": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/OrganizerDto"
+                }
+              },
+              "start": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "approved": {
+                "type": "boolean",
+                "nullable": true
+              },
+              "approvalRequired": {
+                "type": "boolean",
+                "nullable": true
+              },
+              "approvedAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "approvedBy": {
+                "type": "string",
+                "nullable": true
+              },
+              "approvalComment": {
+                "type": "string",
+                "nullable": true
+              },
+              "rejectedAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "rejectedBy": {
+                "type": "string",
+                "nullable": true
+              },
+              "rejectedComment": {
+                "type": "string",
+                "nullable": true
+              },
+              "lockedAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "profile": {
+                "type": "string",
+                "nullable": true
+              },
+              "tenant": {
+                "type": "string",
+                "nullable": true
+              },
+              "attributes": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/AttributeDto"
+                }
+              },
+              "location": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/LocationDto"
+                  }
+                ]
+              },
+              "canceled": {
+                "type": "boolean",
+                "nullable": true
+              },
+              "reasonToCancel": {
+                "type": "string",
+                "nullable": true
+              },
+              "actualStart": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "actualEnd": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "summary": {
+                "type": "string",
+                "nullable": true
+              },
+              "invitationModified": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "accessLevels": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "parkingAvailable": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "VisitState": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "SCHEDULED",
+          "APPROVED",
+          "REJECTED",
+          "LOCKED",
+          "STARTED",
+          "FINISHED",
+          "CANCELED"
+        ],
+        "enum": [
+          "SCHEDULED",
+          "APPROVED",
+          "REJECTED",
+          "LOCKED",
+          "STARTED",
+          "FINISHED",
+          "CANCELED"
+        ]
+      },
+      "VisitorInvitationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "visitor": {
+            "$ref": "#/components/schemas/VisitorDto"
+          },
+          "visit": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/VisitDto"
+              }
+            ]
+          },
+          "role": {
+            "$ref": "#/components/schemas/VisitorRole"
+          },
+          "confirmation": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/VisitorConfirmation"
+              }
+            ]
+          },
+          "parkingRequired": {
+            "type": "boolean"
+          },
+          "badgeAssignments": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/BadgeAssignmentDto"
+            }
+          },
+          "confirmationSent": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "confirmationSentOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "onboardedOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "arrivedOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "leftOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "checkInStatus": {
+            "$ref": "#/components/schemas/VisitorCheckInStatus"
+          }
+        }
+      },
+      "VisitorDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AbstractDtoOfGuid"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/AttributeDto"
+                }
+              },
+              "visitorCredentials": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/BadgeSpecsDto"
+                }
+              },
+              "email": {
+                "type": "string"
+              },
+              "firstName": {
+                "type": "string"
+              },
+              "identities": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/VisitorIdentityDto"
+                }
+              },
+              "lastName": {
+                "type": "string",
+                "nullable": true
+              },
+              "licensePlate": {
+                "type": "string",
+                "nullable": true
+              },
+              "phone": {
+                "type": "string",
+                "nullable": true
+              },
+              "company": {
+                "type": "string",
+                "nullable": true
+              },
+              "tenant": {
+                "type": "string",
+                "nullable": true
+              },
+              "blacklisted": {
+                "type": "boolean"
+              },
+              "blacklistingReason": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "AttributeDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AbstractDtoOfGuid"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "AbstractDtoOfGuid": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          }
+        }
+      },
+      "BadgeSpecsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "badgeId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "badgeKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "autoId": {
+            "type": "integer",
+            "nullable": true
+          },
+          "displayId": {
+            "type": "string",
+            "nullable": true
+          },
+          "badgeType": {
+            "type": "string"
+          }
+        }
+      },
+      "VisitorIdentityDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PersonIdentityDto"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "PersonIdentityDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "VisitorRole": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Participant",
+          "Visitor",
+          "Organizer"
+        ],
+        "enum": [
+          "Participant",
+          "Visitor",
+          "Organizer"
+        ]
+      },
+      "VisitorConfirmation": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "UNKNOWN",
+          "ACCEPTED",
+          "DECLINED",
+          "TENTATIVE",
+          "DELEGATED"
+        ],
+        "enum": [
+          "UNKNOWN",
+          "ACCEPTED",
+          "DECLINED",
+          "TENTATIVE",
+          "DELEGATED"
+        ]
+      },
+      "BadgeAssignmentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assignmentId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "badgeId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "badgeKey": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "VisitorCheckInStatus": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Expected",
+          "Arrived",
+          "Late",
+          "Left"
+        ],
+        "enum": [
+          "Expected",
+          "Arrived",
+          "Late",
+          "Left"
+        ]
+      },
+      "OrganizerDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AbstractDtoOfGuid"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/AttributeDto"
+                }
+              },
+              "email": {
+                "type": "string"
+              },
+              "firstName": {
+                "type": "string"
+              },
+              "identities": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/VisitorIdentityDto"
+                }
+              },
+              "lastName": {
+                "type": "string",
+                "nullable": true
+              },
+              "phone": {
+                "type": "string",
+                "nullable": true
+              },
+              "company": {
+                "type": "string",
+                "nullable": true
+              },
+              "tenant": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "LocationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "capacity": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "floorLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "floorNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isWheelChairAccessible": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/LocationType"
+          },
+          "parent": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LocationDto"
+              }
+            ]
+          }
+        }
+      },
+      "LocationType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Location",
+          "Site",
+          "Building",
+          "Room",
+          "Parking"
+        ],
+        "enum": [
+          "Location",
+          "Site",
+          "Building",
+          "Room",
+          "Parking"
+        ]
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "additionalProperties": {
+          "nullable": true
+        },
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "VisitVisitorsChangeInputDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "visitorsToAdd": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VisitorInputDto"
+            }
+          },
+          "visitorsToRemoveEmails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "VisitorInputDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "attributes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AttributeInputDto"
+            }
+          },
+          "company": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "licensePlate": {
+            "type": "string",
+            "nullable": true
+          },
+          "visitorId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/VisitorRole"
+          },
+          "tenantId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AttributeInputDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "ApproveVisitRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "approvedBy": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          }
+        }
+      },
+      "VisitCancelRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reasonToCancel": {
+            "type": "string"
+          }
+        }
+      },
+      "PageOfVisitDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currentPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VisitDto"
+            }
+          },
+          "isLastPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SortOrder": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Asc",
+          "Desc"
+        ],
+        "enum": [
+          "Asc",
+          "Desc"
+        ]
+      },
+      "MarkParkingAvailableRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "parkingAvailable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RejectVisitRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "rejectedBy": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          }
+        }
+      },
+      "VisitLocationInputDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "locationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
+      },
+      "VisitTimesInputDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "VisitInputDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "visitId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "visitors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VisitorInputDto"
+            }
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "invitationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "invitationModified": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "attributes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AttributeInputDto"
+            }
+          },
+          "parkingAvailable": {
+            "type": "boolean"
+          },
+          "tenantId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ConfirmVisitorRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "visitId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "company": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "parkingRequired": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "licensePlate": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/VisitorRole"
+              }
+            ]
+          },
+          "confirmation": {
+            "$ref": "#/components/schemas/VisitorConfirmation"
+          }
+        }
+      },
+      "PageOfVisitorInvitationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currentPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VisitorInvitationDto"
+            }
+          },
+          "isLastPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PageOfVisitorDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currentPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VisitorDto"
+            }
+          },
+          "isLastPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateVisitorByIdRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "company": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "licensePlate": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PageOfLocationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currentPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LocationDto"
+            }
+          },
+          "isLastPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LocationInputDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "capacity": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "floorLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "floorNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isWheelChairAccessible": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/LocationType"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
+      },
+      "TenantBadgeSettings": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "badgeType": {
+            "type": "string",
+            "format": "guid"
+          },
+          "systemId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "badgeAssignmentTiming": {
+            "$ref": "#/components/schemas/BadgeAssignmentTiming"
+          },
+          "accessLevelForVisitorCreation": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "accessLevelForVisitorConfirmation": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "accessLevelForVisitorOnboarding": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "onboardingMode": {
+            "deprecated": true,
+            "x-deprecatedMessage": "Use SelfOnboardingEnabled and GuidedOnboardingEnabled instead",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OnboardingMode"
+              }
+            ]
+          },
+          "selfOnboardingEnabled": {
+            "type": "boolean"
+          },
+          "guidedOnboardingEnabled": {
+            "type": "boolean"
+          },
+          "requiredOnboardingData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OnboardingData"
+            }
+          },
+          "labelPrintingConfiguration": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LabelPrintingConfiguration"
+              }
+            ]
+          },
+          "onboardedMessages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "BadgeAssignmentTiming": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "OnVisitorCreation",
+          "OnVisitorConfirmation",
+          "OnVisitorOnboarding"
+        ],
+        "enum": [
+          "OnVisitorCreation",
+          "OnVisitorConfirmation",
+          "OnVisitorOnboarding"
+        ]
+      },
+      "OnboardingMode": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "SelfOnboarding",
+          "GuidedOnboarding"
+        ],
+        "enum": [
+          "SelfOnboarding",
+          "GuidedOnboarding"
+        ]
+      },
+      "OnboardingData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "dataType": {
+            "$ref": "#/components/schemas/OnboardingDataType"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OnboardingDataType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Photo",
+          "IDCard",
+          "Image",
+          "Page"
+        ],
+        "enum": [
+          "Photo",
+          "IDCard",
+          "Image",
+          "Page"
+        ]
+      },
+      "LabelPrintingConfiguration": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "printerId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
+      },
+      "AcSystemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "AcRuleDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "AcBadgeTypeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "PrinterDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "VisitorTokenAssociationDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AbstractDtoOfGuid"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "guid"
+              },
+              "visitId": {
+                "type": "string",
+                "format": "guid"
+              },
+              "visitorId": {
+                "type": "string",
+                "format": "guid"
+              },
+              "tenantId": {
+                "type": "string",
+                "nullable": true
+              },
+              "token": {
+                "type": "string"
+              },
+              "tokenPurpose": {
+                "type": "string"
+              },
+              "validFrom": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "expiresAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "VisitorOnboardingImageDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "visitId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "visitorId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "imageType": {
+            "type": "string"
+          },
+          "base64ImageData": {
+            "type": "string"
+          },
+          "onboardingDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tenantId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "IResult": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false
+      },
+      "LabelDataDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "visitId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "visitorId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "badgeId": {
+            "type": "string"
+          },
+          "faceImageBase64": {
+            "type": "string"
+          }
+        }
+      },
+      "TemplateDataDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "template": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          }
+        }
+      },
+      "VisitorWithAccessDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "visitId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "visitorId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "badgeId": {
+            "type": "string"
+          }
+        }
+      },
+      "VisitorOnboardingDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "visitId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "visitorId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "additionalData": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AdditionalDataDto"
+            }
+          }
+        }
+      },
+      "AdditionalDataDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/AdditionalDataType"
+          },
+          "data": {}
+        }
+      },
+      "AdditionalDataType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "ImageBase64",
+          "BadgeId",
+          "Text"
+        ],
+        "enum": [
+          "ImageBase64",
+          "BadgeId",
+          "Text"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "openIdConnect",
+        "description": "Enter 'Bearer {your JWT token}'",
+        "name": "Authorization",
+        "in": "header",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "openIdConnectUrl": "http://keycloak:8080/realms/axxession/.well-known/openid-configuration"
+      }
+    }
+  }
+}

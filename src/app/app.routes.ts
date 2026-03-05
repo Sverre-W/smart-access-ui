@@ -18,6 +18,15 @@ export const routes: Routes = [
         .then(m => m.facilityRoutes)
   },
   {
+    path: 'reception/onboarding',
+    loadComponent: () =>
+      import('./features/reception/onboarding/shell/onboarding-shell')
+        .then(m => m.OnboardingShell),
+    loadChildren: () =>
+      import('./features/reception/onboarding/onboarding.routes')
+        .then(m => m.onboardingRoutes),
+  },
+  {
     path: 'reception',
     loadChildren: () =>
       import('./features/reception/reception.routes')

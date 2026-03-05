@@ -1,0 +1,32 @@
+{
+  "id": "guided-onboarding-01",
+  "seq": "01",
+  "title": "Install npm packages (@zxing/browser, @zxing/library, @mediapipe/tasks-vision)",
+  "status": "in_progress",
+  "agent_id": "coder-agent",
+  "started_at": "2026-03-05T00:00:00Z",
+  "depends_on": [],
+  "parallel": true,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md",
+    "package.json"
+  ],
+  "acceptance_criteria": [
+    "npm install @zxing/browser @zxing/library @mediapipe/tasks-vision completes without errors",
+    "All three packages appear in package.json dependencies",
+    "package-lock.json is updated"
+  ],
+  "deliverables": [
+    "package.json",
+    "package-lock.json"
+  ],
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

@@ -1,0 +1,68 @@
+<div class="flex flex-col h-full overflow-hidden px-4 py-6 sm:px-8 sm:py-6 gap-4">
+
+  <!-- Page header -->
+  <div class="shrink-0">
+    <h1 class="text-2xl font-semibold text-zinc-800">Scan QR Code</h1>
+    <p class="text-sm text-zinc-500 mt-1">Hold the visitor's QR code up to the camera to find their details</p>
+  </div>
+
+  <!-- Main card — takes remaining height, scrolls if needed -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs flex-1 flex flex-col items-center justify-center gap-5 overflow-y-auto p-6">
+
+    <!-- Viewfinder -->
+    <div
+      class="relative rounded-lg overflow-hidden shrink-0"
+      [style.border-color]="viewfinderBorder()"
+      style="border-width: 6px; border-style: solid; box-sizing: content-box; transition: border-color 0.3s"
+    >
+      <video
+        #videoEl
+        autoplay
+        playsinline
+        muted
+        style="
+          width: clamp(240px, min(38vh, 38vw), 520px);
+          height: clamp(240px, min(38vh, 38vw), 520px);
+          object-fit: cover;
+          display: block;
+        "
+      ></video>
+
+      <!-- Corner guides -->
+      <div class="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-zinc-400 rounded-tl"></div>
+      <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-zinc-400 rounded-tr"></div>
+      <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-zinc-400 rounded-bl"></div>
+      <div class="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-zinc-400 rounded-br"></div>
+    </div>
+
+    <!-- Scanning status -->
+    @if (!errorMessage()) {
+      <div class="flex items-center gap-2 text-zinc-500 shrink-0">
+        <i class="pi pi-spin pi-spinner text-sm"></i>
+        <span class="text-sm font-medium">Scanning…</span>
+      </div>
+    }
+
+    <!-- Error message -->
+    @if (errorMessage()) {
+      <div class="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 shrink-0 max-w-sm w-full">
+        <i class="pi pi-exclamation-circle shrink-0"></i>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- Debug overlay -->
+    @if (isDebugMode()) {
+      <div class="bg-black/80 text-white text-xs font-mono p-4 rounded-lg max-w-lg w-full shrink-0">
+        <p>QR: {{ debugInfo().qrValue ?? '—' }}</p>
+        <p>Visit: {{ debugInfo().visitId ?? '—' }}</p>
+        <p>Visitor: {{ debugInfo().visitorId ?? '—' }}</p>
+        @if (debugInfo().error) {
+          <p class="text-red-400">Error: {{ debugInfo().error }}</p>
+        }
+      </div>
+    }
+
+  </div>
+
+</div>

@@ -23,7 +23,8 @@
       "locations": "Locations",
       "tenants": "Tenants",
       "roles": "Roles",
-      "arrivals": "Arrivals"
+      "arrivals": "Arrivals",
+      "guidedOnboarding": "Guided Onboarding"
     }
   },
   "home": {
@@ -534,6 +535,19 @@
       "visitor": "visitor",
       "visitors": "visitors",
       "scheduled": "scheduled"
+    },
+    "onboarding": {
+      "scanQrCode": "Scan QR Code",
+      "scanYourFace": "Scan your face",
+      "somethingWentWrong": "Something went wrong",
+      "printingLabel": "Printing a label...",
+      "labelPrinted": "Label is printed successfully",
+      "done": "DONE",
+      "startOver": "START OVER",
+      "start": "START",
+      "debugQrValue": "QR",
+      "debugBadgeId": "Badge",
+      "debugError": "Error"
     }
   }
 }

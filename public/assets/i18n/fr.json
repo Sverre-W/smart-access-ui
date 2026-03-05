@@ -23,7 +23,8 @@
       "locations": "Emplacements",
       "tenants": "Locataires",
       "roles": "Rôles",
-      "arrivals": "Arrivées"
+      "arrivals": "Arrivées",
+      "guidedOnboarding": "Enregistrement guidé"
     }
   },
   "home": {
@@ -533,6 +534,19 @@
       "visitor": "visiteur",
       "visitors": "visiteurs",
       "scheduled": "prévu(s)"
+    },
+    "onboarding": {
+      "scanQrCode": "Scanner le QR code",
+      "scanYourFace": "Scannez votre visage",
+      "somethingWentWrong": "Une erreur est survenue",
+      "printingLabel": "Impression du badge...",
+      "labelPrinted": "Badge imprimé avec succès",
+      "done": "TERMINÉ",
+      "startOver": "RECOMMENCER",
+      "start": "DÉMARRER",
+      "debugQrValue": "QR",
+      "debugBadgeId": "Badge",
+      "debugError": "Erreur"
     }
   }
 }

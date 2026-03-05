@@ -10,4 +10,9 @@ export const receptionRoutes: Routes = [
     path: 'arrivals',
     loadComponent: () => import('./arrivals/arrivals').then(m => m.Arrivals),
   },
+  {
+    path: 'onboarding',
+    redirectTo: '/reception/onboarding/home',
+    pathMatch: 'prefix',
+  },
 ];

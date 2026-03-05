@@ -1,0 +1,33 @@
+{
+  "id": "guided-onboarding-12",
+  "seq": "12",
+  "title": "Wire app.routes.ts and reception.routes.ts for the /reception/onboarding parallel route branch",
+  "status": "completed",
+  "depends_on": ["07", "08", "09", "10", "11"],
+  "parallel": false,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md",
+    "src/app/app.routes.ts",
+    "src/app/features/reception/reception.routes.ts"
+  ],
+  "acceptance_criteria": [
+    "In src/app/app.routes.ts: entry added for path 'reception/onboarding' with loadComponent pointing to OnboardingShell and loadChildren pointing to onboardingRoutes",
+    "The new reception/onboarding entry is placed BEFORE the existing /reception entry so Angular matches it first",
+    "In src/app/features/reception/reception.routes.ts: entry added for path 'onboarding' with redirectTo '/reception/onboarding/home' and pathMatch: 'prefix'",
+    "No other routes are modified",
+    "No TypeScript errors"
+  ],
+  "deliverables": [
+    "src/app/app.routes.ts",
+    "src/app/features/reception/reception.routes.ts"
+  ],
+  "started_at": "2026-03-05T00:00:00Z",
+  "completed_at": "2026-03-05T00:00:00Z",
+  "completion_summary": "Added reception/onboarding parallel route in app.routes.ts before /reception, and onboarding redirect entry in reception.routes.ts"
+}

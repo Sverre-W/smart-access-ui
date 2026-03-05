@@ -37,6 +37,7 @@ const APP_NAV: Record<string, NavItemDef[]> = {
   ],
   'reception-desk': [
     { navKey: 'arrivals', icon: 'pi pi-calendar-clock', route: '/reception/arrivals', requiredApp: 'Visitors Service', requiredPermissions: ['Visits:Read'] },
+    { navKey: 'guidedOnboarding', icon: 'pi pi-qrcode', route: '/reception/onboarding/home' },
   ],
 };
 

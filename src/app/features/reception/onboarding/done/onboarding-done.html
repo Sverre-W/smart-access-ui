@@ -1,0 +1,37 @@
+<div class="flex flex-col h-full overflow-hidden px-4 py-6 sm:px-8 sm:py-6 gap-4">
+
+  <!-- Page header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-semibold text-zinc-800">Check-In Complete</h1>
+    <p class="text-sm text-zinc-500 mt-1">Your visitor badge is being printed</p>
+  </div>
+
+  <!-- Main card -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs flex-1 flex flex-col items-center justify-center gap-8 overflow-y-auto p-6">
+
+    <!-- Success icon -->
+    <div class="flex items-center justify-center w-24 h-24 rounded-full bg-green-100">
+      <i class="pi pi-check-circle text-5xl text-green-500"></i>
+    </div>
+
+    <div class="text-center">
+      <p class="text-2xl font-semibold text-zinc-800">All done!</p>
+      <p class="text-sm text-zinc-500 mt-2">Please collect your badge from the printer</p>
+      <p class="text-xs text-zinc-400 mt-4">Returning to arrivals in a few seconds…</p>
+    </div>
+
+    <!-- Start over button -->
+    <button
+      (click)="goToArrivals()"
+      class="flex items-center justify-center gap-3 px-10 py-3 font-semibold text-white rounded-xl transition-colors duration-150 text-base"
+      style="background-color: #238cff;"
+      onmouseover="this.style.backgroundColor='#1a72d4'"
+      onmouseout="this.style.backgroundColor='#238cff'"
+    >
+      <i class="pi pi-refresh"></i>
+      Start Over
+    </button>
+
+  </div>
+
+</div>

@@ -1,0 +1,37 @@
+{
+  "id": "guided-onboarding-06",
+  "seq": "06",
+  "title": "Create onboarding.routes.ts with lazy-loaded routes for home, qrcode, selfie, done",
+  "status": "completed",
+  "depends_on": [],
+  "parallel": true,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md",
+    "src/app/features/reception/reception.routes.ts",
+    "src/app/app.routes.ts"
+  ],
+  "acceptance_criteria": [
+    "File created at src/app/features/reception/onboarding/onboarding.routes.ts",
+    "Exports const onboardingRoutes: Routes",
+    "Route '' redirects to 'home' (pathMatch: 'full')",
+    "Route 'home' lazy-loads OnboardingHome via loadComponent",
+    "Route 'qrcode' lazy-loads OnboardingQrcode via loadComponent",
+    "Route 'selfie' lazy-loads OnboardingSelfie via loadComponent",
+    "Route 'done' lazy-loads OnboardingDone via loadComponent",
+    "All loadComponent paths match the expected file locations under the onboarding feature folder",
+    "No TypeScript errors"
+  ],
+  "deliverables": [
+    "src/app/features/reception/onboarding/onboarding.routes.ts"
+  ],
+  "agent_id": "coder-agent",
+  "started_at": "2026-03-05T00:00:00Z",
+  "completed_at": "2026-03-05T00:00:00Z",
+  "completion_summary": "Created onboarding.routes.ts with lazy-loaded routes for home, qrcode, selfie, done; empty→home redirect with pathMatch full"
+}

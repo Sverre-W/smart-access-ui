@@ -660,6 +660,10 @@ export class VisitorService {
     );
   }
 
+  visitorCheckedInAsync(url: string): Promise<VisitorWithAccessDto> {
+    return firstValueFrom(this.http.get<VisitorWithAccessDto>(url));
+  }
+
   // ── Access Control ───────────────────────────────────────────────────────────
 
   configureBadgeType(body: TenantBadgeSettings): Promise<TenantBadgeSettings> {

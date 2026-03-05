@@ -1,0 +1,38 @@
+{
+  "id": "guided-onboarding-04",
+  "seq": "04",
+  "title": "Create FaceDetectorService using @mediapipe/tasks-vision with oval guide and face validity logic",
+  "status": "completed",
+  "agent_id": "coder-agent",
+  "started_at": "2026-03-05T00:00:00Z",
+  "depends_on": [],
+  "parallel": true,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md"
+  ],
+  "acceptance_criteria": [
+    "File created at src/app/features/reception/onboarding/services/face-detector-service.ts",
+    "Uses @mediapipe/tasks-vision FaceDetector in VIDEO mode",
+    "Model loaded from CDN: https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
+    "initialize(): lazy-init the detector only once (idempotent)",
+    "predictWebcam(videoEl, canvasEl, timestamp): crops video to square (centred crop) before detection",
+    "predictWebcam draws oval guide on canvas overlay: red stroke when face invalid, green stroke when face valid",
+    "predictWebcam returns base64 JPEG string if face is valid, null otherwise",
+    "Face validity: exactly 1 face detected, bbox width AND height both between 170–250px, face centre within 11% of smaller video dimension from frame centre with 20% upward Y offset",
+    "dispose(): clears the detector instance",
+    "Service is decorated with providedIn: 'root'",
+    "Uses inject() function pattern, not constructor injection",
+    "No TypeScript errors"
+  ],
+  "deliverables": [
+    "src/app/features/reception/onboarding/services/face-detector-service.ts"
+  ],
+  "completed_at": "2026-03-05T00:00:00Z",
+  "completion_summary": "Created FaceDetectorService with lazy-init, predictWebcam square crop+detection+oval overlay, spec-compliant face validity, dispose"
+}

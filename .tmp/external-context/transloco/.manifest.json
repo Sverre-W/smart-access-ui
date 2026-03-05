@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-03-02T00:00:00Z",
+  "libraries": {
+    "transloco": {
+      "files": [
+        {
+          "filename": "installation-and-setup.md",
+          "topic": "Installation, setup, config options — Angular 21 standalone",
+          "tech_stack": "Angular standalone",
+          "fetched": "2026-03-02T00:00:00Z",
+          "source": "Official Docs (jsverse.gitbook.io/transloco)"
+        },
+        {
+          "filename": "translation-in-templates.md",
+          "topic": "Pipe, structural directive, attribute directive — standalone imports",
+          "tech_stack": "Angular standalone",
+          "fetched": "2026-03-02T00:00:00Z",
+          "source": "Official Docs (jsverse.gitbook.io/transloco)"
+        },
+        {
+          "filename": "service-and-runtime-switching.md",
+          "topic": "TranslocoService API, Signals API, runtime locale switching",
+          "tech_stack": "Angular standalone",
+          "fetched": "2026-03-02T00:00:00Z",
+          "source": "Official Docs (jsverse.gitbook.io/transloco)"
+        },
+        {
+          "filename": "file-structure-and-lazy-loading.md",
+          "topic": "File structure, lazy loading scopes, inline loaders",
+          "tech_stack": "Angular standalone",
+          "fetched": "2026-03-02T00:00:00Z",
+          "source": "Official Docs (jsverse.gitbook.io/transloco)"
+        },
+        {
+          "filename": "multi-locale-rtl-and-persist.md",
+          "topic": "Multi-locale EN/NL/FR/AR, RTL direction switching, persist-lang plugin",
+          "tech_stack": "Angular standalone",
+          "fetched": "2026-03-02T00:00:00Z",
+          "source": "Official Docs (jsverse.gitbook.io/transloco)"
+        }
+      ]
+    }
+  }
+}

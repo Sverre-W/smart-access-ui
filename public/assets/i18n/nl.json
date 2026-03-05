@@ -23,7 +23,8 @@
       "locations": "Locaties",
       "tenants": "Tenants",
       "roles": "Rollen",
-      "arrivals": "Aankomsten"
+      "arrivals": "Aankomsten",
+      "guidedOnboarding": "Begeleide Onboarding"
     }
   },
   "home": {
@@ -533,6 +534,19 @@
       "visitor": "bezoeker",
       "visitors": "bezoekers",
       "scheduled": "gepland"
+    },
+    "onboarding": {
+      "scanQrCode": "Scan QR-code",
+      "scanYourFace": "Scan uw gezicht",
+      "somethingWentWrong": "Er is iets misgegaan",
+      "printingLabel": "Label afdrukken...",
+      "labelPrinted": "Label succesvol afgedrukt",
+      "done": "KLAAR",
+      "startOver": "OPNIEUW BEGINNEN",
+      "start": "START",
+      "debugQrValue": "QR",
+      "debugBadgeId": "Badge",
+      "debugError": "Fout"
     }
   }
 }

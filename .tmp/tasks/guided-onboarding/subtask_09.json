@@ -1,0 +1,39 @@
+{
+  "id": "guided-onboarding-09",
+  "seq": "09",
+  "title": "Create OnboardingDone component — DONE display with 5s auto-navigate and START OVER button",
+  "status": "completed",
+  "agent_id": "coder-agent",
+  "started_at": "2026-03-05T00:00:00Z",
+  "completed_at": "2026-03-05T00:10:00Z",
+  "depends_on": ["02", "06"],
+  "parallel": true,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md"
+  ],
+  "acceptance_criteria": [
+    "Files created at src/app/features/reception/onboarding/done/onboarding-done.ts and onboarding-done.html",
+    "Router injected via inject(Router)",
+    "On init: starts a 5-second timer then navigates to /reception/arrivals",
+    "Large 'DONE' text displayed: 10vh font size, bold, green colour, centred",
+    "START OVER button with play icon (pi pi-play), same oversized style as HOME button (8vh font, 16vh height)",
+    "START OVER click navigates immediately to /reception/arrivals",
+    "Timer is cleaned up via takeUntilDestroyed or OnDestroy to prevent memory leaks",
+    "signal() used for any local reactive state",
+    "ChangeDetectionStrategy.OnPush applied",
+    "Uses inject() pattern, no constructor injection",
+    "No standalone: true in decorator (Angular 21 default)",
+    "No TypeScript errors"
+  ],
+  "deliverables": [
+    "src/app/features/reception/onboarding/done/onboarding-done.ts",
+    "src/app/features/reception/onboarding/done/onboarding-done.html"
+  ],
+  "completion_summary": "OnboardingDone created: 5s auto-navigate + ↺ START OVER button both call session.reset() + navigate to /reception/arrivals. Timer cleaned up in ngOnDestroy. OnPush, inject(), no standalone:true."
+}

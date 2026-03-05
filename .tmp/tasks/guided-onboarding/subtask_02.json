@@ -1,0 +1,36 @@
+{
+  "id": "guided-onboarding-02",
+  "seq": "02",
+  "title": "Create KioskSessionService with qrCode, visitor, face signals and reset()",
+  "status": "completed",
+  "agent_id": "coder-agent",
+  "started_at": "2026-03-05T00:00:00Z",
+  "depends_on": [],
+  "parallel": true,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md",
+    "src/app/features/visitors/services/visitor-service.ts"
+  ],
+  "acceptance_criteria": [
+    "File created at src/app/features/reception/onboarding/services/kiosk-session-service.ts",
+    "Service has signals: qrCode: signal<string | null>(null), visitor: signal<VisitorWithAccessDto | null>(null), face: signal<string | null>(null)",
+    "reset() method sets all three signals to null",
+    "VisitorWithAccessDto is imported from visitor-service",
+    "Service is decorated with providedIn: 'root'",
+    "Uses inject() function pattern, not constructor injection",
+    "No standalone: true in decorator (Angular 21 default)",
+    "No TypeScript errors"
+  ],
+  "deliverables": [
+    "src/app/features/reception/onboarding/services/kiosk-session-service.ts"
+  ],
+  "started_at": "2026-03-05T00:00:00Z",
+  "completed_at": "2026-03-05T00:00:00Z",
+  "completion_summary": "Created KioskSessionService with qrCode/visitor/face signals and reset() method, providedIn root, inject() pattern, Angular 21 compliant"
+}

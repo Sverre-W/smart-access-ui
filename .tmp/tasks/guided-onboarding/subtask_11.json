@@ -1,0 +1,46 @@
+{
+  "id": "guided-onboarding-11",
+  "seq": "11",
+  "title": "Create OnboardingSelfie component — face detection loop, oval overlay, auto-capture and print API call",
+  "status": "completed",
+  "agent_id": "coder-agent",
+  "started_at": "2026-03-05T00:00:00Z",
+  "completed_at": "2026-03-05T00:00:00Z",
+  "depends_on": ["01", "02", "03", "04", "05", "06", "07"],
+  "parallel": true,
+  "suggested_agent": "coder-agent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/project-intelligence/technical-domain.md",
+    ".opencode/context/ui/web/ui-styling-standards.md"
+  ],
+  "reference_files": [
+    ".tmp/onboarding.md",
+    "src/app/features/visitors/services/visitor-service.ts"
+  ],
+  "acceptance_criteria": [
+    "Files created at src/app/features/reception/onboarding/selfie/onboarding-selfie.ts and onboarding-selfie.html",
+    "Injects FaceDetectorService, CameraService, KioskSessionService, VisitorService, Router, ChangeDetectorRef via inject()",
+    "Live camera feed + canvas overlay with same viewfinder sizing and mirroring as QR page (clamp(400px, min(50vh, 50vw), 800px))",
+    "On load: resets session.face to null, initialises camera, initialises FaceDetectorService, starts requestAnimationFrame loop",
+    "Each frame: calls faceDetectorService.predictWebcam() which draws oval overlay and returns base64 JPEG if face is valid",
+    "Valid face held for 2000ms continuously → captures JPEG → stores in KioskSessionService.face signal",
+    "Immediately calls visitorService.printLabel({ visitId, visitorId, badgeId, faceImageBase64 }) with data from KioskSessionService",
+    "Waits max(print API time, 2000ms), then navigates to /reception/onboarding/done",
+    "On print error: shows 'Something went wrong: [error]' and navigates to /done after 5000ms regardless",
+    "Status messages shown at 2rem bold: 'Printing a label...' while in progress, 'Label is printed successfully' on success",
+    "Error messages in red <b> tag",
+    "Bold hint 'Scan your face' at 3rem below viewfinder",
+    "Hidden camera selector UI (wrapped in @if (false)) for developer use",
+    "Cleanup on destroy: stops camera stream, disposes face detector, cancels animation frame",
+    "ChangeDetectionStrategy.OnPush applied",
+    "Uses inject() pattern, no constructor injection",
+    "No standalone: true in decorator (Angular 21 default)",
+    "No TypeScript errors"
+  ],
+  "deliverables": [
+    "src/app/features/reception/onboarding/selfie/onboarding-selfie.ts",
+    "src/app/features/reception/onboarding/selfie/onboarding-selfie.html"
+  ],
+  "completion_summary": "Created OnboardingSelfie component with RAF face-detection loop, 2s hold-to-capture, print API call, error handling, and full cleanup on destroy"
+}
