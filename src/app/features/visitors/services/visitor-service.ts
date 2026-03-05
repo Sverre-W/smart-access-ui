@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '../../../core/services/config-service';
 
@@ -701,7 +701,10 @@ export class VisitorService {
     if (purpose) params['purpose'] = purpose;
     return firstValueFrom(
       this.http.get<VisitorTokenAssociationDto[]>(this.url(`/api/v1/token/${token}/association`), { params })
-    );
+    ).catch((err: HttpErrorResponse) => {
+      if (err.status === 404) return [];
+      return Promise.reject(err);
+    });
   }
 
   getVisitorOnboardingImages(params: {

@@ -15,6 +15,10 @@ export const onboardingRoutes: Routes = [
     loadComponent: () => import('./qrcode/onboarding-qrcode').then(m => m.OnboardingQrcode),
   },
   {
+    path: 'select',
+    loadComponent: () => import('./select/onboarding-select').then(m => m.OnboardingSelect),
+  },
+  {
     path: 'selfie',
     loadComponent: () => import('./selfie/onboarding-selfie').then(m => m.OnboardingSelfie),
   },

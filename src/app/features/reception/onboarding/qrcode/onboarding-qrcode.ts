@@ -127,11 +127,12 @@ export class OnboardingQrcode implements OnInit, AfterViewInit, OnDestroy {
    * Called when a QR code frame is decoded.
    *
    * Flow:
-   *  1. Deduplicate: ignore if same code already being processed.
-   *  2. Look up the token via getTokenAssociation(qrValue).
-   *  3. If no association found → show "Invalid QR code" error.
-   *  4. Use the first association's visitId + visitorId to call checkInVisitor.
-   *  5. Navigate to /selfie on success; back to /home after 5 s on error.
+   *  1. Deduplicate: ignore if same code is already being processed.
+   *  2. Look up the token via getTokenAssociation (404 → treated as empty).
+   *  3. 0 results → "Invalid QR code" error, return to home after 5 s.
+   *  4. 1 result  → check in immediately, navigate to /selfie.
+   *  5. 2+ results → store associations in session, navigate to /select
+   *                  so the guard can pick the correct visit.
    */
   private handleSuccessfulScan(qrValue: string): void {
     if (qrValue === this.lastScannedQr()) return;
@@ -149,20 +150,29 @@ export class OnboardingQrcode implements OnInit, AfterViewInit, OnDestroy {
         if (!associations || associations.length === 0) {
           return Promise.reject(new InvalidQrError());
         }
-
-        const { visitId, visitorId } = associations[0];
-        this.debugInfo.update(d => ({ ...d, visitId, visitorId }));
-
-        return this.visitorService.checkInVisitor(visitorId, visitId);
+        return associations;
       });
 
     Promise.all([lookup, minDelay])
-      .then(([visitor]) => {
-        this.session.visitor.set(visitor);
+      .then(([associations]) => {
         this.borderColor.set('green');
         this.cdr.markForCheck();
         this.scannerControls?.stop();
-        this.router.navigate(['/reception/onboarding/selfie']);
+
+        if (associations.length === 1) {
+          // Single match — check in directly and go to selfie.
+          const { visitId, visitorId } = associations[0];
+          this.debugInfo.update(d => ({ ...d, visitId, visitorId }));
+          return this.visitorService.checkInVisitor(visitorId, visitId).then(visitor => {
+            this.session.visitor.set(visitor);
+            this.router.navigate(['/reception/onboarding/selfie']);
+          });
+        }
+
+        // Multiple matches — let the guard pick the visit.
+        this.session.associations.set(associations);
+        this.router.navigate(['/reception/onboarding/select']);
+        return Promise.resolve();
       })
       .catch(err => {
         this.borderColor.set('red');
