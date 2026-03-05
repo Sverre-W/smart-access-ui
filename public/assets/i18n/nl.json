@@ -177,6 +177,7 @@
       "visitorJourney": "Bezoekersreis",
       "visitorDetails": "Bezoekersdetails",
       "viewProfile": "Profiel bekijken",
+      "viewConfirmation": "Bevestiging bekijken",
       "fullName": "Volledige naam",
       "email": "E-mail",
       "company": "Bedrijf",
@@ -241,6 +242,28 @@
       "loadError": "Uw bezoekgegevens konden niet worden geladen. De link is mogelijk ongeldig of verlopen.",
       "confirmError": "Er is iets misgegaan bij het bevestigen van uw bezoek. Probeer het opnieuw.",
       "declineError": "Er is iets misgegaan. Probeer het opnieuw."
+    },
+    "confirmationStatus": {
+      "ACCEPTED":  "Geaccepteerd",
+      "DECLINED":  "Geweigerd",
+      "TENTATIVE": "Voorlopig",
+      "DELEGATED": "Gedelegeerd",
+      "UNKNOWN":   "In afwachting"
+    },
+    "visitState": {
+      "SCHEDULED": "Gepland",
+      "APPROVED":  "Goedgekeurd",
+      "STARTED":   "Bezig",
+      "FINISHED":  "Afgerond",
+      "CANCELED":  "Geannuleerd",
+      "REJECTED":  "Afgewezen",
+      "LOCKED":    "Vergrendeld"
+    },
+    "checkInStatus": {
+      "Expected": "Verwacht",
+      "Arrived":  "Gearriveerd",
+      "Late":     "Te laat",
+      "Left":     "Vertrokken"
     },
     "settings": {
       "title": "Instellingen",

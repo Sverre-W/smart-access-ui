@@ -42,6 +42,15 @@ export const routes: Routes = [
         .then(m => m.receptionRoutes)
   },
   {
+    path: 'visitor',
+    loadComponent: () =>
+      import('./features/reception/onboarding/shell/onboarding-shell')
+        .then(m => m.OnboardingShell),
+    loadChildren: () =>
+      import('./features/visitors/confirm.routes')
+        .then(m => m.confirmVisitRoutes),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

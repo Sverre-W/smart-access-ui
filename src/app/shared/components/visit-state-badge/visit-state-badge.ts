@@ -1,4 +1,5 @@
 import { Component, input, computed } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { VisitState } from '../../../features/visitors/services/visitor-service';
 
 const STATE_CLASSES: Record<VisitState, string> = {
@@ -13,11 +14,13 @@ const STATE_CLASSES: Record<VisitState, string> = {
 
 @Component({
   selector: 'app-visit-state-badge',
-  standalone: true,
+  imports: [TranslateModule],
   templateUrl: './visit-state-badge.html',
 })
 export class VisitStateBadge {
   readonly state = input.required<VisitState>();
 
   readonly classes = computed(() => STATE_CLASSES[this.state()] ?? 'bg-zinc-100 text-zinc-500');
+
+  readonly labelKey = computed(() => `visitors.visitState.${this.state()}`);
 }

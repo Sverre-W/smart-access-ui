@@ -177,6 +177,7 @@
       "visitorJourney": "Visitor journey",
       "visitorDetails": "Visitor details",
       "viewProfile": "View profile",
+      "viewConfirmation": "View confirmation",
       "fullName": "Full name",
       "email": "Email",
       "company": "Company",
@@ -241,6 +242,28 @@
       "loadError": "Unable to load your visit details. The link may be invalid or expired.",
       "confirmError": "Something went wrong while confirming your visit. Please try again.",
       "declineError": "Something went wrong. Please try again."
+    },
+    "confirmationStatus": {
+      "ACCEPTED":  "Accepted",
+      "DECLINED":  "Declined",
+      "TENTATIVE": "Tentative",
+      "DELEGATED": "Delegated",
+      "UNKNOWN":   "Pending"
+    },
+    "visitState": {
+      "SCHEDULED": "Scheduled",
+      "APPROVED":  "Approved",
+      "STARTED":   "In Progress",
+      "FINISHED":  "Finished",
+      "CANCELED":  "Canceled",
+      "REJECTED":  "Rejected",
+      "LOCKED":    "Locked"
+    },
+    "checkInStatus": {
+      "Expected": "Expected",
+      "Arrived":  "Arrived",
+      "Late":     "Late",
+      "Left":     "Left"
     },
     "settings": {
       "title": "Settings",

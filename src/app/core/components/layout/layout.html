@@ -43,6 +43,17 @@
           </p-button>
           <p-menu #userMenu [model]="userMenuItems()" [popup]="true" />
         } @else {
+          <p-button
+            severity="secondary"
+            [text]="true"
+            (click)="langMenu.toggle($event)"
+            [ariaLabel]="'layout.language' | translate"
+          >
+            <i class="pi pi-globe text-zinc-500"></i>
+            <span class="text-sm text-zinc-700">{{ currentLocaleLabel() }}</span>
+            <i class="pi pi-chevron-down text-xs text-zinc-400"></i>
+          </p-button>
+          <p-menu #langMenu [model]="langMenuItems()" [popup]="true" />
           <p-button (click)="login()">{{ 'layout.login' | translate }}</p-button>
         }
       </div>
@@ -138,6 +149,23 @@
             (click)="logout()"
           />
         } @else {
+          <div class="px-1">
+            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide px-3 pb-1">
+              {{ 'layout.language' | translate }}
+            </p>
+            @for (opt of locale.localeOptions; track opt.code) {
+              <p-button
+                [label]="opt.label"
+                [icon]="locale.locale() === opt.code ? 'pi pi-check' : 'pi pi-fw'"
+                severity="secondary"
+                [text]="true"
+                styleClass="w-full justify-start"
+                [class]="locale.locale() === opt.code ? 'text-[#238cff]' : ''"
+                (click)="locale.setLocale(opt.code); mobileMenuOpen = false"
+              />
+            }
+          </div>
+          <div class="border-t border-zinc-200"></div>
           <p-button
             [label]="'layout.login' | translate"
             styleClass="w-full"

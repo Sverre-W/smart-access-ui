@@ -96,9 +96,12 @@
         <!-- ── Visit info card ──────────────────────────────────────────────── -->
         @if (visit()) {
           <div class="rounded-2xl border border-zinc-200 bg-white shadow-sm px-5 py-4 flex flex-col gap-2">
-            @if (visit()!.summary) {
-              <p class="text-sm font-semibold text-zinc-700">{{ visit()!.summary }}</p>
-            }
+            <div class="flex items-center justify-between gap-2">
+              @if (visit()!.summary) {
+                <p class="text-sm font-semibold text-zinc-700">{{ visit()!.summary }}</p>
+              }
+              <app-visitor-confirmation-badge [status]="invitation()?.confirmation ?? null" />
+            </div>
             @if (visitTimeRange()) {
               <p class="text-xs text-zinc-500 flex items-center gap-1.5">
                 <i class="pi pi-calendar text-zinc-400"></i>

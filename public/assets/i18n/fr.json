@@ -177,6 +177,7 @@
       "visitorJourney": "Parcours visiteur",
       "visitorDetails": "Détails du visiteur",
       "viewProfile": "Voir le profil",
+      "viewConfirmation": "Voir la confirmation",
       "fullName": "Nom complet",
       "email": "E-mail",
       "company": "Entreprise",
@@ -241,6 +242,28 @@
       "loadError": "Impossible de charger les détails de votre visite. Le lien est peut-être invalide ou expiré.",
       "confirmError": "Une erreur est survenue lors de la confirmation de votre visite. Veuillez réessayer.",
       "declineError": "Une erreur est survenue. Veuillez réessayer."
+    },
+    "confirmationStatus": {
+      "ACCEPTED":  "Accepté",
+      "DECLINED":  "Refusé",
+      "TENTATIVE": "Provisoire",
+      "DELEGATED": "Délégué",
+      "UNKNOWN":   "En attente"
+    },
+    "visitState": {
+      "SCHEDULED": "Planifiée",
+      "APPROVED":  "Approuvée",
+      "STARTED":   "En cours",
+      "FINISHED":  "Terminée",
+      "CANCELED":  "Annulée",
+      "REJECTED":  "Rejetée",
+      "LOCKED":    "Verrouillée"
+    },
+    "checkInStatus": {
+      "Expected": "Attendu",
+      "Arrived":  "Arrivé",
+      "Late":     "En retard",
+      "Left":     "Parti"
     },
     "settings": {
       "title": "Paramètres",

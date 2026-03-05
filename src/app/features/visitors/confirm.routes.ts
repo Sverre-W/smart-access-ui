@@ -5,4 +5,8 @@ export const confirmVisitRoutes: Routes = [
     path: ':visitId/:visitorId',
     loadComponent: () => import('./confirm-visit/confirm-visit').then(m => m.ConfirmVisit),
   },
+  {
+    path: ':visitorId/confirmation/:visitId',
+    loadComponent: () => import('./confirm-visit/confirm-visit').then(m => m.ConfirmVisit),
+  },
 ];

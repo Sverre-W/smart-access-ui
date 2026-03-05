@@ -1,4 +1,5 @@
 import { Component, input, computed } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { VisitorCheckInStatus } from '../../../features/visitors/services/visitor-service';
 
 const CHECKIN_CLASSES: Record<VisitorCheckInStatus, string> = {
@@ -10,11 +11,13 @@ const CHECKIN_CLASSES: Record<VisitorCheckInStatus, string> = {
 
 @Component({
   selector: 'app-checkin-status-badge',
-  standalone: true,
+  imports: [TranslateModule],
   templateUrl: './checkin-status-badge.html',
 })
 export class CheckinStatusBadge {
   readonly status = input.required<VisitorCheckInStatus>();
 
   readonly classes = computed(() => CHECKIN_CLASSES[this.status()] ?? 'bg-zinc-100 text-zinc-500');
+
+  readonly labelKey = computed(() => `visitors.checkInStatus.${this.status()}`);
 }

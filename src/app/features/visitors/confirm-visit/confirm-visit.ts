@@ -16,12 +16,13 @@ import {
   VisitorInvitationDto,
   ConfirmVisitorRequest,
 } from '../services/visitor-service';
+import { VisitorConfirmationBadge } from '../../../shared/components/visitor-confirmation-badge/visitor-confirmation-badge';
 
 type PageState = 'loading' | 'ready' | 'submitting' | 'success' | 'error' | 'not-found';
 
 @Component({
   selector: 'app-confirm-visit',
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, TranslateModule, VisitorConfirmationBadge],
   templateUrl: './confirm-visit.html',
   host: { class: 'block' },
   changeDetection: ChangeDetectionStrategy.OnPush,

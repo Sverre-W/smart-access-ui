@@ -177,6 +177,7 @@
       "visitorJourney": "رحلة الزائر",
       "visitorDetails": "تفاصيل الزائر",
       "viewProfile": "عرض الملف الشخصي",
+      "viewConfirmation": "عرض التأكيد",
       "fullName": "الاسم الكامل",
       "email": "البريد الإلكتروني",
       "company": "الشركة",
@@ -241,6 +242,28 @@
       "loadError": "تعذّر تحميل تفاصيل زيارتك. قد يكون الرابط غير صالح أو منتهي الصلاحية.",
       "confirmError": "حدث خطأ أثناء تأكيد زيارتك. يرجى المحاولة مرة أخرى.",
       "declineError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    },
+    "confirmationStatus": {
+      "ACCEPTED":  "مقبول",
+      "DECLINED":  "مرفوض",
+      "TENTATIVE": "مبدئي",
+      "DELEGATED": "مُفوَّض",
+      "UNKNOWN":   "قيد الانتظار"
+    },
+    "visitState": {
+      "SCHEDULED": "مجدولة",
+      "APPROVED":  "موافق عليها",
+      "STARTED":   "جارية",
+      "FINISHED":  "منتهية",
+      "CANCELED":  "ملغاة",
+      "REJECTED":  "مرفوضة",
+      "LOCKED":    "مقفلة"
+    },
+    "checkInStatus": {
+      "Expected": "متوقع",
+      "Arrived":  "وصل",
+      "Late":     "متأخر",
+      "Left":     "غادر"
     },
     "settings": {
       "title": "الإعدادات",

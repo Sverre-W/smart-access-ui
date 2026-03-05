@@ -46,6 +46,19 @@ export class Layout {
     }));
   });
 
+  langMenuItems = computed<MenuItem[]>(() => {
+    this._lang(); // track language changes
+    return LOCALE_OPTIONS.map((opt) => ({
+      label: opt.label,
+      icon: this.locale.locale() === opt.code ? 'pi pi-check' : '',
+      command: () => this.locale.setLocale(opt.code),
+    }));
+  });
+
+  readonly currentLocaleLabel = computed(
+    () => LOCALE_OPTIONS.find(o => o.code === this.locale.locale())?.label ?? '',
+  );
+
   userMenuItems = computed<MenuItem[]>(() => {
     this._lang(); // track language changes
     return [

@@ -50,13 +50,22 @@
     <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-5">
       <div class="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
         <h2 class="text-sm font-semibold text-zinc-700">{{ 'visitors.onboardingDetail.visitorDetails' | translate }}</h2>
-        <a
-          [routerLink]="['/visitors/visitor', invitation()!.visitor.id]"
-          class="inline-flex items-center gap-1 text-xs text-[#238cff] hover:underline"
-        >
-          <i class="pi pi-external-link text-[10px]"></i>
-          {{ 'visitors.onboardingDetail.viewProfile' | translate }}
-        </a>
+        <div class="flex items-center gap-3">
+          <a
+            [routerLink]="['/visitors/confirm', visit()!.id, invitation()!.visitor.id]"
+            class="inline-flex items-center gap-1 text-xs text-[#238cff] hover:underline"
+          >
+            <i class="pi pi-external-link text-[10px]"></i>
+            {{ 'visitors.onboardingDetail.viewConfirmation' | translate }}
+          </a>
+          <a
+            [routerLink]="['/visitors/visitor', invitation()!.visitor.id]"
+            class="inline-flex items-center gap-1 text-xs text-[#238cff] hover:underline"
+          >
+            <i class="pi pi-external-link text-[10px]"></i>
+            {{ 'visitors.onboardingDetail.viewProfile' | translate }}
+          </a>
+        </div>
       </div>
       <dl class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
 
