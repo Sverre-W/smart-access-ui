@@ -507,6 +507,8 @@
         "featureLocationsDesc": "Beheer van locatiehiërarchie inschakelen.",
         "featureUsers": "Gebruikers",
         "featureUsersDesc": "Gebruikersbeheer inschakelen.",
+        "featureOnboarding": "Onboarding",
+        "featureOnboardingDesc": "Bezoekersonboarding inschakelen.",
         "loadError": "Tenant laden mislukt. Probeer het opnieuw.",
         "unexpectedError": "Er is een onverwachte fout opgetreden. Probeer het opnieuw."
       }

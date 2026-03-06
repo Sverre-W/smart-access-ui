@@ -507,6 +507,8 @@
         "featureLocationsDesc": "Activer la gestion de la hiérarchie des emplacements.",
         "featureUsers": "Utilisateurs",
         "featureUsersDesc": "Activer la gestion des utilisateurs.",
+        "featureOnboarding": "Onboarding",
+        "featureOnboardingDesc": "Activer l'onboarding des visiteurs.",
         "loadError": "Échec du chargement du locataire. Veuillez réessayer.",
         "unexpectedError": "Une erreur inattendue s'est produite. Veuillez réessayer."
       }

@@ -199,6 +199,7 @@ export class FacilityTenants implements OnInit {
       [FeatureFlags.AccessPolicies,   'Access Policies'],
       [FeatureFlags.Locations,        'Locations'],
       [FeatureFlags.Users,            'Users'],
+      [FeatureFlags.Onboarding,       'Onboarding'],
     ];
     return flags.filter(([flag]) => (tenant.features & flag) !== 0).map(([, label]) => label);
   }

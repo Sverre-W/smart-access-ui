@@ -508,6 +508,8 @@
         "featureLocationsDesc": "Enable location hierarchy management.",
         "featureUsers": "Users",
         "featureUsersDesc": "Enable user management.",
+        "featureOnboarding": "Onboarding",
+        "featureOnboardingDesc": "Enable visitor onboarding.",
         "loadError": "Failed to load tenant. Please try again.",
         "unexpectedError": "An unexpected error occurred. Please try again."
       }

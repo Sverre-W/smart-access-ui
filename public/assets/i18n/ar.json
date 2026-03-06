@@ -507,6 +507,8 @@
         "featureLocationsDesc": "تمكين إدارة التسلسل الهرمي للمواقع.",
         "featureUsers": "المستخدمون",
         "featureUsersDesc": "تمكين إدارة المستخدمين.",
+        "featureOnboarding": "الإعداد",
+        "featureOnboardingDesc": "تمكين إعداد الزوار.",
         "loadError": "فشل تحميل المستأجر. يرجى المحاولة مرة أخرى.",
         "unexpectedError": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
       }
