@@ -11,10 +11,12 @@
       "univisit": "Univisit",
       "contractors": "Contractors",
       "facility": "Facility",
-      "reception-desk": "Receptiebalie"
+      "reception-desk": "Receptiebalie",
+      "settings": "Instellingen"
     },
     "nav": {
-      "dashboard": "Bezoeken",
+      "visits": "Bezoeken",
+      "dashboard": "Dashboard",
       "visitors": "Bezoekers",
       "reports": "Dashboard",
       "settings": "Instellingen",
@@ -24,7 +26,8 @@
       "tenants": "Tenants",
       "roles": "Rollen",
       "arrivals": "Aankomsten",
-      "guidedOnboarding": "Begeleide Onboarding"
+      "guidedOnboarding": "Begeleide Onboarding",
+      "userManagement": "Gebruikersbeheer"
     }
   },
   "home": {
@@ -87,7 +90,8 @@
       "endLabel": "Einde",
       "endRequired": "Eindtijd is verplicht.",
       "cancel": "Annuleren",
-      "createVisit": "Bezoek aanmaken"
+      "createVisit": "Bezoek aanmaken",
+      "createError": "Bezoek aanmaken mislukt. Probeer het opnieuw."
     },
     "editVisit": {
       "title": "Bezoek bewerken",
@@ -205,7 +209,7 @@
     "reports": {
       "title": "Rapporten",
       "subtitle": "Inzichten in bezoekersactiviteit",
-      "mockupData": "Voorbeelddata",
+      "loadError": "Laden van rapportgegevens mislukt. Probeer opnieuw.",
       "visitsOverTime": "Bezoeken over tijd",
       "visitsOverTimeDesc": "Aantal geplande bezoeken per periode",
       "visitStatusBreakdown": "Verdeling bezoekstatus",
@@ -220,7 +224,23 @@
       "avgDurationDesc": "Van daadwerkelijk inchecken tot uitchecken",
       "checkInRate": "Inchecktarief",
       "checkInRateDesc": "Bezoekers die zijn ingecheckt vs. totaal verwacht",
-      "vsPreviousPeriod": "vs. vorige periode"
+      "trendUnavailable": "Trendvergelijking nog niet beschikbaar",
+      "noArrivalData": "Geen aankomsttijdstempels geregistreerd voor deze periode",
+      "noRsvpData": "Geen RSVP-gegevens voor deze periode",
+      "noLocationData": "Geen locatiegegevens voor deze periode",
+      "kpi": {
+        "totalVisits": "Totaal bezoeken",
+        "uniqueVisitors": "Unieke bezoekers",
+        "checkInRate": "Inchecktarief",
+        "noShows": "Niet-verschenen",
+        "ofExpected": "van verwacht",
+        "didNotArrive": "niet aangekomen"
+      },
+      "periodSub": {
+        "7d": "afgelopen 7 dagen",
+        "30d": "afgelopen 30 dagen",
+        "90d": "afgelopen 90 dagen"
+      }
     },
     "confirmVisit": {
       "notFoundTitle": "Uitnodiging niet gevonden",
@@ -601,6 +621,13 @@
     }
   },
   "settings": {
+    "dashboard": {
+      "title": "Instellingen",
+      "subtitle": "Beheer gebruikers, rollen, tenants en platformconfiguratie.",
+      "userManagementDesc": "Beheer gebruikers, groepen en hun rollenassignaties.",
+      "tenantsDesc": "Configureer tenant-identiteitsproviders en functievlaggen.",
+      "rolesDesc": "Definieer rollen en de bijbehorende machtigingen."
+    },
     "users": {
       "title": "Gebruikersbeheer",
       "subtitle": "Beheer gebruikers, rollen en groepslidmaatschappen.",

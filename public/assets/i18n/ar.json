@@ -11,10 +11,12 @@
       "univisit": "Univisit",
       "contractors": "Contractors",
       "facility": "Facility",
-      "reception-desk": "مكتب الاستقبال"
+      "reception-desk": "مكتب الاستقبال",
+      "settings": "الإعدادات"
     },
     "nav": {
-      "dashboard": "الزيارات",
+      "visits": "الزيارات",
+      "dashboard": "لوحة التحكم",
       "visitors": "الزوار",
       "reports": "لوحة التحكم",
       "settings": "الإعدادات",
@@ -24,7 +26,8 @@
       "tenants": "المستأجرون",
       "roles": "الأدوار",
       "arrivals": "الوصولات",
-      "guidedOnboarding": "التسجيل الموجّه"
+      "guidedOnboarding": "التسجيل الموجّه",
+      "userManagement": "إدارة المستخدمين"
     }
   },
   "home": {
@@ -87,7 +90,8 @@
       "endLabel": "النهاية",
       "endRequired": "وقت النهاية مطلوب.",
       "cancel": "إلغاء",
-      "createVisit": "إنشاء زيارة"
+      "createVisit": "إنشاء زيارة",
+      "createError": "فشل إنشاء الزيارة. يرجى المحاولة مرة أخرى."
     },
     "editVisit": {
       "title": "تعديل الزيارة",
@@ -205,7 +209,7 @@
     "reports": {
       "title": "التقارير",
       "subtitle": "رؤى حول نشاط الزوار",
-      "mockupData": "بيانات تجريبية",
+      "loadError": "فشل تحميل بيانات التقرير. يرجى المحاولة مرة أخرى.",
       "visitsOverTime": "الزيارات عبر الزمن",
       "visitsOverTimeDesc": "عدد الزيارات المجدولة لكل فترة",
       "visitStatusBreakdown": "توزيع حالات الزيارة",
@@ -220,7 +224,23 @@
       "avgDurationDesc": "من تسجيل الوصول الفعلي إلى المغادرة",
       "checkInRate": "معدل تسجيل الوصول",
       "checkInRateDesc": "الزوار الذين سجلوا الوصول مقابل إجمالي المتوقعين",
-      "vsPreviousPeriod": "مقارنة بالفترة السابقة"
+      "trendUnavailable": "مقارنة الاتجاه غير متاحة بعد",
+      "noArrivalData": "لا توجد بيانات وقت وصول مسجلة لهذه الفترة",
+      "noRsvpData": "لا توجد بيانات RSVP لهذه الفترة",
+      "noLocationData": "لا توجد بيانات موقع لهذه الفترة",
+      "kpi": {
+        "totalVisits": "إجمالي الزيارات",
+        "uniqueVisitors": "زوار فريدون",
+        "checkInRate": "معدل تسجيل الوصول",
+        "noShows": "الغائبون",
+        "ofExpected": "من المتوقعين",
+        "didNotArrive": "لم يصلوا"
+      },
+      "periodSub": {
+        "7d": "آخر 7 أيام",
+        "30d": "آخر 30 يومًا",
+        "90d": "آخر 90 يومًا"
+      }
     },
     "confirmVisit": {
       "notFoundTitle": "الدعوة غير موجودة",
@@ -601,6 +621,13 @@
     }
   },
   "settings": {
+    "dashboard": {
+      "title": "الإعدادات",
+      "subtitle": "إدارة المستخدمين والأدوار والمستأجرين وتكوين المنصة.",
+      "userManagementDesc": "إدارة المستخدمين والمجموعات وتعيينات الأدوار.",
+      "tenantsDesc": "تكوين موفري الهوية للمستأجرين وإشارات الميزات.",
+      "rolesDesc": "تعريف الأدوار والأذونات الممنوحة لكل منها."
+    },
     "users": {
       "title": "إدارة المستخدمين",
       "subtitle": "إدارة المستخدمين والأدوار وعضوية المجموعات.",

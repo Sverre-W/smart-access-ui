@@ -11,10 +11,12 @@
       "univisit": "Univisit",
       "contractors": "Contractors",
       "facility": "Facility",
-      "reception-desk": "Reception Desk"
+      "reception-desk": "Reception Desk",
+      "settings": "Settings"
     },
     "nav": {
-      "dashboard": "Visits",
+      "visits": "Visits",
+      "dashboard": "Dashboard",
       "visitors": "Visitors",
       "reports": "Dashboard",
       "settings": "Settings",
@@ -24,7 +26,8 @@
       "tenants": "Tenants",
       "roles": "Roles",
       "arrivals": "Arrivals",
-      "guidedOnboarding": "Guided Onboarding"
+      "guidedOnboarding": "Guided Onboarding",
+      "userManagement": "User Management"
     }
   },
   "home": {
@@ -87,7 +90,8 @@
       "endLabel": "End",
       "endRequired": "End time is required.",
       "cancel": "Cancel",
-      "createVisit": "Create Visit"
+      "createVisit": "Create Visit",
+      "createError": "Failed to create visit. Please try again."
     },
     "editVisit": {
       "title": "Edit Visit",
@@ -205,7 +209,7 @@
     "reports": {
       "title": "Reports",
       "subtitle": "Visitor activity insights",
-      "mockupData": "Mockup data",
+      "loadError": "Failed to load report data. Please try again.",
       "visitsOverTime": "Visits over time",
       "visitsOverTimeDesc": "Number of visits scheduled per period",
       "visitStatusBreakdown": "Visit status breakdown",
@@ -220,7 +224,23 @@
       "avgDurationDesc": "From actual check-in to checkout",
       "checkInRate": "Check-in rate",
       "checkInRateDesc": "Visitors who checked in vs. total expected",
-      "vsPreviousPeriod": "vs. previous period"
+      "trendUnavailable": "Trend comparison not available yet",
+      "noArrivalData": "No arrival timestamps recorded for this period",
+      "noRsvpData": "No RSVP data for this period",
+      "noLocationData": "No location data for this period",
+      "kpi": {
+        "totalVisits": "Total visits",
+        "uniqueVisitors": "Unique visitors",
+        "checkInRate": "Check-in rate",
+        "noShows": "No-shows",
+        "ofExpected": "of expected",
+        "didNotArrive": "did not arrive"
+      },
+      "periodSub": {
+        "7d": "last 7 days",
+        "30d": "last 30 days",
+        "90d": "last 90 days"
+      }
     },
     "confirmVisit": {
       "notFoundTitle": "Invitation not found",
@@ -602,6 +622,13 @@
     }
   },
   "settings": {
+    "dashboard": {
+      "title": "Settings",
+      "subtitle": "Manage users, roles, tenants and platform configuration.",
+      "userManagementDesc": "Manage users, groups and their role assignments.",
+      "tenantsDesc": "Configure tenant identity providers and feature flags.",
+      "rolesDesc": "Define roles and the permissions granted to each."
+    },
     "users": {
       "title": "User Management",
       "subtitle": "Manage users, roles and group memberships.",

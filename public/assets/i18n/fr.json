@@ -11,10 +11,12 @@
       "univisit": "Univisit",
       "contractors": "Contractors",
       "facility": "Facility",
-      "reception-desk": "Accueil"
+      "reception-desk": "Accueil",
+      "settings": "Paramètres"
     },
     "nav": {
-      "dashboard": "Visites",
+      "visits": "Visites",
+      "dashboard": "Tableau de bord",
       "visitors": "Visiteurs",
       "reports": "Tableau de bord",
       "settings": "Paramètres",
@@ -24,7 +26,8 @@
       "tenants": "Locataires",
       "roles": "Rôles",
       "arrivals": "Arrivées",
-      "guidedOnboarding": "Enregistrement guidé"
+      "guidedOnboarding": "Enregistrement guidé",
+      "userManagement": "Gestion des utilisateurs"
     }
   },
   "home": {
@@ -87,7 +90,8 @@
       "endLabel": "Fin",
       "endRequired": "L'heure de fin est obligatoire.",
       "cancel": "Annuler",
-      "createVisit": "Créer une visite"
+      "createVisit": "Créer une visite",
+      "createError": "Échec de la création de la visite. Veuillez réessayer."
     },
     "editVisit": {
       "title": "Modifier la visite",
@@ -205,7 +209,7 @@
     "reports": {
       "title": "Rapports",
       "subtitle": "Aperçus de l'activité des visiteurs",
-      "mockupData": "Données de maquette",
+      "loadError": "Échec du chargement des données. Veuillez réessayer.",
       "visitsOverTime": "Visites dans le temps",
       "visitsOverTimeDesc": "Nombre de visites planifiées par période",
       "visitStatusBreakdown": "Répartition des statuts de visite",
@@ -220,7 +224,23 @@
       "avgDurationDesc": "De l'enregistrement réel à la sortie",
       "checkInRate": "Taux d'enregistrement",
       "checkInRateDesc": "Visiteurs enregistrés vs. total attendu",
-      "vsPreviousPeriod": "vs. période précédente"
+      "trendUnavailable": "Comparaison de tendance non disponible",
+      "noArrivalData": "Aucun horodatage d'arrivée enregistré pour cette période",
+      "noRsvpData": "Aucune donnée RSVP pour cette période",
+      "noLocationData": "Aucune donnée de localisation pour cette période",
+      "kpi": {
+        "totalVisits": "Total des visites",
+        "uniqueVisitors": "Visiteurs uniques",
+        "checkInRate": "Taux d'enregistrement",
+        "noShows": "Absences",
+        "ofExpected": "des attendus",
+        "didNotArrive": "ne sont pas arrivés"
+      },
+      "periodSub": {
+        "7d": "7 derniers jours",
+        "30d": "30 derniers jours",
+        "90d": "90 derniers jours"
+      }
     },
     "confirmVisit": {
       "notFoundTitle": "Invitation introuvable",
@@ -601,6 +621,13 @@
     }
   },
   "settings": {
+    "dashboard": {
+      "title": "Paramètres",
+      "subtitle": "Gérez les utilisateurs, les rôles, les locataires et la configuration de la plateforme.",
+      "userManagementDesc": "Gérez les utilisateurs, les groupes et leurs attributions de rôles.",
+      "tenantsDesc": "Configurez les fournisseurs d'identité des locataires et les indicateurs de fonctionnalités.",
+      "rolesDesc": "Définissez les rôles et les autorisations accordées à chacun."
+    },
     "users": {
       "title": "Gestion des utilisateurs",
       "subtitle": "Gérez les utilisateurs, les rôles et les appartenances aux groupes.",
