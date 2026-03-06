@@ -325,20 +325,17 @@
     </div>
 
     <!-- Pager -->
-    @if (!usersLoading() && usersTotalPages() > 1) {
-      <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-zinc-100">
-        <span class="text-xs text-zinc-400">
-          {{ usersRangeStart() }}–{{ usersRangeEnd() }} / {{ usersTotal() }}
-        </span>
-        <div class="flex items-center gap-1">
-          <p-button icon="pi pi-chevron-left" severity="secondary" [text]="true" [rounded]="true"
-            size="small" [disabled]="usersPage() <= 1" (click)="usersPrevPage()" />
-          <span class="text-xs text-zinc-500 px-1">{{ usersPage() }} / {{ usersTotalPages() }}</span>
-          <p-button icon="pi pi-chevron-right" severity="secondary" [text]="true" [rounded]="true"
-            size="small" [disabled]="usersPage() >= usersTotalPages()" (click)="usersNextPage()" />
-        </div>
-      </div>
-    }
+    <div class="border-t border-zinc-100">
+      <p-paginator
+        [first]="usersFirst()"
+        [rows]="usersPageSize()"
+        [totalRecords]="usersTotal()"
+        [rowsPerPageOptions]="pageSizeOptions"
+        [showCurrentPageReport]="true"
+        [currentPageReportTemplate]="'settings.users.users.pageReport' | translate"
+        (onPageChange)="onUsersPageChange($event)"
+      />
+    </div>
 
   </div>
 
@@ -608,20 +605,17 @@
     </div>
 
     <!-- Pager -->
-    @if (!groupsLoading() && groupsTotalPages() > 1) {
-      <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-zinc-100">
-        <span class="text-xs text-zinc-400">
-          {{ groupsRangeStart() }}–{{ groupsRangeEnd() }} / {{ groupsTotal() }}
-        </span>
-        <div class="flex items-center gap-1">
-          <p-button icon="pi pi-chevron-left" severity="secondary" [text]="true" [rounded]="true"
-            size="small" [disabled]="groupsPage() <= 1" (click)="groupsPrevPage()" />
-          <span class="text-xs text-zinc-500 px-1">{{ groupsPage() }} / {{ groupsTotalPages() }}</span>
-          <p-button icon="pi pi-chevron-right" severity="secondary" [text]="true" [rounded]="true"
-            size="small" [disabled]="groupsPage() >= groupsTotalPages()" (click)="groupsNextPage()" />
-        </div>
-      </div>
-    }
+    <div class="border-t border-zinc-100">
+      <p-paginator
+        [first]="groupsFirst()"
+        [rows]="groupsPageSize()"
+        [totalRecords]="groupsTotal()"
+        [rowsPerPageOptions]="pageSizeOptions"
+        [showCurrentPageReport]="true"
+        [currentPageReportTemplate]="'settings.users.groups.pageReport' | translate"
+        (onPageChange)="onGroupsPageChange($event)"
+      />
+    </div>
 
   </div>
 
@@ -972,20 +966,17 @@
     </div>
 
     <!-- Pager -->
-    @if (!rolesLoading() && rolesTotalPages() > 1) {
-      <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-zinc-100">
-        <span class="text-xs text-zinc-400">
-          {{ rolesRangeStart() }}–{{ rolesRangeEnd() }} / {{ rolesTotal() }}
-        </span>
-        <div class="flex items-center gap-1">
-          <p-button icon="pi pi-chevron-left" severity="secondary" [text]="true" [rounded]="true"
-            size="small" [disabled]="rolesPage() <= 1" (click)="rolesPrevPage()" />
-          <span class="text-xs text-zinc-500 px-1">{{ rolesPage() }} / {{ rolesTotalPages() }}</span>
-          <p-button icon="pi pi-chevron-right" severity="secondary" [text]="true" [rounded]="true"
-            size="small" [disabled]="rolesPage() >= rolesTotalPages()" (click)="rolesNextPage()" />
-        </div>
-      </div>
-    }
+    <div class="border-t border-zinc-100">
+      <p-paginator
+        [first]="rolesFirst()"
+        [rows]="rolesPageSize()"
+        [totalRecords]="rolesTotal()"
+        [rowsPerPageOptions]="pageSizeOptions"
+        [showCurrentPageReport]="true"
+        [currentPageReportTemplate]="'settings.users.roles.pageReport' | translate"
+        (onPageChange)="onRolesPageChange($event)"
+      />
+    </div>
 
   </div>
 

@@ -659,7 +659,8 @@
         "yesDelete": "نعم، احذف",
         "loadError": "فشل تحميل المستخدمين. يرجى المحاولة مرة أخرى.",
         "deleteError": "فشل حذف «{{name}}». يرجى المحاولة مرة أخرى.",
-        "noResults": "لا يوجد مستخدمون يطابقون بحثك."
+        "noResults": "لا يوجد مستخدمون يطابقون بحثك.",
+        "pageReport": "عرض {first} إلى {last} من {totalRecords} مستخدم"
       },
       "createUser": {
         "title": "مستخدم جديد",
@@ -696,7 +697,8 @@
         "yesDelete": "نعم، احذف",
         "loadError": "فشل تحميل المجموعات. يرجى المحاولة مرة أخرى.",
         "deleteError": "فشل حذف «{{name}}». يرجى المحاولة مرة أخرى.",
-        "noResults": "لا توجد مجموعات تطابق بحثك."
+        "noResults": "لا توجد مجموعات تطابق بحثك.",
+        "pageReport": "عرض {first} إلى {last} من {totalRecords} مجموعة"
       },
       "createGroup": {
         "title": "مجموعة جديدة",
@@ -800,7 +802,8 @@
         "yesDelete": "نعم، احذف",
         "loadError": "تعذّر تحميل الأدوار. يُرجى المحاولة مجددًا.",
         "deleteError": "تعذّر حذف «{{name}}». يُرجى المحاولة مجددًا.",
-        "noResults": "لا توجد أدوار تطابق بحثك."
+        "noResults": "لا توجد أدوار تطابق بحثك.",
+        "pageReport": "عرض {first} إلى {last} من {totalRecords} دور"
       },
       "createRole": {
         "title": "دور جديد",

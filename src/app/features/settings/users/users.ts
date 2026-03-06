@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   OnDestroy,
   OnInit,
@@ -14,6 +13,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { PaginatorModule } from 'primeng/paginator';
+import type { PaginatorState } from 'primeng/paginator';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   UserManagementService,
@@ -26,14 +27,14 @@ import {
 import { ConfigService } from '../../../core/services/config-service';
 import { PermissionsService } from '../../../core/services/permissions-service';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE_OPTIONS = [10, 20, 50];
+const DEFAULT_PAGE_SIZE = 20;
 
 @Component({
   selector: 'app-settings-users',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, ButtonModule, InputTextModule, IconField, InputIcon, TranslateModule],
+  imports: [RouterLink, ReactiveFormsModule, ButtonModule, InputTextModule, IconField, InputIcon, PaginatorModule, TranslateModule],
   templateUrl: './users.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsUsers implements OnInit, OnDestroy {
   private service = inject(UserManagementService);
@@ -69,14 +70,13 @@ export class SettingsUsers implements OnInit, OnDestroy {
 
   readonly users         = signal<PersonDto[]>([]);
   readonly usersTotal    = signal(0);
-  readonly usersPage     = signal(1);
+  readonly usersFirst    = signal(0);
+  readonly usersPageSize = signal(DEFAULT_PAGE_SIZE);
   readonly usersLoading  = signal(true);
   readonly usersError    = signal<string | null>(null);
   readonly userSearch    = signal('');
 
-  readonly usersTotalPages = computed(() => Math.max(1, Math.ceil(this.usersTotal() / PAGE_SIZE)));
-  readonly usersRangeStart = computed(() => this.usersTotal() === 0 ? 0 : (this.usersPage() - 1) * PAGE_SIZE + 1);
-  readonly usersRangeEnd   = computed(() => Math.min(this.usersPage() * PAGE_SIZE, this.usersTotal()));
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
   readonly hasUsers        = computed(() => this.users().length > 0);
 
   private readonly userSearch$ = new Subject<string>();
@@ -105,14 +105,12 @@ export class SettingsUsers implements OnInit, OnDestroy {
 
   readonly groups        = signal<GroupDto[]>([]);
   readonly groupsTotal   = signal(0);
-  readonly groupsPage    = signal(1);
+  readonly groupsFirst    = signal(0);
+  readonly groupsPageSize = signal(DEFAULT_PAGE_SIZE);
   readonly groupsLoading = signal(true);
   readonly groupsError   = signal<string | null>(null);
   readonly groupSearch   = signal('');
 
-  readonly groupsTotalPages = computed(() => Math.max(1, Math.ceil(this.groupsTotal() / PAGE_SIZE)));
-  readonly groupsRangeStart = computed(() => this.groupsTotal() === 0 ? 0 : (this.groupsPage() - 1) * PAGE_SIZE + 1);
-  readonly groupsRangeEnd   = computed(() => Math.min(this.groupsPage() * PAGE_SIZE, this.groupsTotal()));
   readonly hasGroups        = computed(() => this.groups().length > 0);
 
   private readonly groupSearch$ = new Subject<string>();
@@ -138,14 +136,12 @@ export class SettingsUsers implements OnInit, OnDestroy {
 
   readonly roles        = signal<RoleDto[]>([]);
   readonly rolesTotal   = signal(0);
-  readonly rolesPage    = signal(1);
+  readonly rolesFirst    = signal(0);
+  readonly rolesPageSize = signal(DEFAULT_PAGE_SIZE);
   readonly rolesLoading = signal(true);
   readonly rolesError   = signal<string | null>(null);
   readonly roleSearch   = signal('');
 
-  readonly rolesTotalPages = computed(() => Math.max(1, Math.ceil(this.rolesTotal() / PAGE_SIZE)));
-  readonly rolesRangeStart = computed(() => this.rolesTotal() === 0 ? 0 : (this.rolesPage() - 1) * PAGE_SIZE + 1);
-  readonly rolesRangeEnd   = computed(() => Math.min(this.rolesPage() * PAGE_SIZE, this.rolesTotal()));
   readonly hasRoles        = computed(() => this.roles().length > 0);
 
   private readonly roleSearch$ = new Subject<string>();
@@ -211,30 +207,32 @@ export class SettingsUsers implements OnInit, OnDestroy {
   }
 
   private searchUsers(q: string): void {
-    this.usersPage.set(1);
-    this.loadUsers(q, 1);
+    this.usersFirst.set(0);
+    this.loadUsers(q, 0);
   }
 
-  usersNextPage(): void {
-    const next = this.usersPage() + 1;
-    this.usersPage.set(next);
-    this.loadUsers(this.userSearch(), next);
+  async onUsersPageChange(event: PaginatorState): Promise<void> {
+    const newFirst = event.first ?? 0;
+    const newRows  = event.rows ?? this.usersPageSize();
+    if (newRows !== this.usersPageSize()) {
+      this.usersPageSize.set(newRows);
+      this.usersFirst.set(0);
+      await this.loadUsers(this.userSearch(), 0);
+    } else {
+      this.usersFirst.set(newFirst);
+      await this.loadUsers(this.userSearch(), newFirst);
+    }
   }
 
-  usersPrevPage(): void {
-    const prev = this.usersPage() - 1;
-    this.usersPage.set(prev);
-    this.loadUsers(this.userSearch(), prev);
-  }
-
-  private async loadUsers(search = '', page = 1): Promise<void> {
+  private async loadUsers(search = '', firstOffset = 0): Promise<void> {
     this.usersLoading.set(true);
     this.usersError.set(null);
     try {
+      const size = this.usersPageSize();
       const result = await this.service.getAllPersons(this.tenant, {
         search: search || null,
-        page: page - 1,
-        pageSize: PAGE_SIZE,
+        page: Math.floor(firstOffset / size),
+        pageSize: size,
       });
       this.users.set(result.items);
       this.usersTotal.set(result.totalItems ?? result.items.length);
@@ -253,30 +251,32 @@ export class SettingsUsers implements OnInit, OnDestroy {
   }
 
   private searchGroups(q: string): void {
-    this.groupsPage.set(1);
-    this.loadGroups(q, 1);
+    this.groupsFirst.set(0);
+    this.loadGroups(q, 0);
   }
 
-  groupsNextPage(): void {
-    const next = this.groupsPage() + 1;
-    this.groupsPage.set(next);
-    this.loadGroups(this.groupSearch(), next);
+  async onGroupsPageChange(event: PaginatorState): Promise<void> {
+    const newFirst = event.first ?? 0;
+    const newRows  = event.rows ?? this.groupsPageSize();
+    if (newRows !== this.groupsPageSize()) {
+      this.groupsPageSize.set(newRows);
+      this.groupsFirst.set(0);
+      await this.loadGroups(this.groupSearch(), 0);
+    } else {
+      this.groupsFirst.set(newFirst);
+      await this.loadGroups(this.groupSearch(), newFirst);
+    }
   }
 
-  groupsPrevPage(): void {
-    const prev = this.groupsPage() - 1;
-    this.groupsPage.set(prev);
-    this.loadGroups(this.groupSearch(), prev);
-  }
-
-  private async loadGroups(search = '', page = 1): Promise<void> {
+  private async loadGroups(search = '', firstOffset = 0): Promise<void> {
     this.groupsLoading.set(true);
     this.groupsError.set(null);
     try {
+      const size = this.groupsPageSize();
       const result = await this.service.getAllGroups(this.tenant, {
         search: search || null,
-        page: page - 1,
-        pageSize: PAGE_SIZE,
+        page: Math.floor(firstOffset / size),
+        pageSize: size,
       });
       this.groups.set(result.items);
       this.groupsTotal.set(result.totalItems ?? result.items.length);
@@ -295,30 +295,32 @@ export class SettingsUsers implements OnInit, OnDestroy {
   }
 
   private searchRoles(q: string): void {
-    this.rolesPage.set(1);
-    this.loadRoles(q, 1);
+    this.rolesFirst.set(0);
+    this.loadRoles(q, 0);
   }
 
-  rolesNextPage(): void {
-    const next = this.rolesPage() + 1;
-    this.rolesPage.set(next);
-    this.loadRoles(this.roleSearch(), next);
+  async onRolesPageChange(event: PaginatorState): Promise<void> {
+    const newFirst = event.first ?? 0;
+    const newRows  = event.rows ?? this.rolesPageSize();
+    if (newRows !== this.rolesPageSize()) {
+      this.rolesPageSize.set(newRows);
+      this.rolesFirst.set(0);
+      await this.loadRoles(this.roleSearch(), 0);
+    } else {
+      this.rolesFirst.set(newFirst);
+      await this.loadRoles(this.roleSearch(), newFirst);
+    }
   }
 
-  rolesPrevPage(): void {
-    const prev = this.rolesPage() - 1;
-    this.rolesPage.set(prev);
-    this.loadRoles(this.roleSearch(), prev);
-  }
-
-  private async loadRoles(search = '', page = 1): Promise<void> {
+  private async loadRoles(search = '', firstOffset = 0): Promise<void> {
     this.rolesLoading.set(true);
     this.rolesError.set(null);
     try {
+      const size = this.rolesPageSize();
       const result = await this.service.getAllRoles(this.tenant, {
         search: search || null,
-        page: page - 1,
-        pageSize: PAGE_SIZE,
+        page: Math.floor(firstOffset / size),
+        pageSize: size,
       });
       this.roles.set(result.items);
       this.rolesTotal.set(result.totalItems ?? result.items.length);
@@ -369,7 +371,7 @@ export class SettingsUsers implements OnInit, OnDestroy {
         temporary: false,
       });
       // Reload current page so totals and order stay consistent
-      this.loadUsers(this.userSearch(), this.usersPage());
+      this.loadUsers(this.userSearch(), this.usersFirst());
       this.createUserOpen.set(false);
     } catch (err) {
       this.createUserError.set(this.extractApiError(err));
@@ -395,14 +397,15 @@ export class SettingsUsers implements OnInit, OnDestroy {
     try {
       await this.service.deletePerson(this.tenant, user.id);
       this.deleteUserConfirmingId.set(null);
-      // If we just deleted the last item on this page, go back one page
-      const newTotal = this.usersTotal() - 1;
-      const targetPage = this.users().length === 1 && this.usersPage() > 1
-        ? this.usersPage() - 1
-        : this.usersPage();
+      // If we deleted the last item on this page, go back one page
+      const newTotal   = this.usersTotal() - 1;
+      const size       = this.usersPageSize();
+      const targetFirst = this.users().length === 1 && this.usersFirst() > 0
+        ? Math.max(0, this.usersFirst() - size)
+        : this.usersFirst();
       this.usersTotal.set(newTotal);
-      this.usersPage.set(targetPage);
-      this.loadUsers(this.userSearch(), targetPage);
+      this.usersFirst.set(targetFirst);
+      this.loadUsers(this.userSearch(), targetFirst);
     } catch {
       this.deleteUserError.set(
         this.translate.instant('settings.users.users.deleteError', { name: user.username }),
@@ -438,7 +441,7 @@ export class SettingsUsers implements OnInit, OnDestroy {
         name: name.value,
         description: description.value || undefined,
       });
-      this.loadGroups(this.groupSearch(), this.groupsPage());
+      this.loadGroups(this.groupSearch(), this.groupsFirst());
       this.createGroupOpen.set(false);
     } catch (err) {
       this.createGroupError.set(this.extractApiError(err));
@@ -464,13 +467,14 @@ export class SettingsUsers implements OnInit, OnDestroy {
     try {
       await this.service.deleteGroup(this.tenant, group.id);
       this.deleteGroupConfirmingId.set(null);
-      const newTotal = this.groupsTotal() - 1;
-      const targetPage = this.groups().length === 1 && this.groupsPage() > 1
-        ? this.groupsPage() - 1
-        : this.groupsPage();
+      const newTotal    = this.groupsTotal() - 1;
+      const size        = this.groupsPageSize();
+      const targetFirst = this.groups().length === 1 && this.groupsFirst() > 0
+        ? Math.max(0, this.groupsFirst() - size)
+        : this.groupsFirst();
       this.groupsTotal.set(newTotal);
-      this.groupsPage.set(targetPage);
-      this.loadGroups(this.groupSearch(), targetPage);
+      this.groupsFirst.set(targetFirst);
+      this.loadGroups(this.groupSearch(), targetFirst);
     } catch {
       this.deleteGroupError.set(
         this.translate.instant('settings.users.groups.deleteError', { name: group.name }),
@@ -505,7 +509,7 @@ export class SettingsUsers implements OnInit, OnDestroy {
 
     try {
       await this.service.createRole(this.tenant, body);
-      this.loadRoles(this.roleSearch(), this.rolesPage());
+      this.loadRoles(this.roleSearch(), this.rolesFirst());
       this.createRoleOpen.set(false);
     } catch (err) {
       this.createRoleError.set(this.extractApiError(err));
@@ -569,13 +573,14 @@ export class SettingsUsers implements OnInit, OnDestroy {
     try {
       await this.service.deleteRole(this.tenant, role.name);
       this.deleteRoleConfirmingId.set(null);
-      const newTotal = this.rolesTotal() - 1;
-      const targetPage = this.roles().length === 1 && this.rolesPage() > 1
-        ? this.rolesPage() - 1
-        : this.rolesPage();
+      const newTotal    = this.rolesTotal() - 1;
+      const size        = this.rolesPageSize();
+      const targetFirst = this.roles().length === 1 && this.rolesFirst() > 0
+        ? Math.max(0, this.rolesFirst() - size)
+        : this.rolesFirst();
       this.rolesTotal.set(newTotal);
-      this.rolesPage.set(targetPage);
-      this.loadRoles(this.roleSearch(), targetPage);
+      this.rolesFirst.set(targetFirst);
+      this.loadRoles(this.roleSearch(), targetFirst);
     } catch {
       this.deleteRoleError.set(
         this.translate.instant('settings.users.roles.deleteError', { name: role.name }),
