@@ -18,7 +18,7 @@
             <span class="text-lg font-semibold tracking-tight text-zinc-800">{{ 'layout.apps.' + activeApp()!.id | translate }}</span>
             <i class="pi pi-chevron-down text-xs text-zinc-400"></i>
           </p-button>
-          <p-menu #appSwitcherMenu [model]="appSwitcherItems()" [popup]="true" />
+          <p-menu #appSwitcherMenu [model]="appSwitcherItems()" [popup]="true" appendTo="body" />
         } @else {
           <!-- No app selected (home screen) or unauthenticated: plain brand -->
           <span class="text-lg font-semibold tracking-tight text-zinc-800">Smart Access</span>
@@ -41,7 +41,7 @@
             <span>{{ userName }}</span>
             <i class="pi pi-chevron-down text-xs text-zinc-400"></i>
           </p-button>
-          <p-menu #userMenu [model]="userMenuItems()" [popup]="true" />
+          <p-menu #userMenu [model]="userMenuItems()" [popup]="true" appendTo="body" />
         } @else {
           <p-button
             severity="secondary"
@@ -53,7 +53,7 @@
             <span class="text-sm text-zinc-700">{{ currentLocaleLabel() }}</span>
             <i class="pi pi-chevron-down text-xs text-zinc-400"></i>
           </p-button>
-          <p-menu #langMenu [model]="langMenuItems()" [popup]="true" />
+          <p-menu #langMenu [model]="langMenuItems()" [popup]="true" appendTo="body" />
           <p-button (click)="login()">{{ 'layout.login' | translate }}</p-button>
         }
       </div>
