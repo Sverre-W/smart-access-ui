@@ -91,6 +91,7 @@
       "endRequired": "وقت النهاية مطلوب.",
       "cancel": "إلغاء",
       "createVisit": "إنشاء زيارة",
+      "parkingAvailableLabel": "مواقف السيارات متاحة",
       "createError": "فشل إنشاء الزيارة. يرجى المحاولة مرة أخرى."
     },
     "editVisit": {
@@ -147,7 +148,8 @@
       "saveError": "فشل حفظ التغييرات. يرجى المحاولة مرة أخرى.",
       "addPersonError": "فشل إضافة الشخص. يرجى المحاولة مرة أخرى.",
       "cancelError": "فشل إلغاء الزيارة. يرجى المحاولة مرة أخرى.",
-      "removeError": "فشل إزالة الشخص. يرجى المحاولة مرة أخرى."
+      "removeError": "فشل إزالة الشخص. يرجى المحاولة مرة أخرى.",
+      "parkingAvailableLabel": "مواقف السيارات متاحة"
     },
     "visitorDetail": {
       "visitor": "زائر",
@@ -604,7 +606,14 @@
       "loadError": "فشل تحميل وصولات الزوار. يرجى المحاولة مرة أخرى.",
       "visitor": "زائر",
       "visitors": "زوار",
-      "scheduled": "مجدول"
+      "scheduled": "مجدول",
+      "checkOut": {
+        "action": "تسجيل المغادرة",
+        "successSummary": "تم تسجيل المغادرة",
+        "successDetail": "تم تسجيل مغادرة {{name}}.",
+        "errorSummary": "فشل تسجيل المغادرة",
+        "errorDetail": "تعذّر تسجيل مغادرة الزائر. يرجى المحاولة مرة أخرى."
+      }
     },
     "onboarding": {
       "scanQrCode": "امسح رمز QR",

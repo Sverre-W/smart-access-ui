@@ -8,6 +8,7 @@ import type { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import {
   VisitorService,
   LocationDto,
@@ -21,7 +22,7 @@ import { LocationPicker } from '../../../shared/components/location-picker/locat
 @Component({
   selector: 'app-create-visit',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, AutoCompleteModule, ButtonModule, DatePickerModule, InputTextModule, LocationPicker, TranslateModule],
+  imports: [ReactiveFormsModule, FormsModule, AutoCompleteModule, ButtonModule, DatePickerModule, InputTextModule, ToggleSwitchModule, LocationPicker, TranslateModule],
   templateUrl: './create-visit.html',
 })
 export class CreateVisit implements OnInit {
@@ -51,6 +52,7 @@ export class CreateVisit implements OnInit {
       organizer: [null, Validators.required],
       start: [now, Validators.required],
       end: [oneHourLater, Validators.required],
+      parkingAvailable: [false],
     });
 
     // When start changes, push end to start + 1h if end would be before start
@@ -86,11 +88,12 @@ export class CreateVisit implements OnInit {
     this.saving.set(true);
     this.error.set(null);
 
-    const { summary, organizer, start, end } = this.form.value as {
+    const { summary, organizer, start, end, parkingAvailable } = this.form.value as {
       summary: string;
       organizer: OrganizerDto;
       start: Date;
       end: Date;
+      parkingAvailable: boolean;
     };
 
     const locationId = this.selectedLocation()?.id ?? null;
@@ -119,7 +122,7 @@ export class CreateVisit implements OnInit {
         invitationId: null,
         invitationModified: null,
         attributes: null,
-        parkingAvailable: false,
+        parkingAvailable: parkingAvailable,
         tenantId: null,
       });
 

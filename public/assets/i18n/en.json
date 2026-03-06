@@ -91,6 +91,7 @@
       "endRequired": "End time is required.",
       "cancel": "Cancel",
       "createVisit": "Create Visit",
+      "parkingAvailableLabel": "Parking available",
       "createError": "Failed to create visit. Please try again."
     },
     "editVisit": {
@@ -147,7 +148,8 @@
       "saveError": "Failed to save changes. Please try again.",
       "addPersonError": "Failed to add person. Please try again.",
       "cancelError": "Failed to cancel visit. Please try again.",
-      "removeError": "Failed to remove person. Please try again."
+      "removeError": "Failed to remove person. Please try again.",
+      "parkingAvailableLabel": "Parking available"
     },
     "visitorDetail": {
       "visitor": "Visitor",
@@ -605,7 +607,14 @@
       "loadError": "Failed to load visitor arrivals. Please try again.",
       "visitor": "visitor",
       "visitors": "visitors",
-      "scheduled": "scheduled"
+      "scheduled": "scheduled",
+      "checkOut": {
+        "action": "Check out",
+        "successSummary": "Checked out",
+        "successDetail": "{{name}} has been checked out.",
+        "errorSummary": "Check-out failed",
+        "errorDetail": "Could not check out the visitor. Please try again."
+      }
     },
     "onboarding": {
       "scanQrCode": "Scan QR Code",

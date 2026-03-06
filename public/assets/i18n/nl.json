@@ -91,6 +91,7 @@
       "endRequired": "Eindtijd is verplicht.",
       "cancel": "Annuleren",
       "createVisit": "Bezoek aanmaken",
+      "parkingAvailableLabel": "Parkeren beschikbaar",
       "createError": "Bezoek aanmaken mislukt. Probeer het opnieuw."
     },
     "editVisit": {
@@ -147,7 +148,8 @@
       "saveError": "Wijzigingen opslaan mislukt. Probeer het opnieuw.",
       "addPersonError": "Persoon toevoegen mislukt. Probeer het opnieuw.",
       "cancelError": "Bezoek annuleren mislukt. Probeer het opnieuw.",
-      "removeError": "Persoon verwijderen mislukt. Probeer het opnieuw."
+      "removeError": "Persoon verwijderen mislukt. Probeer het opnieuw.",
+      "parkingAvailableLabel": "Parkeren beschikbaar"
     },
     "visitorDetail": {
       "visitor": "Bezoeker",
@@ -604,7 +606,14 @@
       "loadError": "Laden van bezoekersaankomsten mislukt. Probeer het opnieuw.",
       "visitor": "bezoeker",
       "visitors": "bezoekers",
-      "scheduled": "gepland"
+      "scheduled": "gepland",
+      "checkOut": {
+        "action": "Uitchecken",
+        "successSummary": "Uitgecheckt",
+        "successDetail": "{{name}} is uitgecheckt.",
+        "errorSummary": "Uitchecken mislukt",
+        "errorDetail": "Bezoeker kon niet worden uitgecheckt. Probeer het opnieuw."
+      }
     },
     "onboarding": {
       "scanQrCode": "Scan QR-code",

@@ -91,6 +91,7 @@
       "endRequired": "L'heure de fin est obligatoire.",
       "cancel": "Annuler",
       "createVisit": "Créer une visite",
+      "parkingAvailableLabel": "Parking disponible",
       "createError": "Échec de la création de la visite. Veuillez réessayer."
     },
     "editVisit": {
@@ -147,7 +148,8 @@
       "saveError": "Échec de l'enregistrement des modifications. Veuillez réessayer.",
       "addPersonError": "Échec de l'ajout de la personne. Veuillez réessayer.",
       "cancelError": "Échec de l'annulation de la visite. Veuillez réessayer.",
-      "removeError": "Échec de la suppression de la personne. Veuillez réessayer."
+      "removeError": "Échec de la suppression de la personne. Veuillez réessayer.",
+      "parkingAvailableLabel": "Parking disponible"
     },
     "visitorDetail": {
       "visitor": "Visiteur",
@@ -604,7 +606,14 @@
       "loadError": "Impossible de charger les arrivées. Veuillez réessayer.",
       "visitor": "visiteur",
       "visitors": "visiteurs",
-      "scheduled": "prévu(s)"
+      "scheduled": "prévu(s)",
+      "checkOut": {
+        "action": "Départ",
+        "successSummary": "Départ enregistré",
+        "successDetail": "{{name}} a été enregistré(e) comme parti(e).",
+        "errorSummary": "Échec du départ",
+        "errorDetail": "Impossible d'enregistrer le départ du visiteur. Veuillez réessayer."
+      }
     },
     "onboarding": {
       "scanQrCode": "Scanner le QR code",

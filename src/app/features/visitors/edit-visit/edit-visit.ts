@@ -10,6 +10,7 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import {
   VisitorService,
   VisitDto,
@@ -40,6 +41,7 @@ import { LocationPicker } from '../../../shared/components/location-picker/locat
     DatePickerModule,
     InputTextModule,
     SelectButtonModule,
+    ToggleSwitchModule,
     VisitStateBadge,
     CheckinStatusBadge,
     VisitorTimeline,
@@ -142,6 +144,7 @@ export class EditVisit implements OnInit {
       summary: ['', Validators.required],
       start: [null as Date | null, Validators.required],
       end: [null as Date | null, Validators.required],
+      parkingAvailable: [false],
     });
 
     // When start changes, push end to start + 1h if end would be before start
@@ -201,10 +204,11 @@ export class EditVisit implements OnInit {
     this.saveError.set(null);
     this.saveSuccess.set(false);
 
-    const { summary, start, end } = this.form.value as {
+    const { summary, start, end, parkingAvailable } = this.form.value as {
       summary: string;
       start: Date;
       end: Date;
+      parkingAvailable: boolean;
     };
 
     const startIso = toLocalIso(start);
@@ -215,6 +219,7 @@ export class EditVisit implements OnInit {
       const timesChanged = startIso !== v.start || endIso !== v.end;
       const locationChanged = locationId !== (v.location?.id ?? null);
       const summaryChanged = summary !== v.summary;
+      const parkingChanged = parkingAvailable !== v.parkingAvailable;
 
       const updates: Promise<VisitDto>[] = [];
 
@@ -224,6 +229,10 @@ export class EditVisit implements OnInit {
 
       if (locationChanged) {
         updates.push(this.visitorService.relocateVisit(v.id, { locationId }));
+      }
+
+      if (parkingChanged) {
+        updates.push(this.visitorService.markParkingAvailable(v.id, { parkingAvailable }));
       }
 
       if (updates.length === 0) {
@@ -459,6 +468,7 @@ export class EditVisit implements OnInit {
       summary: v.summary ?? '',
       start: v.start ? fromServerDate(v.start) : null,
       end: v.end ? fromServerDate(v.end) : null,
+      parkingAvailable: v.parkingAvailable ?? false,
     });
 
     // Lock the form for past or cancelled visits

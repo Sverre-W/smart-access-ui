@@ -143,6 +143,20 @@
       <!-- Location picker -->
       <app-location-picker (locationChange)="onLocationChange($event)" />
 
+      <!-- Parking available toggle -->
+      <div class="flex items-center justify-between gap-3 rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-car text-zinc-400"></i>
+          <label class="text-sm font-medium text-zinc-700 cursor-pointer" for="parkingAvailable">
+            {{ 'visitors.createVisit.parkingAvailableLabel' | translate }}
+          </label>
+        </div>
+        <p-toggleswitch
+          inputId="parkingAvailable"
+          formControlName="parkingAvailable"
+        />
+      </div>
+
     </div>
 
     <!-- Footer actions -->
