@@ -263,12 +263,12 @@
                      <p-button
                        icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
                        size="small" [title]="'facility.tenants.editTenant' | translate"
-                       [routerLink]="['/facility/tenants', tenant.tenantId]"
-                     />
-                     @if (!tenant.isRootTenant) {
-                        <p-button
-                          icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                          size="small" title="Delete tenant" [disabled]="!canWriteTenants()" (click)="confirmDelete(tenant.tenantId)"
+                       [routerLink]="['/settings/tenants', tenant.tenantId]"
+                      />
+                      @if (!tenant.isRootTenant) {
+                         <p-button
+                           icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                           size="small" title="Delete tenant" [disabled]="!canWriteTenants()" (click)="confirmDelete(tenant.tenantId)"
                         />
                      }
                    </div>
@@ -348,7 +348,7 @@
               <div class="flex items-center gap-1 shrink-0">
                 <p-button
                   icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
-                  size="small" [routerLink]="['/facility/tenants', tenant.tenantId]"
+                  size="small" [routerLink]="['/settings/tenants', tenant.tenantId]"
                 />
                 @if (!tenant.isRootTenant) {
                    <p-button

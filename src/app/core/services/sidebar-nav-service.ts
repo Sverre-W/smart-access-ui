@@ -4,11 +4,17 @@ import { TranslateService } from '@ngx-translate/core';
 import { startWith } from 'rxjs/operators';
 import { AppSwitcherService } from './app-switcher-service';
 import { PermissionsService } from './permissions-service';
+import { ConfigService } from './config-service';
 
 export interface NavItem {
   label: string;
   icon: string;
   route: string;
+}
+
+interface AppPermissionRequirement {
+  app: string;
+  permissions: string[];
 }
 
 interface NavItemDef {
@@ -17,11 +23,15 @@ interface NavItemDef {
   route: string;
   requiredApp?: string;
   requiredPermissions?: string[];
+  /** Grants access if ANY of these app+permission sets is satisfied (OR logic). */
+  anyOf?: AppPermissionRequirement[];
+  /** When true, only shown when the current tenant is the root tenant. */
+  rootTenantOnly?: boolean;
 }
 
 const APP_NAV: Record<string, NavItemDef[]> = {
   univisit: [
-    { navKey: 'dashboard', icon: 'pi pi-home',      route: '/visitors'                                                                              },
+    { navKey: 'visits',    icon: 'pi pi-home',      route: '/visitors'                                                                              },
     { navKey: 'visitors',  icon: 'pi pi-users',     route: '/visitors/list',     requiredApp: 'Visitors Service', requiredPermissions: ['Visitor:Read']      },
     { navKey: 'reports',   icon: 'pi pi-chart-bar', route: '/visitors/reports',  requiredApp: 'Visitors Service', requiredPermissions: ['Visits:ReadAll']     },
     { navKey: 'settings',  icon: 'pi pi-cog',       route: '/visitors/settings', requiredApp: 'Visitors Service', requiredPermissions: ['Settings:Update']    },
@@ -30,8 +40,6 @@ const APP_NAV: Record<string, NavItemDef[]> = {
   facility: [
     { navKey: 'dashboard',      icon: 'pi pi-home',       route: '/facility'                                                                                                    },
     { navKey: 'agents',         icon: 'pi pi-users',      route: '/facility/agents',          requiredApp: 'Agent Server',      requiredPermissions: ['View Agents']             },
-    { navKey: 'tenants',        icon: 'pi pi-building',   route: '/facility/tenants',         requiredApp: 'Settings Server',   requiredPermissions: ['tenants.read']            },
-    { navKey: 'roles',          icon: 'pi pi-shield',     route: '/facility/roles',           requiredApp: 'Settings Server',   requiredPermissions: ['roles.read']              },
     { navKey: 'accessPolicies', icon: 'pi pi-lock',       route: '/facility/access-policies', requiredApp: 'Access Policies',   requiredPermissions: ['Read rule sets', 'Read systems'] },
     { navKey: 'locations',      icon: 'pi pi-map-marker', route: '/facility/locations',       requiredApp: 'Locations Service', requiredPermissions: ['Locations:Read']          },
   ],
@@ -40,8 +48,18 @@ const APP_NAV: Record<string, NavItemDef[]> = {
     { navKey: 'guidedOnboarding', icon: 'pi pi-qrcode', route: '/reception/onboarding/home' },
   ],
   settings: [
-    { navKey: 'dashboard',       icon: 'pi pi-home',  route: '/settings'       },
-    { navKey: 'userManagement',  icon: 'pi pi-users', route: '/settings/users' },
+    {
+      navKey: 'dashboard',
+      icon: 'pi pi-home',
+      route: '/settings',
+      anyOf: [
+        { app: 'Persons Service', permissions: ['Persons:Read', 'Groups:Read', 'Roles:Read'] },
+        { app: 'Settings Server', permissions: ['tenants.read', 'roles.read'] },
+      ],
+    },
+    { navKey: 'userManagement', icon: 'pi pi-users',    route: '/settings/users',   requiredApp: 'Persons Service', requiredPermissions: ['Persons:Read', 'Groups:Read', 'Roles:Read'] },
+    { navKey: 'tenants',        icon: 'pi pi-building', route: '/settings/tenants', requiredApp: 'Settings Server', requiredPermissions: ['tenants.read'], rootTenantOnly: true },
+    { navKey: 'roles',          icon: 'pi pi-shield',   route: '/settings/roles',   requiredApp: 'Settings Server', requiredPermissions: ['roles.read']   },
   ],
 };
 
@@ -50,6 +68,7 @@ export class SidebarNavService {
   private appSwitcher = inject(AppSwitcherService);
   private translate = inject(TranslateService);
   private permissionsService = inject(PermissionsService);
+  private configService = inject(ConfigService);
 
   /** Emits on every language change — drives re-translation of nav labels. */
   private _lang = toSignal(this.translate.onLangChange.pipe(startWith(null)));
@@ -71,6 +90,13 @@ export class SidebarNavService {
   readonly hasSidebar = computed<boolean>(() => this.navItems().length > 0);
 
   private hasNavAccess(def: NavItemDef): boolean {
+    if (def.rootTenantOnly && !this.configService.app?.tenant?.isRootTenant) return false;
+
+    if (def.anyOf?.length) {
+      return def.anyOf.some(req =>
+        this.permissionsService.hasAnyPermission(req.app, ...req.permissions)
+      );
+    }
     if (!def.requiredApp || !def.requiredPermissions?.length) return true;
     return this.permissionsService.hasAnyPermission(def.requiredApp, ...def.requiredPermissions);
   }

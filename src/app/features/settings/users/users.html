@@ -32,7 +32,7 @@
             class="text-sm w-full sm:w-52" />
         </p-iconfield>
         <p-button icon="pi pi-plus" [label]="'settings.users.users.newUser' | translate"
-          size="small" (click)="openCreateUser()" />
+          size="small" (click)="openCreateUser()" [disabled]="!canCreateUser()" />
       </div>
     </div>
 
@@ -118,7 +118,7 @@
           <p-button type="button" [label]="'settings.users.createUser.cancel' | translate"
             severity="secondary" (click)="closeCreateUser()" />
           <p-button type="button" icon="pi pi-check" [label]="'settings.users.createUser.submit' | translate"
-            [loading]="createUserSaving()" [disabled]="createUserSaving()"
+            [loading]="createUserSaving()" [disabled]="createUserSaving() || !canCreateUser()"
             loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateUser()" />
         </div>
       </div>
@@ -208,9 +208,11 @@
                   <div class="flex items-center gap-1 justify-end">
                     <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
                       size="small" [title]="'settings.users.users.editTitle' | translate"
-                      [routerLink]="['/settings/users', user.id]" />
+                      [disabled]="!canUpdateUser()"
+                      [routerLink]="canUpdateUser() ? ['/settings/users', user.id] : null" />
                     <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
                       size="small" [title]="'settings.users.users.deleteTitle' | translate"
+                      [disabled]="!canDeleteUser()"
                       (click)="confirmDeleteUser(user.id)" />
                   </div>
                 </td>
@@ -231,7 +233,7 @@
                         <p-button type="button" [label]="'settings.users.users.yesDelete' | translate"
                           severity="danger" size="small"
                           [loading]="deleteUserInProgressId() === user.id"
-                          [disabled]="deleteUserInProgressId() === user.id"
+                          [disabled]="deleteUserInProgressId() === user.id || !canDeleteUser()"
                           loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteUser(user)" />
                       </div>
                     </div>
@@ -281,9 +283,11 @@
               </div>
               <div class="flex items-center gap-1 shrink-0">
                 <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
-                  size="small" [routerLink]="['/settings/users', user.id]" />
+                  size="small" [disabled]="!canUpdateUser()"
+                  [routerLink]="canUpdateUser() ? ['/settings/users', user.id] : null" />
                 <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                  size="small" (click)="confirmDeleteUser(user.id)" />
+                  size="small" [disabled]="!canDeleteUser()"
+                  (click)="confirmDeleteUser(user.id)" />
               </div>
             </div>
           </div>
@@ -300,7 +304,7 @@
                 <p-button type="button" [label]="'settings.users.users.yesDelete' | translate"
                   severity="danger" size="small"
                   [loading]="deleteUserInProgressId() === user.id"
-                  [disabled]="deleteUserInProgressId() === user.id"
+                  [disabled]="deleteUserInProgressId() === user.id || !canDeleteUser()"
                   loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteUser(user)" />
               </div>
             </div>
@@ -335,7 +339,7 @@
             class="text-sm w-full sm:w-52" />
         </p-iconfield>
         <p-button icon="pi pi-plus" [label]="'settings.users.groups.newGroup' | translate"
-          size="small" (click)="openCreateGroup()" />
+          size="small" (click)="openCreateGroup()" [disabled]="!canCreateGroup()" />
       </div>
     </div>
 
@@ -385,7 +389,7 @@
           <p-button type="button" [label]="'settings.users.createGroup.cancel' | translate"
             severity="secondary" (click)="closeCreateGroup()" />
           <p-button type="button" icon="pi pi-check" [label]="'settings.users.createGroup.submit' | translate"
-            [loading]="createGroupSaving()" [disabled]="createGroupSaving()"
+            [loading]="createGroupSaving()" [disabled]="createGroupSaving() || !canCreateGroup()"
             loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateGroup()" />
         </div>
       </div>
@@ -458,9 +462,11 @@
                   <div class="flex items-center gap-1 justify-end">
                     <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
                       size="small" [title]="'settings.users.groups.editTitle' | translate"
-                      [routerLink]="['/settings/users/groups', group.id]" />
+                      [disabled]="!canUpdateGroup()"
+                      [routerLink]="canUpdateGroup() ? ['/settings/users/groups', group.id] : null" />
                     <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
                       size="small" [title]="'settings.users.groups.deleteTitle' | translate"
+                      [disabled]="!canDeleteGroup()"
                       (click)="confirmDeleteGroup(group.id)" />
                   </div>
                 </td>
@@ -481,7 +487,7 @@
                         <p-button type="button" [label]="'settings.users.groups.yesDelete' | translate"
                           severity="danger" size="small"
                           [loading]="deleteGroupInProgressId() === group.id"
-                          [disabled]="deleteGroupInProgressId() === group.id"
+                          [disabled]="deleteGroupInProgressId() === group.id || !canDeleteGroup()"
                           loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteGroup(group)" />
                       </div>
                     </div>
@@ -533,9 +539,11 @@
               </div>
               <div class="flex items-center gap-1 shrink-0">
                 <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
-                  size="small" [routerLink]="['/settings/users/groups', group.id]" />
+                  size="small" [disabled]="!canUpdateGroup()"
+                  [routerLink]="canUpdateGroup() ? ['/settings/users/groups', group.id] : null" />
                 <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                  size="small" (click)="confirmDeleteGroup(group.id)" />
+                  size="small" [disabled]="!canDeleteGroup()"
+                  (click)="confirmDeleteGroup(group.id)" />
               </div>
             </div>
           </div>
@@ -552,7 +560,7 @@
                 <p-button type="button" [label]="'settings.users.groups.yesDelete' | translate"
                   severity="danger" size="small"
                   [loading]="deleteGroupInProgressId() === group.id"
-                  [disabled]="deleteGroupInProgressId() === group.id"
+                  [disabled]="deleteGroupInProgressId() === group.id || !canDeleteGroup()"
                   loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteGroup(group)" />
               </div>
             </div>
@@ -587,7 +595,7 @@
             class="text-sm w-full sm:w-52" />
         </p-iconfield>
         <p-button icon="pi pi-plus" [label]="'settings.users.roles.newRole' | translate"
-          size="small" (click)="openCreateRole()" />
+          size="small" (click)="openCreateRole()" [disabled]="!canCreateRole()" />
       </div>
     </div>
 
@@ -637,7 +645,7 @@
           <p-button type="button" [label]="'settings.users.createRole.cancel' | translate"
             severity="secondary" (click)="closeCreateRole()" />
           <p-button type="button" icon="pi pi-check" [label]="'settings.users.createRole.submit' | translate"
-            [loading]="createRoleSaving()" [disabled]="createRoleSaving()"
+            [loading]="createRoleSaving()" [disabled]="createRoleSaving() || !canCreateRole()"
             loadingIcon="pi pi-spin pi-spinner" (click)="saveCreateRole()" />
         </div>
       </div>
@@ -703,9 +711,11 @@
                   <div class="flex items-center gap-1 justify-end">
                     <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
                       size="small" [title]="'settings.users.roles.editTitle' | translate"
+                      [disabled]="!canUpdateRole()"
                       (click)="openEditRole(role)" />
                     <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
                       size="small" [title]="'settings.users.roles.deleteTitle' | translate"
+                      [disabled]="!canDeleteRole()"
                       (click)="confirmDeleteRole(role.id)" />
                   </div>
                 </td>
@@ -749,7 +759,7 @@
                       <p-button type="button" [label]="'settings.users.editRole.cancel' | translate"
                         severity="secondary" (click)="closeEditRole()" />
                       <p-button type="button" icon="pi pi-check" [label]="'settings.users.editRole.submit' | translate"
-                        [loading]="editRoleSaving()" [disabled]="editRoleSaving()"
+                        [loading]="editRoleSaving()" [disabled]="editRoleSaving() || !canUpdateRole()"
                         loadingIcon="pi pi-spin pi-spinner" (click)="saveEditRole(role)" />
                     </div>
                   </td>
@@ -771,7 +781,7 @@
                         <p-button type="button" [label]="'settings.users.roles.yesDelete' | translate"
                           severity="danger" size="small"
                           [loading]="deleteRoleInProgressId() === role.id"
-                          [disabled]="deleteRoleInProgressId() === role.id"
+                          [disabled]="deleteRoleInProgressId() === role.id || !canDeleteRole()"
                           loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteRole(role)" />
                       </div>
                     </div>
@@ -823,9 +833,11 @@
               </div>
               <div class="flex items-center gap-1 shrink-0">
                 <p-button icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
-                  size="small" (click)="openEditRole(role)" />
+                  size="small" [disabled]="!canUpdateRole()"
+                  (click)="openEditRole(role)" />
                 <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                  size="small" (click)="confirmDeleteRole(role.id)" />
+                  size="small" [disabled]="!canDeleteRole()"
+                  (click)="confirmDeleteRole(role.id)" />
               </div>
             </div>
           </div>
@@ -867,7 +879,7 @@
                 <p-button type="button" [label]="'settings.users.editRole.cancel' | translate"
                   severity="secondary" size="small" (click)="closeEditRole()" />
                 <p-button type="button" icon="pi pi-check" [label]="'settings.users.editRole.submit' | translate"
-                  [loading]="editRoleSaving()" [disabled]="editRoleSaving()"
+                  [loading]="editRoleSaving()" [disabled]="editRoleSaving() || !canUpdateRole()"
                   loadingIcon="pi pi-spin pi-spinner" size="small" (click)="saveEditRole(role)" />
               </div>
             </div>
@@ -885,7 +897,7 @@
                 <p-button type="button" [label]="'settings.users.roles.yesDelete' | translate"
                   severity="danger" size="small"
                   [loading]="deleteRoleInProgressId() === role.id"
-                  [disabled]="deleteRoleInProgressId() === role.id"
+                  [disabled]="deleteRoleInProgressId() === role.id || !canDeleteRole()"
                   loadingIcon="pi pi-spin pi-spinner" (click)="executeDeleteRole(role)" />
               </div>
             </div>

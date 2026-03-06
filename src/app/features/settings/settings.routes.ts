@@ -17,4 +17,20 @@ export const settingsRoutes: Routes = [
     path: 'users/groups/:groupId',
     loadComponent: () => import('./users/edit-group').then(m => m.EditGroup),
   },
+  {
+    path: 'roles',
+    loadComponent: () => import('./roles/roles').then(m => m.FacilityRoles),
+  },
+  {
+    path: 'roles/:roleName',
+    loadComponent: () => import('./roles/edit-role').then(m => m.EditRole),
+  },
+  {
+    path: 'tenants',
+    loadComponent: () => import('./tenants/tenants').then(m => m.FacilityTenants),
+  },
+  {
+    path: 'tenants/:tenantId',
+    loadComponent: () => import('./tenants/edit-tenant').then(m => m.EditTenant),
+  },
 ];

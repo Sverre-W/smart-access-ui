@@ -9,7 +9,7 @@ import {
   SettingsService,
   TenantInfo,
   FeatureFlags,
-} from '../services/settings-service';
+} from '../../facility/services/settings-service';
 
 interface FeatureToggle {
   flag: FeatureFlags;
@@ -124,7 +124,7 @@ export class EditTenant implements OnInit {
   // ── Navigation ────────────────────────────────────────────────────────────
 
   goBack(): void {
-    void this.router.navigate(['/facility/tenants']);
+    void this.router.navigate(['/settings/tenants']);
   }
 
   // ── Save settings ─────────────────────────────────────────────────────────

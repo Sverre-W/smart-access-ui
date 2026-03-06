@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { SettingsService, Role, ApplicationPermissionSet } from '../services/settings-service';
+import { SettingsService, Role, ApplicationPermissionSet } from '../../facility/services/settings-service';
 
 // ── Local types ───────────────────────────────────────────────────────────────
 
@@ -123,7 +123,7 @@ export class EditRole implements OnInit {
   // ── Navigation ────────────────────────────────────────────────────────────
 
   goBack(): void {
-    void this.router.navigate(['/facility/roles']);
+    void this.router.navigate(['/settings/roles']);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -175,7 +175,7 @@ export class EditRole implements OnInit {
       // If the name changed, update the URL to reflect the new role name
       // without pushing a new history entry, so the back button still works.
       if (updated.name !== current.name) {
-        void this.router.navigate(['/facility/roles', updated.name], { replaceUrl: true });
+        void this.router.navigate(['/settings/roles', updated.name], { replaceUrl: true });
       }
     } catch (err) {
       this.detailsError.set(this.extractApiError(err));

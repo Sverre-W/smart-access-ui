@@ -15,6 +15,7 @@ import {
   UpdateRoleRequest,
 } from '../../facility/services/user-management-service';
 import { ConfigService } from '../../../core/services/config-service';
+import { PermissionsService } from '../../../core/services/permissions-service';
 
 @Component({
   selector: 'app-settings-users',
@@ -28,6 +29,23 @@ export class SettingsUsers implements OnInit {
   private config = inject(ConfigService);
   private fb = inject(FormBuilder);
   private translate = inject(TranslateService);
+  private permissions = inject(PermissionsService);
+
+  // ── Permissions ───────────────────────────────────────────────────────────
+
+  private readonly APP = 'Persons Service';
+
+  readonly canCreateUser  = computed(() => this.permissions.hasPermission(this.APP, 'Persons:Create'));
+  readonly canUpdateUser  = computed(() => this.permissions.hasPermission(this.APP, 'Persons:Update'));
+  readonly canDeleteUser  = computed(() => this.permissions.hasPermission(this.APP, 'Persons:Delete'));
+
+  readonly canCreateGroup = computed(() => this.permissions.hasPermission(this.APP, 'Groups:Create'));
+  readonly canUpdateGroup = computed(() => this.permissions.hasPermission(this.APP, 'Groups:Update'));
+  readonly canDeleteGroup = computed(() => this.permissions.hasPermission(this.APP, 'Groups:Delete'));
+
+  readonly canCreateRole  = computed(() => this.permissions.hasPermission(this.APP, 'Roles:Create'));
+  readonly canUpdateRole  = computed(() => this.permissions.hasPermission(this.APP, 'Roles:Update'));
+  readonly canDeleteRole  = computed(() => this.permissions.hasPermission(this.APP, 'Roles:Delete'));
 
   private get tenant(): string {
     const authority = this.config.app?.authenticationOptions?.authority ?? '';

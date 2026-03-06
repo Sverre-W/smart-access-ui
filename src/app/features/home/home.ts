@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { APPS, AppSwitcherService } from '../../core/services/app-switcher-service';
+import { PermissionsService } from '../../core/services/permissions-service';
 
 @Component({
   selector: 'app-home',
@@ -13,6 +14,7 @@ import { APPS, AppSwitcherService } from '../../core/services/app-switcher-servi
 export class Home {
   private oauthService = inject(OAuthService);
   private appSwitcher = inject(AppSwitcherService);
+  private permissionsService = inject(PermissionsService);
   private router = inject(Router);
 
   readonly featureKeys = [
@@ -24,7 +26,14 @@ export class Home {
     'home.features.sso',
   ];
 
-  readonly apps = APPS;
+  readonly apps = computed(() => {
+    this.permissionsService.permissions(); // track permission changes
+    return APPS.filter(app => {
+      if (app.disabled) return false;
+      // Apps without a backend mapping are always visible (e.g. contractors placeholder)
+      return !this.permissionsService.loaded() || this.permissionsService.hasAppAccess(app.id);
+    });
+  });
 
   get isAuthenticated(): boolean {
     return this.oauthService.hasValidAccessToken();

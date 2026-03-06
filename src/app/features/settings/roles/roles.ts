@@ -6,15 +6,11 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import {
-  SettingsService,
-  TenantInfo,
-  FeatureFlags,
-} from '../services/settings-service';
+import { SettingsService, Role } from '../../facility/services/settings-service';
 import { PermissionsService } from '../../../core/services/permissions-service';
 
 @Component({
-  selector: 'app-facility-tenants',
+  selector: 'app-facility-roles',
   standalone: true,
   imports: [
     RouterLink,
@@ -25,19 +21,19 @@ import { PermissionsService } from '../../../core/services/permissions-service';
     InputIcon,
     TranslateModule,
   ],
-  templateUrl: './tenants.html',
+  templateUrl: './roles.html',
 })
-export class FacilityTenants implements OnInit {
+export class FacilityRoles implements OnInit {
   private settingsService = inject(SettingsService);
   private fb = inject(FormBuilder);
   private translate = inject(TranslateService);
   private permissions = inject(PermissionsService);
 
-  readonly canWriteTenants = computed(() => this.permissions.hasPermission('Settings Server', 'tenants.write'));
+  readonly canWriteRoles = computed(() => this.permissions.hasPermission('Settings Server', 'roles.write'));
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
-  readonly allTenants = signal<TenantInfo[]>([]);
+  readonly allRoles = signal<Role[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
@@ -46,39 +42,33 @@ export class FacilityTenants implements OnInit {
   readonly searchQuery = signal('');
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
-  readonly filteredTenants = computed(() => {
+  readonly filteredRoles = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
-    if (!q) return this.allTenants();
-    return this.allTenants().filter(
-      t =>
-        t.displayName.toLowerCase().includes(q) ||
-        t.tenantId.toLowerCase().includes(q)
+    if (!q) return this.allRoles();
+    return this.allRoles().filter(
+      r =>
+        r.name.toLowerCase().includes(q) ||
+        (r.description ?? '').toLowerCase().includes(q)
     );
   });
 
-  readonly hasTenants = computed(() => this.filteredTenants().length > 0);
+  readonly hasRoles = computed(() => this.filteredRoles().length > 0);
 
-  // ── Create tenant ─────────────────────────────────────────────────────────
+  // ── Create role ───────────────────────────────────────────────────────────
 
   readonly createOpen = signal(false);
   readonly createSaving = signal(false);
   readonly createError = signal<string | null>(null);
 
   readonly createForm = this.fb.nonNullable.group({
-    tenantId: ['', Validators.required],
-    displayName: ['', Validators.required],
-    defaultRole: ['admin', Validators.required],
-    metadataUrl: ['', Validators.required],
-    clientId: ['', Validators.required],
-    responseTypes: ['code', Validators.required],
-    loginRedirectUri: ['', Validators.required],
-    logoutRedirectUri: ['', Validators.required],
+    name: ['', Validators.required],
+    description: [''],
   });
 
-  // ── Delete tenant ─────────────────────────────────────────────────────────
+  // ── Delete role ───────────────────────────────────────────────────────────
 
-  readonly deleteConfirmingId = signal<string | null>(null);
-  readonly deleteInProgressId = signal<string | null>(null);
+  readonly deleteConfirmingName = signal<string | null>(null);
+  readonly deleteInProgressName = signal<string | null>(null);
   readonly deleteError = signal<string | null>(null);
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -91,10 +81,10 @@ export class FacilityTenants implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const tenants = await this.settingsService.getTenants({ sortColumn: 'DisplayName', sortAscending: true });
-      this.allTenants.set(tenants);
+      const roles = await this.settingsService.getRoles({ sortColumn: 'Name', sortAscending: true });
+      this.allRoles.set(roles);
     } catch {
-      this.error.set(this.translate.instant('facility.tenants.loadError'));
+      this.error.set(this.translate.instant('facility.roles.loadError'));
     } finally {
       this.loading.set(false);
     }
@@ -111,7 +101,7 @@ export class FacilityTenants implements OnInit {
   // ── Create ────────────────────────────────────────────────────────────────
 
   openCreate(): void {
-    this.createForm.reset({ defaultRole: 'admin', responseTypes: 'code' });
+    this.createForm.reset();
     this.createError.set(null);
     this.createOpen.set(true);
   }
@@ -127,28 +117,16 @@ export class FacilityTenants implements OnInit {
     this.createSaving.set(true);
     this.createError.set(null);
 
-    const { tenantId, displayName, defaultRole, metadataUrl, clientId, responseTypes, loginRedirectUri, logoutRedirectUri } =
-      this.createForm.controls;
+    const { name, description } = this.createForm.controls;
 
     try {
-      const created = await this.settingsService.createTenant({
-        tenantId: tenantId.value,
-        displayName: displayName.value,
-        isRootTenant: false,
-        features: FeatureFlags.None,
-        defaultRole: defaultRole.value,
-        idpSettings: {
-          metadataUrl: metadataUrl.value,
-          authority: '',
-          clientId: clientId.value,
-          responseTypes: responseTypes.value,
-          scopes: ['openid', 'profile'],
-          loginRedirectUri: loginRedirectUri.value,
-          logoutRedirectUri: logoutRedirectUri.value,
-        },
+      const created = await this.settingsService.createRole({
+        name: name.value,
+        description: description.value || null,
+        permissions: [],
       });
-      this.allTenants.update(list =>
-        [...list, created].sort((a, b) => a.displayName.localeCompare(b.displayName))
+      this.allRoles.update(list =>
+        [...list, created].sort((a, b) => a.name.localeCompare(b.name))
       );
       this.createOpen.set(false);
     } catch (err) {
@@ -160,47 +138,35 @@ export class FacilityTenants implements OnInit {
 
   // ── Delete ────────────────────────────────────────────────────────────────
 
-  confirmDelete(tenantId: string): void {
+  confirmDelete(roleName: string): void {
     this.deleteError.set(null);
-    this.deleteConfirmingId.set(tenantId);
+    this.deleteConfirmingName.set(roleName);
   }
 
   abortDelete(): void {
-    this.deleteConfirmingId.set(null);
+    this.deleteConfirmingName.set(null);
   }
 
-  async executeDelete(tenant: TenantInfo): Promise<void> {
-    this.deleteInProgressId.set(tenant.tenantId);
+  async executeDelete(role: Role): Promise<void> {
+    this.deleteInProgressName.set(role.name);
     this.deleteError.set(null);
     try {
-      await this.settingsService.deleteTenant(tenant.tenantId);
-      this.allTenants.update(list => list.filter(t => t.tenantId !== tenant.tenantId));
-      this.deleteConfirmingId.set(null);
+      await this.settingsService.deleteRole(role.name);
+      this.allRoles.update(list => list.filter(r => r.name !== role.name));
+      this.deleteConfirmingName.set(null);
     } catch {
       this.deleteError.set(
-        this.translate.instant('facility.tenants.deleteError', { name: tenant.displayName })
+        this.translate.instant('facility.roles.deleteError', { name: role.name })
       );
     } finally {
-      this.deleteInProgressId.set(null);
+      this.deleteInProgressName.set(null);
     }
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  featureBadges(tenant: TenantInfo): string[] {
-    const flags: [FeatureFlags, string][] = [
-      [FeatureFlags.DesfireEncoding,  'DESFire'],
-      [FeatureFlags.ReceptionDesk,    'Reception'],
-      [FeatureFlags.AutomationEngine, 'Automation'],
-      [FeatureFlags.Agents,           'Agents'],
-      [FeatureFlags.Visitors,         'Visitors'],
-      [FeatureFlags.Kiosk,            'Kiosk'],
-      [FeatureFlags.Notifications,    'Notifications'],
-      [FeatureFlags.AccessPolicies,   'Access Policies'],
-      [FeatureFlags.Locations,        'Locations'],
-      [FeatureFlags.Users,            'Users'],
-    ];
-    return flags.filter(([flag]) => (tenant.features & flag) !== 0).map(([, label]) => label);
+  permissionCount(role: Role): number {
+    return role.permissions.reduce((sum, p) => sum + p.permissions.length, 0);
   }
 
   private extractApiError(err: unknown): string {
@@ -219,6 +185,6 @@ export class FacilityTenants implements OnInit {
         }
       }
     }
-    return 'An unexpected error occurred. Please try again.';
+    return this.translate.instant('facility.roles.unexpectedError');
   }
 }

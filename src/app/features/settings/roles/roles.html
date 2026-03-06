@@ -171,13 +171,13 @@
                     <p-button
                       icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
                       size="small" [title]="'facility.roles.editRole' | translate"
-                      [routerLink]="['/facility/roles', role.name]"
-                    />
-                    <p-button
-                      icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
-                      size="small" [title]="'facility.roles.deleteRole' | translate"
-                      [disabled]="!canWriteRoles()"
-                      (click)="confirmDelete(role.name)"
+                      [routerLink]="['/settings/roles', role.name]"
+                     />
+                     <p-button
+                       icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                       size="small" [title]="'facility.roles.deleteRole' | translate"
+                       [disabled]="!canWriteRoles()"
+                       (click)="confirmDelete(role.name)"
                     />
                   </div>
                 </td>
@@ -253,7 +253,7 @@
               <div class="flex items-center gap-1 shrink-0">
                 <p-button
                   icon="pi pi-pen-to-square" severity="secondary" [text]="true" [rounded]="true"
-                  size="small" [routerLink]="['/facility/roles', role.name]"
+                  size="small" [routerLink]="['/settings/roles', role.name]"
                 />
                 <p-button
                   icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
