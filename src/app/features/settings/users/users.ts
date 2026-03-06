@@ -235,7 +235,7 @@ export class SettingsUsers implements OnInit, OnDestroy {
         pageSize: size,
       });
       this.users.set(result.items);
-      this.usersTotal.set(result.totalItems ?? result.items.length);
+      this.usersTotal.set(result.totalItems ?? (result.totalPages != null ? result.totalPages * result.pageSize : result.items.length));
     } catch {
       this.usersError.set(this.translate.instant('settings.users.users.loadError'));
     } finally {
@@ -279,7 +279,7 @@ export class SettingsUsers implements OnInit, OnDestroy {
         pageSize: size,
       });
       this.groups.set(result.items);
-      this.groupsTotal.set(result.totalItems ?? result.items.length);
+      this.groupsTotal.set(result.totalItems ?? (result.totalPages != null ? result.totalPages * result.pageSize : result.items.length));
     } catch {
       this.groupsError.set(this.translate.instant('settings.users.groups.loadError'));
     } finally {
@@ -323,7 +323,7 @@ export class SettingsUsers implements OnInit, OnDestroy {
         pageSize: size,
       });
       this.roles.set(result.items);
-      this.rolesTotal.set(result.totalItems ?? result.items.length);
+      this.rolesTotal.set(result.totalItems ?? (result.totalPages != null ? result.totalPages * result.pageSize : result.items.length));
     } catch {
       this.rolesError.set(this.translate.instant('settings.users.roles.loadError'));
     } finally {
