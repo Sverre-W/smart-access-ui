@@ -233,7 +233,7 @@ export class SettingsUsers implements OnInit, OnDestroy {
     try {
       const result = await this.service.getAllPersons(this.tenant, {
         search: search || null,
-        page,
+        page: page - 1,
         pageSize: PAGE_SIZE,
       });
       this.users.set(result.items);
@@ -275,7 +275,7 @@ export class SettingsUsers implements OnInit, OnDestroy {
     try {
       const result = await this.service.getAllGroups(this.tenant, {
         search: search || null,
-        page,
+        page: page - 1,
         pageSize: PAGE_SIZE,
       });
       this.groups.set(result.items);
@@ -317,7 +317,7 @@ export class SettingsUsers implements OnInit, OnDestroy {
     try {
       const result = await this.service.getAllRoles(this.tenant, {
         search: search || null,
-        page,
+        page: page - 1,
         pageSize: PAGE_SIZE,
       });
       this.roles.set(result.items);
