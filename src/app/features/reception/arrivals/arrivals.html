@@ -115,47 +115,87 @@
         @for (inv of invitations(); track inv.visitor.id + inv.visit.id) {
           <li class="flex items-center gap-3 px-4 sm:px-6 py-4 hover:bg-zinc-50 transition-colors">
 
-            <!-- Onboarding link — avatar + name + time -->
-            <a
-              [routerLink]="['/reception/onboarding/checkin', inv.visit.id, inv.visitor.id]"
-              class="flex flex-1 min-w-0 items-center gap-4"
-            >
-              <!-- Avatar -->
-              <div
-                class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold select-none"
-                [style.background]="avatarColor(inv)"
-                [style.color]="avatarTextColor(inv)"
+            <!-- Onboarding link — avatar + name + time (only for Expected / Late) -->
+            @if (canCheckIn(inv)) {
+              <a
+                [routerLink]="['/reception/onboarding/checkin', inv.visit.id, inv.visitor.id]"
+                class="flex flex-1 min-w-0 items-center gap-4"
               >
-                {{ initials(inv) }}
-              </div>
+                <!-- Avatar -->
+                <div
+                  class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold select-none"
+                  [style.background]="avatarColor(inv)"
+                  [style.color]="avatarTextColor(inv)"
+                >
+                  {{ initials(inv) }}
+                </div>
 
-              <!-- Name / company / visit -->
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-zinc-800 truncate">{{ fullName(inv) }}</p>
-                @if (inv.visitor.company) {
-                  <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
-                }
-                @if (inv.visit.summary) {
-                  <p class="text-xs text-zinc-400 truncate">
-                    <i class="pi pi-briefcase mr-0.5 text-[10px]"></i>{{ inv.visit.summary }}
-                  </p>
-                }
-              </div>
+                <!-- Name / company / visit -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-zinc-800 truncate">{{ fullName(inv) }}</p>
+                  @if (inv.visitor.company) {
+                    <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+                  }
+                  @if (inv.visit.summary) {
+                    <p class="text-xs text-zinc-400 truncate">
+                      <i class="pi pi-briefcase mr-0.5 text-[10px]"></i>{{ inv.visit.summary }}
+                    </p>
+                  }
+                </div>
 
-              <!-- Time -->
-              <div class="hidden sm:flex flex-col items-end shrink-0 text-xs text-zinc-400 gap-0.5">
-                @if (visitTime(inv)) {
-                  <span class="flex items-center gap-1">
-                    <i class="pi pi-clock text-[10px]"></i>
-                    {{ visitTime(inv) }}
-                    @if (visitEndTime(inv)) { – {{ visitEndTime(inv) }} }
-                  </span>
-                }
-                @if (inv.visitor.email) {
-                  <span class="truncate max-w-[180px]">{{ inv.visitor.email }}</span>
-                }
+                <!-- Time -->
+                <div class="hidden sm:flex flex-col items-end shrink-0 text-xs text-zinc-400 gap-0.5">
+                  @if (visitTime(inv)) {
+                    <span class="flex items-center gap-1">
+                      <i class="pi pi-clock text-[10px]"></i>
+                      {{ visitTime(inv) }}
+                      @if (visitEndTime(inv)) { – {{ visitEndTime(inv) }} }
+                    </span>
+                  }
+                  @if (inv.visitor.email) {
+                    <span class="truncate max-w-[180px]">{{ inv.visitor.email }}</span>
+                  }
+                </div>
+              </a>
+            } @else {
+              <div class="flex flex-1 min-w-0 items-center gap-4">
+                <!-- Avatar -->
+                <div
+                  class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold select-none"
+                  [style.background]="avatarColor(inv)"
+                  [style.color]="avatarTextColor(inv)"
+                >
+                  {{ initials(inv) }}
+                </div>
+
+                <!-- Name / company / visit -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-zinc-800 truncate">{{ fullName(inv) }}</p>
+                  @if (inv.visitor.company) {
+                    <p class="text-xs text-zinc-400 truncate">{{ inv.visitor.company }}</p>
+                  }
+                  @if (inv.visit.summary) {
+                    <p class="text-xs text-zinc-400 truncate">
+                      <i class="pi pi-briefcase mr-0.5 text-[10px]"></i>{{ inv.visit.summary }}
+                    </p>
+                  }
+                </div>
+
+                <!-- Time -->
+                <div class="hidden sm:flex flex-col items-end shrink-0 text-xs text-zinc-400 gap-0.5">
+                  @if (visitTime(inv)) {
+                    <span class="flex items-center gap-1">
+                      <i class="pi pi-clock text-[10px]"></i>
+                      {{ visitTime(inv) }}
+                      @if (visitEndTime(inv)) { – {{ visitEndTime(inv) }} }
+                    </span>
+                  }
+                  @if (inv.visitor.email) {
+                    <span class="truncate max-w-[180px]">{{ inv.visitor.email }}</span>
+                  }
+                </div>
               </div>
-            </a>
+            }
 
             <!-- Check-in status badge -->
             <div class="shrink-0">
@@ -176,13 +216,15 @@
               />
             }
 
-            <!-- Onboarding chevron -->
-            <a
-              [routerLink]="['/reception/onboarding/checkin', inv.visit.id, inv.visitor.id]"
-              class="shrink-0"
-            >
-              <i class="pi pi-chevron-right text-xs text-zinc-300"></i>
-            </a>
+            <!-- Onboarding chevron (only for Expected / Late) -->
+            @if (canCheckIn(inv)) {
+              <a
+                [routerLink]="['/reception/onboarding/checkin', inv.visit.id, inv.visitor.id]"
+                class="shrink-0"
+              >
+                <i class="pi pi-chevron-right text-xs text-zinc-300"></i>
+              </a>
+            }
 
           </li>
         }

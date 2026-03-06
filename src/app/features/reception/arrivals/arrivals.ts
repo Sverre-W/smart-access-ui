@@ -125,6 +125,10 @@ export class Arrivals implements OnInit {
     return formatLocalTime(inv.visit.end);
   }
 
+  canCheckIn(inv: ArrivalRow): boolean {
+    return inv.checkInStatus === 'Expected' || inv.checkInStatus === 'Late';
+  }
+
   canCheckOut(inv: ArrivalRow): boolean {
     return inv.checkInStatus === 'Arrived';
   }
