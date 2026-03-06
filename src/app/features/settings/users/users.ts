@@ -65,10 +65,10 @@ export class SettingsUsers implements OnInit {
     if (!q) return this.allUsers();
     return this.allUsers().filter(
       u =>
-        u.username.toLowerCase().includes(q) ||
-        u.firstName.toLowerCase().includes(q) ||
-        u.lastName.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q),
+        (u.username ?? '').toLowerCase().includes(q) ||
+        (u.firstName ?? '').toLowerCase().includes(q) ||
+        (u.lastName ?? '').toLowerCase().includes(q) ||
+        (u.email ?? '').toLowerCase().includes(q),
     );
   });
 
@@ -472,7 +472,7 @@ export class SettingsUsers implements OnInit {
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   fullName(user: PersonDto): string {
-    return `${user.firstName} ${user.lastName}`.trim() || user.username;
+    return `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.username;
   }
 
   private extractApiError(err: unknown): string {
