@@ -59,7 +59,6 @@ export class SettingsUsers implements OnInit {
   readonly usersError = signal<string | null>(null);
 
   readonly userSearch = signal('');
-  private userSearchTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly filteredUsers = computed(() => {
     const q = this.userSearch().trim().toLowerCase();
@@ -102,7 +101,6 @@ export class SettingsUsers implements OnInit {
   readonly groupsError = signal<string | null>(null);
 
   readonly groupSearch = signal('');
-  private groupSearchTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly filteredGroups = computed(() => {
     const q = this.groupSearch().trim().toLowerCase();
@@ -140,7 +138,6 @@ export class SettingsUsers implements OnInit {
   readonly rolesError = signal<string | null>(null);
 
   readonly roleSearch = signal('');
-  private roleSearchTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly filteredRoles = computed(() => {
     const q = this.roleSearch().trim().toLowerCase();
@@ -227,26 +224,18 @@ export class SettingsUsers implements OnInit {
     }
   }
 
-  // ── User search ───────────────────────────────────────────────────────────
+  // ── Search handlers ───────────────────────────────────────────────────────
 
   onUserSearchInput(event: Event): void {
-    if (this.userSearchTimer) clearTimeout(this.userSearchTimer);
-    const value = (event.target as HTMLInputElement).value;
-    this.userSearchTimer = setTimeout(() => this.userSearch.set(value), 250);
+    this.userSearch.set((event.target as HTMLInputElement).value);
   }
 
-  // ── Group search ──────────────────────────────────────────────────────────
-
   onGroupSearchInput(event: Event): void {
-    if (this.groupSearchTimer) clearTimeout(this.groupSearchTimer);
-    const value = (event.target as HTMLInputElement).value;
-    this.groupSearchTimer = setTimeout(() => this.groupSearch.set(value), 250);
+    this.groupSearch.set((event.target as HTMLInputElement).value);
   }
 
   onRoleSearchInput(event: Event): void {
-    if (this.roleSearchTimer) clearTimeout(this.roleSearchTimer);
-    const value = (event.target as HTMLInputElement).value;
-    this.roleSearchTimer = setTimeout(() => this.roleSearch.set(value), 250);
+    this.roleSearch.set((event.target as HTMLInputElement).value);
   }
 
   // ── Create user ───────────────────────────────────────────────────────────
