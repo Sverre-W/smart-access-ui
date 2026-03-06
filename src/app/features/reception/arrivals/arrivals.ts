@@ -2,6 +2,8 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import {
   VisitorService,
   VisitDto,
@@ -42,17 +44,20 @@ export interface ArrivalRow extends VisitorInvitationDto {
 @Component({
   selector: 'app-arrivals',
   standalone: true,
-  imports: [RouterLink, ButtonModule, CheckinStatusBadge, TranslateModule],
+  imports: [RouterLink, ButtonModule, ToastModule, CheckinStatusBadge, TranslateModule],
   templateUrl: './arrivals.html',
+  providers: [MessageService],
 })
 export class Arrivals implements OnInit {
   private visitorService = inject(VisitorService);
   private translate = inject(TranslateService);
+  private messageService = inject(MessageService);
 
   readonly selectedDate = signal<Date>(this.today());
   readonly invitations = signal<ArrivalRow[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly checkingOutId = signal<string | null>(null);
 
   readonly isToday = computed(() => isSameDay(this.selectedDate(), this.today()));
 
@@ -118,6 +123,48 @@ export class Arrivals implements OnInit {
 
   visitEndTime(inv: ArrivalRow): string {
     return formatLocalTime(inv.visit.end);
+  }
+
+  canCheckOut(inv: ArrivalRow): boolean {
+    return inv.checkInStatus === 'Arrived';
+  }
+
+  async checkOut(inv: ArrivalRow): Promise<void> {
+    if (!this.canCheckOut(inv) || this.checkingOutId() !== null) return;
+
+    const rowKey = inv.visitor.id + inv.visit.id;
+    this.checkingOutId.set(rowKey);
+
+    try {
+      await this.visitorService.checkOutVisitor(inv.visitor.id, inv.visit.id);
+
+      // Optimistically update the row status in place — no full reload needed.
+      this.invitations.update(rows =>
+        rows.map(r =>
+          r.visitor.id === inv.visitor.id && r.visit.id === inv.visit.id
+            ? { ...r, checkInStatus: 'Left' as const, leftOn: new Date().toISOString() }
+            : r
+        )
+      );
+
+      this.messageService.add({
+        severity: 'success',
+        summary: this.translate.instant('reception.arrivals.checkOut.successSummary'),
+        detail: this.translate.instant('reception.arrivals.checkOut.successDetail', {
+          name: this.fullName(inv),
+        }),
+        life: 4000,
+      });
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('reception.arrivals.checkOut.errorSummary'),
+        detail: this.translate.instant('reception.arrivals.checkOut.errorDetail'),
+        life: 5000,
+      });
+    } finally {
+      this.checkingOutId.set(null);
+    }
   }
 
   private today(): Date {

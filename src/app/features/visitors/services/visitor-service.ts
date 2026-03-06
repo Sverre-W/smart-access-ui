@@ -690,6 +690,12 @@ export class VisitorService {
     );
   }
 
+  checkOutVisitor(visitorId: string, visitId: string): Promise<void> {
+    return firstValueFrom(
+      this.http.post<void>(this.url(`/api/v1/visitors/${visitorId}/checkout/${visitId}`), {})
+    );
+  }
+
   // ── Locations ───────────────────────────────────────────────────────────────
 
   getAllLocations(params?: PagedQuery): Promise<PageOfLocationDto> {

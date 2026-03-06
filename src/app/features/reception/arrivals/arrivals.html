@@ -1,3 +1,5 @@
+<p-toast position="bottom-right" />
+
 <div class="px-4 py-6 sm:p-8">
 
   <!-- Page header -->
@@ -111,10 +113,12 @@
     } @else {
       <ul class="divide-y divide-zinc-100">
         @for (inv of invitations(); track inv.visitor.id + inv.visit.id) {
-          <li>
+          <li class="flex items-center gap-3 px-4 sm:px-6 py-4 hover:bg-zinc-50 transition-colors">
+
+            <!-- Onboarding link — avatar + name + time -->
             <a
               [routerLink]="['/reception/onboarding/checkin', inv.visit.id, inv.visitor.id]"
-              class="flex items-center gap-4 px-4 sm:px-6 py-4 hover:bg-zinc-50 transition-colors cursor-pointer"
+              class="flex flex-1 min-w-0 items-center gap-4"
             >
               <!-- Avatar -->
               <div
@@ -151,14 +155,35 @@
                   <span class="truncate max-w-[180px]">{{ inv.visitor.email }}</span>
                 }
               </div>
-
-              <!-- Check-in status badge -->
-              <div class="shrink-0">
-                <app-checkin-status-badge [status]="inv.checkInStatus" />
-              </div>
-
-              <i class="pi pi-chevron-right text-xs text-zinc-300 shrink-0"></i>
             </a>
+
+            <!-- Check-in status badge -->
+            <div class="shrink-0">
+              <app-checkin-status-badge [status]="inv.checkInStatus" />
+            </div>
+
+            <!-- Manual check-out — only for Arrived visitors -->
+            @if (canCheckOut(inv)) {
+              <p-button
+                type="button"
+                [label]="'reception.arrivals.checkOut.action' | translate"
+                icon="pi pi-sign-out"
+                severity="secondary"
+                size="small"
+                [loading]="checkingOutId() === inv.visitor.id + inv.visit.id"
+                [disabled]="checkingOutId() !== null"
+                (click)="checkOut(inv)"
+              />
+            }
+
+            <!-- Onboarding chevron -->
+            <a
+              [routerLink]="['/reception/onboarding/checkin', inv.visit.id, inv.visitor.id]"
+              class="shrink-0"
+            >
+              <i class="pi pi-chevron-right text-xs text-zinc-300"></i>
+            </a>
+
           </li>
         }
       </ul>
