@@ -802,7 +802,7 @@
         "keep": "Keep",
         "yesDelete": "Yes, delete",
         "loadError": "Failed to load roles. Please try again.",
-        "deleteError": "Failed to delete "{{name}}". Please try again.",
+        "deleteError": "Failed to delete \"{{name}}\". Please try again.",
         "noResults": "No roles match your search.",
         "pageReport": "Showing {first} to {last} of {totalRecords} roles"
       },
