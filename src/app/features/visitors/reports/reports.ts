@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ChartModule } from 'primeng/chart';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +8,7 @@ import { TagModule } from 'primeng/tag';
 import { MeterGroupModule } from 'primeng/metergroup';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
+import { VisitorService, VisitDto, VisitState, VisitorConfirmation, buildFilter } from '../services/visitor-service';
 
 type RangePeriod = '7d' | '30d' | '90d';
 
@@ -18,7 +19,7 @@ interface KpiCard {
   icon: string;
   iconBg: string;
   iconColor: string;
-  trend: number | null; // % change vs previous period, null = no trend data
+  trend: null; // trends unavailable — requires comparative period API support
 }
 
 interface TopLocation {
@@ -33,157 +34,291 @@ interface ConfirmationBreakdown {
   color: string;
 }
 
-// ─── Mockup data sets keyed by period ─────────────────────────────────────────
-
-const MOCK: Record<RangePeriod, {
+interface ReportData {
   kpis: KpiCard[];
   visitsPerDay: { labels: string[]; counts: number[] };
-  checkInRate: number;        // 0–100
-  avgDuration: string;        // e.g. "1h 45m"
+  checkInRate: number;
+  avgDuration: string;
   visitsByState: { label: string; value: number; color: string }[];
   confirmations: ConfirmationBreakdown[];
   topLocations: TopLocation[];
   peakHours: { hour: string; count: number }[];
-}> = {
-  '7d': {
-    kpis: [
-      { label: 'Total visits',      value: '47',   sub: 'last 7 days',  icon: 'pi-calendar',     iconBg: 'bg-blue-50',   iconColor: 'text-blue-500',  trend: +12  },
-      { label: 'Unique visitors',   value: '39',   sub: 'last 7 days',  icon: 'pi-users',        iconBg: 'bg-violet-50', iconColor: 'text-violet-500', trend: +8   },
-      { label: 'Check-in rate',     value: '83%',  sub: 'of expected',  icon: 'pi-check-circle', iconBg: 'bg-green-50',  iconColor: 'text-green-500',  trend: +3   },
-      { label: 'No-shows',          value: '8',    sub: 'did not arrive',icon: 'pi-user-minus',  iconBg: 'bg-red-50',    iconColor: 'text-red-400',    trend: -2   },
-    ],
-    visitsPerDay: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      counts: [5, 9, 11, 8, 7, 4, 3],
-    },
-    checkInRate: 83,
-    avgDuration: '1h 52m',
-    visitsByState: [
-      { label: 'Scheduled', value: 12, color: '#a1a1aa' },
-      { label: 'Approved',  value: 18, color: '#3b82f6' },
-      { label: 'Started',   value: 9,  color: '#22c55e' },
-      { label: 'Finished',  value: 6,  color: '#d4d4d8' },
-      { label: 'Canceled',  value: 2,  color: '#f87171' },
-    ],
-    confirmations: [
-      { label: 'Accepted',  value: 31, color: '#22c55e' },
-      { label: 'Tentative', value: 5,  color: '#f59e0b' },
-      { label: 'Declined',  value: 3,  color: '#f87171' },
-      { label: 'No reply',  value: 8,  color: '#d4d4d8' },
-    ],
-    topLocations: [
-      { name: 'Main Reception',    count: 18, pct: 38 },
-      { name: 'Conference Room A', count: 11, pct: 23 },
-      { name: 'Lab 2 – Floor 3',   count: 8,  pct: 17 },
-      { name: 'Executive Suite',   count: 6,  pct: 13 },
-      { name: 'Parking East',      count: 4,  pct: 9  },
-    ],
-    peakHours: [
-      { hour: '08:00', count: 3 },
-      { hour: '09:00', count: 8 },
-      { hour: '10:00', count: 11 },
-      { hour: '11:00', count: 7 },
-      { hour: '12:00', count: 4 },
-      { hour: '13:00', count: 5 },
-      { hour: '14:00', count: 9 },
-      { hour: '15:00', count: 6 },
-      { hour: '16:00', count: 3 },
-      { hour: '17:00', count: 2 },
-    ],
-  },
-  '30d': {
-    kpis: [
-      { label: 'Total visits',      value: '184',  sub: 'last 30 days', icon: 'pi-calendar',     iconBg: 'bg-blue-50',   iconColor: 'text-blue-500',  trend: +19  },
-      { label: 'Unique visitors',   value: '142',  sub: 'last 30 days', icon: 'pi-users',        iconBg: 'bg-violet-50', iconColor: 'text-violet-500', trend: +14  },
-      { label: 'Check-in rate',     value: '79%',  sub: 'of expected',  icon: 'pi-check-circle', iconBg: 'bg-green-50',  iconColor: 'text-green-500',  trend: -2   },
-      { label: 'No-shows',          value: '38',   sub: 'did not arrive',icon: 'pi-user-minus',  iconBg: 'bg-red-50',    iconColor: 'text-red-400',    trend: +5   },
-    ],
-    visitsPerDay: {
-      labels: ['W1', 'W2', 'W3', 'W4'],
-      counts: [41, 52, 47, 44],
-    },
-    checkInRate: 79,
-    avgDuration: '2h 08m',
-    visitsByState: [
-      { label: 'Scheduled', value: 34, color: '#a1a1aa' },
-      { label: 'Approved',  value: 72, color: '#3b82f6' },
-      { label: 'Started',   value: 41, color: '#22c55e' },
-      { label: 'Finished',  value: 28, color: '#d4d4d8' },
-      { label: 'Canceled',  value: 9,  color: '#f87171' },
-    ],
-    confirmations: [
-      { label: 'Accepted',  value: 118, color: '#22c55e' },
-      { label: 'Tentative', value: 14,  color: '#f59e0b' },
-      { label: 'Declined',  value: 10,  color: '#f87171' },
-      { label: 'No reply',  value: 42,  color: '#d4d4d8' },
-    ],
-    topLocations: [
-      { name: 'Main Reception',    count: 71, pct: 39 },
-      { name: 'Conference Room A', count: 43, pct: 23 },
-      { name: 'Lab 2 – Floor 3',   count: 31, pct: 17 },
-      { name: 'Executive Suite',   count: 22, pct: 12 },
-      { name: 'Parking East',      count: 17, pct: 9  },
-    ],
-    peakHours: [
-      { hour: '08:00', count: 11 },
-      { hour: '09:00', count: 28 },
-      { hour: '10:00', count: 42 },
-      { hour: '11:00', count: 29 },
-      { hour: '12:00', count: 14 },
-      { hour: '13:00', count: 18 },
-      { hour: '14:00', count: 36 },
-      { hour: '15:00', count: 22 },
-      { hour: '16:00', count: 13 },
-      { hour: '17:00', count: 8  },
-    ],
-  },
-  '90d': {
-    kpis: [
-      { label: 'Total visits',      value: '521',  sub: 'last 90 days', icon: 'pi-calendar',     iconBg: 'bg-blue-50',   iconColor: 'text-blue-500',  trend: +31  },
-      { label: 'Unique visitors',   value: '374',  sub: 'last 90 days', icon: 'pi-users',        iconBg: 'bg-violet-50', iconColor: 'text-violet-500', trend: +22  },
-      { label: 'Check-in rate',     value: '81%',  sub: 'of expected',  icon: 'pi-check-circle', iconBg: 'bg-green-50',  iconColor: 'text-green-500',  trend: +1   },
-      { label: 'No-shows',          value: '99',   sub: 'did not arrive',icon: 'pi-user-minus',  iconBg: 'bg-red-50',    iconColor: 'text-red-400',    trend: -4   },
-    ],
-    visitsPerDay: {
-      labels: ['Jan', 'Feb', 'Mar'],
-      counts: [168, 187, 166],
-    },
-    checkInRate: 81,
-    avgDuration: '1h 58m',
-    visitsByState: [
-      { label: 'Scheduled', value: 88,  color: '#a1a1aa' },
-      { label: 'Approved',  value: 201, color: '#3b82f6' },
-      { label: 'Started',   value: 122, color: '#22c55e' },
-      { label: 'Finished',  value: 88,  color: '#d4d4d8' },
-      { label: 'Canceled',  value: 22,  color: '#f87171' },
-    ],
-    confirmations: [
-      { label: 'Accepted',  value: 332, color: '#22c55e' },
-      { label: 'Tentative', value: 41,  color: '#f59e0b' },
-      { label: 'Declined',  value: 28,  color: '#f87171' },
-      { label: 'No reply',  value: 120, color: '#d4d4d8' },
-    ],
-    topLocations: [
-      { name: 'Main Reception',    count: 204, pct: 39 },
-      { name: 'Conference Room A', count: 120, pct: 23 },
-      { name: 'Lab 2 – Floor 3',   count: 88,  pct: 17 },
-      { name: 'Executive Suite',   count: 63,  pct: 12 },
-      { name: 'Parking East',      count: 46,  pct: 9  },
-    ],
-    peakHours: [
-      { hour: '08:00', count: 31  },
-      { hour: '09:00', count: 84  },
-      { hour: '10:00', count: 119 },
-      { hour: '11:00', count: 82  },
-      { hour: '12:00', count: 41  },
-      { hour: '13:00', count: 53  },
-      { hour: '14:00', count: 101 },
-      { hour: '15:00', count: 62  },
-      { hour: '16:00', count: 38  },
-      { hour: '17:00', count: 22  },
-    ],
-  },
+}
+
+// ─── State color map ──────────────────────────────────────────────────────────
+
+const STATE_COLORS: Record<VisitState, string> = {
+  SCHEDULED: '#a1a1aa',
+  APPROVED:  '#3b82f6',
+  REJECTED:  '#fb923c',
+  LOCKED:    '#a855f7',
+  STARTED:   '#22c55e',
+  FINISHED:  '#d4d4d8',
+  CANCELED:  '#f87171',
 };
+
+const CONFIRMATION_COLORS: Record<VisitorConfirmation, string> = {
+  ACCEPTED:  '#22c55e',
+  TENTATIVE: '#f59e0b',
+  DECLINED:  '#f87171',
+  UNKNOWN:   '#d4d4d8',
+  DELEGATED: '#a1a1aa',
+};
+
+// ─── Pure aggregation functions ───────────────────────────────────────────────
+
+function periodDays(period: RangePeriod): number {
+  return period === '7d' ? 7 : period === '30d' ? 30 : 90;
+}
+
+function periodStart(period: RangePeriod): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - periodDays(period) + 1);
+  return d;
+}
+
+function toUtcDayStart(d: Date): string {
+  const s = new Date(d);
+  s.setHours(0, 0, 0, 0);
+  return s.toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
+function toUtcDayEnd(d: Date): string {
+  const e = new Date(d);
+  e.setHours(0, 0, 0, 0);
+  e.setDate(e.getDate() + 1);
+  return e.toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
+function countUniqueVisitors(visits: VisitDto[]): number {
+  const ids = new Set<string>();
+  for (const v of visits) {
+    for (const inv of v.visitorInvitations ?? []) {
+      if (inv.role === 'Visitor') ids.add(inv.visitor.id);
+    }
+  }
+  return ids.size;
+}
+
+function countNoShows(visits: VisitDto[]): number {
+  return visits.filter(v =>
+    (v.state === 'FINISHED' || v.state === 'CANCELED') &&
+    (v.visitorInvitations ?? []).every(i => i.checkInStatus === 'Expected')
+  ).length;
+}
+
+function computeCheckInRate(visits: VisitDto[]): number {
+  const invitations = visits.flatMap(v => v.visitorInvitations ?? []).filter(i => i.role === 'Visitor');
+  if (!invitations.length) return 0;
+  const arrived = invitations.filter(i => i.checkInStatus === 'Arrived' || i.checkInStatus === 'Left').length;
+  return Math.round((arrived / invitations.length) * 100);
+}
+
+function computeAvgDuration(visits: VisitDto[]): string {
+  const durations = visits
+    .filter(v => v.state === 'FINISHED' && v.actualStart && v.actualEnd)
+    .map(v => new Date(v.actualEnd!).getTime() - new Date(v.actualStart!).getTime());
+
+  if (!durations.length) return '—';
+
+  const avgMs = durations.reduce((a, b) => a + b, 0) / durations.length;
+  const totalMinutes = Math.round(avgMs / 60_000);
+  const hours = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+  return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+}
+
+function computeVisitsByState(visits: VisitDto[]): { label: string; value: number; color: string }[] {
+  const counts = new Map<VisitState, number>();
+  for (const v of visits) {
+    counts.set(v.state, (counts.get(v.state) ?? 0) + 1);
+  }
+  return Array.from(counts.entries()).map(([state, value]) => ({
+    label: state.charAt(0) + state.slice(1).toLowerCase(),
+    value,
+    color: STATE_COLORS[state],
+  }));
+}
+
+function computeConfirmations(visits: VisitDto[]): ConfirmationBreakdown[] {
+  const counts = new Map<VisitorConfirmation, number>();
+  for (const v of visits) {
+    for (const inv of v.visitorInvitations ?? []) {
+      const conf: VisitorConfirmation = inv.confirmation ?? 'UNKNOWN';
+      counts.set(conf, (counts.get(conf) ?? 0) + 1);
+    }
+  }
+  const labelMap: Record<VisitorConfirmation, string> = {
+    ACCEPTED:  'Accepted',
+    TENTATIVE: 'Tentative',
+    DECLINED:  'Declined',
+    UNKNOWN:   'No reply',
+    DELEGATED: 'Delegated',
+  };
+  return Array.from(counts.entries()).map(([conf, value]) => ({
+    label: labelMap[conf],
+    value,
+    color: CONFIRMATION_COLORS[conf],
+  }));
+}
+
+function computeTopLocations(visits: VisitDto[]): TopLocation[] {
+  const counts = new Map<string, number>();
+  for (const v of visits) {
+    const name = v.location?.name;
+    if (name) counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+  const total = Array.from(counts.values()).reduce((a, b) => a + b, 0);
+  return Array.from(counts.entries())
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5)
+    .map(([name, count]) => ({
+      name,
+      count,
+      pct: total > 0 ? Math.round((count / total) * 100) : 0,
+    }));
+}
+
+function computePeakHours(visits: VisitDto[]): { hour: string; count: number }[] {
+  const counts = new Map<number, number>();
+  for (const v of visits) {
+    for (const inv of v.visitorInvitations ?? []) {
+      if (!inv.arrivedOn) continue;
+      const hour = new Date(inv.arrivedOn).getHours();
+      counts.set(hour, (counts.get(hour) ?? 0) + 1);
+    }
+  }
+  if (!counts.size) return [];
+  return Array.from(counts.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([hour, count]) => ({
+      hour: `${String(hour).padStart(2, '0')}:00`,
+      count,
+    }));
+}
+
+function computeVisitsPerDay(
+  visits: VisitDto[],
+  period: RangePeriod,
+): { labels: string[]; counts: number[] } {
+  const days = periodDays(period);
+  const start = periodStart(period);
+
+  if (days <= 7) {
+    // Daily buckets — Mon…Sun labels
+    const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return Array.from({ length: days }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const count = visits.filter(v => v.start && new Date(v.start).toDateString() === d.toDateString()).length;
+      return { label: DAY_LABELS[d.getDay()], count };
+    }).reduce<{ labels: string[]; counts: number[] }>(
+      (acc, { label, count }) => {
+        acc.labels.push(label);
+        acc.counts.push(count);
+        return acc;
+      },
+      { labels: [], counts: [] },
+    );
+  }
+
+  if (days <= 31) {
+    // Weekly buckets
+    const weeks = Math.ceil(days / 7);
+    return Array.from({ length: weeks }, (_, i) => {
+      const weekStart = new Date(start);
+      weekStart.setDate(start.getDate() + i * 7);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 7);
+      const count = visits.filter(v => {
+        if (!v.start) return false;
+        const d = new Date(v.start);
+        return d >= weekStart && d < weekEnd;
+      }).length;
+      return { label: `W${i + 1}`, count };
+    }).reduce<{ labels: string[]; counts: number[] }>(
+      (acc, { label, count }) => {
+        acc.labels.push(label);
+        acc.counts.push(count);
+        return acc;
+      },
+      { labels: [], counts: [] },
+    );
+  }
+
+  // Monthly buckets for 90d
+  const monthCounts = new Map<string, number>();
+  for (const v of visits) {
+    if (!v.start) continue;
+    const d = new Date(v.start);
+    const key = d.toLocaleString(undefined, { month: 'short' });
+    monthCounts.set(key, (monthCounts.get(key) ?? 0) + 1);
+  }
+  const labels = Array.from(monthCounts.keys());
+  const counts = Array.from(monthCounts.values());
+  return { labels, counts };
+}
+
+function buildReportData(visits: VisitDto[], period: RangePeriod, translate: TranslateService): ReportData {
+  const days = periodDays(period);
+  const subLabel = translate.instant(`visitors.reports.periodSub.${period}`);
+
+  const totalVisits = visits.length;
+  const uniqueVisitors = countUniqueVisitors(visits);
+  const checkInRate = computeCheckInRate(visits);
+  const noShows = countNoShows(visits);
+
+  return {
+    kpis: [
+      {
+        label: translate.instant('visitors.reports.kpi.totalVisits'),
+        value: String(totalVisits),
+        sub: subLabel,
+        icon: 'pi-calendar',
+        iconBg: 'bg-blue-50',
+        iconColor: 'text-blue-500',
+        trend: null,
+      },
+      {
+        label: translate.instant('visitors.reports.kpi.uniqueVisitors'),
+        value: String(uniqueVisitors),
+        sub: subLabel,
+        icon: 'pi-users',
+        iconBg: 'bg-violet-50',
+        iconColor: 'text-violet-500',
+        trend: null,
+      },
+      {
+        label: translate.instant('visitors.reports.kpi.checkInRate'),
+        value: `${checkInRate}%`,
+        sub: translate.instant('visitors.reports.kpi.ofExpected'),
+        icon: 'pi-check-circle',
+        iconBg: 'bg-green-50',
+        iconColor: 'text-green-500',
+        trend: null,
+      },
+      {
+        label: translate.instant('visitors.reports.kpi.noShows'),
+        value: String(noShows),
+        sub: translate.instant('visitors.reports.kpi.didNotArrive'),
+        icon: 'pi-user-minus',
+        iconBg: 'bg-red-50',
+        iconColor: 'text-red-400',
+        trend: null,
+      },
+    ],
+    visitsPerDay: computeVisitsPerDay(visits, period),
+    checkInRate,
+    avgDuration: computeAvgDuration(visits),
+    visitsByState: computeVisitsByState(visits),
+    confirmations: computeConfirmations(visits),
+    topLocations: computeTopLocations(visits),
+    peakHours: computePeakHours(visits),
+  };
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 @Component({
   selector: 'app-reports',
@@ -202,6 +337,8 @@ const MOCK: Record<RangePeriod, {
   templateUrl: './reports.html',
 })
 export class Reports implements OnInit {
+  private visitorService = inject(VisitorService);
+  private translate = inject(TranslateService);
 
   // ── Period selector ────────────────────────────────────────────────────────
   readonly periodOptions: { label: string; value: RangePeriod }[] = [
@@ -212,14 +349,14 @@ export class Reports implements OnInit {
   selectedPeriod: RangePeriod = '30d';
 
   readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+  readonly reportData = signal<ReportData | null>(null);
 
-  // ── Derived data from mock ─────────────────────────────────────────────────
-  readonly data = computed(() => MOCK[this.selectedPeriod]);
-
-  // ── Chart data objects (rebuilt whenever period changes) ───────────────────
+  // ── Chart data objects ─────────────────────────────────────────────────────
 
   get visitsBarData() {
-    const d = this.data();
+    const d = this.reportData();
+    if (!d) return null;
     return {
       labels: d.visitsPerDay.labels,
       datasets: [{
@@ -248,7 +385,8 @@ export class Reports implements OnInit {
   }
 
   get donutData() {
-    const d = this.data();
+    const d = this.reportData();
+    if (!d) return null;
     return {
       labels: d.visitsByState.map(s => s.label),
       datasets: [{
@@ -276,7 +414,8 @@ export class Reports implements OnInit {
   }
 
   get peakHoursBarData() {
-    const d = this.data();
+    const d = this.reportData();
+    if (!d) return null;
     const maxCount = Math.max(...d.peakHours.map(h => h.count));
     return {
       labels: d.peakHours.map(h => h.hour),
@@ -308,7 +447,8 @@ export class Reports implements OnInit {
   }
 
   get meterGroupValue() {
-    const d = this.data();
+    const d = this.reportData();
+    if (!d) return [];
     const total = d.confirmations.reduce((s, c) => s + c.value, 0);
     return d.confirmations.map(c => ({
       label: c.label,
@@ -317,15 +457,17 @@ export class Reports implements OnInit {
     }));
   }
 
-  ngOnInit(): void {
-    // Simulate a brief async load
-    setTimeout(() => this.loading.set(false), 400);
+  // ── Lifecycle ──────────────────────────────────────────────────────────────
+
+  async ngOnInit(): Promise<void> {
+    await this.loadPeriod();
   }
 
-  onPeriodChange(): void {
-    this.loading.set(true);
-    setTimeout(() => this.loading.set(false), 300);
+  async onPeriodChange(): Promise<void> {
+    await this.loadPeriod();
   }
+
+  // ── Template helpers ───────────────────────────────────────────────────────
 
   trendLabel(trend: number | null): string {
     if (trend === null) return '';
@@ -342,5 +484,38 @@ export class Reports implements OnInit {
     if (trend === null) return '';
     const positive = higherIsBetter ? trend > 0 : trend < 0;
     return positive ? 'pi pi-arrow-up' : 'pi pi-arrow-down';
+  }
+
+  // ── Private ────────────────────────────────────────────────────────────────
+
+  private async loadPeriod(): Promise<void> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const start = periodStart(this.selectedPeriod);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const filter = buildFilter({
+      op: 'and',
+      filters: [
+        { key: 'Start', op: 'greaterThanOrEqual', value: toUtcDayStart(start) },
+        { key: 'Start', op: 'lessThan',           value: toUtcDayEnd(tomorrow) },
+      ],
+    });
+
+    try {
+      const result = await this.visitorService.getAllVisits({
+        Filter: filter,
+        Sort: 'Start',
+        SortDir: 'Asc',
+        PageSize: 1000,
+      });
+      this.reportData.set(buildReportData(result.items, this.selectedPeriod, this.translate));
+    } catch {
+      this.error.set(this.translate.instant('visitors.reports.loadError'));
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

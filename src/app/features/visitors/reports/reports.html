@@ -4,12 +4,7 @@
   <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
       <h1 class="text-2xl font-semibold text-zinc-800">{{ 'visitors.reports.title' | translate }}</h1>
-      <p class="text-sm text-zinc-500 mt-1">
-        {{ 'visitors.reports.subtitle' | translate }}
-        <span class="ml-1.5 rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[11px] font-medium text-amber-600">
-          <i class="pi pi-chart-bar mr-1 text-[10px]"></i>{{ 'visitors.reports.mockupData' | translate }}
-        </span>
-      </p>
+      <p class="text-sm text-zinc-500 mt-1">{{ 'visitors.reports.subtitle' | translate }}</p>
     </div>
 
     <!-- Period selector -->
@@ -43,11 +38,19 @@
       }
     </div>
 
-  } @else {
+  } @else if (error()) {
+
+    <!-- ── Error state ────────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+      <i class="pi pi-exclamation-triangle text-2xl text-red-400 mb-2 block"></i>
+      <p class="text-sm text-red-600">{{ error() }}</p>
+    </div>
+
+  } @else if (reportData(); as data) {
 
     <!-- ── KPI Cards ───────────────────────────────────────────────────────── -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      @for (kpi of data().kpis; track kpi.label; let i = $index) {
+      @for (kpi of data.kpis; track kpi.label) {
         <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs">
           <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide leading-tight">{{ kpi.label }}</span>
@@ -58,17 +61,14 @@
           <p class="text-3xl font-bold text-zinc-800 leading-none mb-1">{{ kpi.value }}</p>
           <div class="flex items-center gap-2 mt-2">
             <span class="text-xs text-zinc-400">{{ kpi.sub }}</span>
-            @if (kpi.trend !== null) {
-              <span
-                class="inline-flex items-center gap-0.5 text-[11px] font-semibold"
-                [class]="trendClass(kpi.trend, i !== 3)"
-                [pTooltip]="'visitors.reports.vsPreviousPeriod' | translate"
-                tooltipPosition="top"
-              >
-                <i class="pi text-[9px]" [class]="trendIcon(kpi.trend, i !== 3)"></i>
-                {{ trendLabel(kpi.trend) }}
-              </span>
-            }
+            <!-- Trend unavailable — comparative period data not supported by the API yet -->
+            <span
+              class="inline-flex items-center gap-0.5 text-[11px] text-zinc-300"
+              [pTooltip]="'visitors.reports.trendUnavailable' | translate"
+              tooltipPosition="top"
+            >
+              <i class="pi pi-minus text-[9px]"></i>
+            </span>
           </div>
         </div>
       }
@@ -87,7 +87,9 @@
           <i class="pi pi-chart-bar text-zinc-300 text-lg"></i>
         </div>
         <div class="px-6 py-5" style="height: 240px">
-          <p-chart type="bar" [data]="visitsBarData" [options]="visitsBarOptions" height="190px" />
+          @if (visitsBarData) {
+            <p-chart type="bar" [data]="visitsBarData" [options]="visitsBarOptions" height="190px" />
+          }
         </div>
       </div>
 
@@ -101,7 +103,9 @@
           <i class="pi pi-chart-pie text-zinc-300 text-lg"></i>
         </div>
         <div class="px-6 py-5" style="height: 300px">
-          <p-chart type="doughnut" [data]="donutData" [options]="donutOptions" height="250px" />
+          @if (donutData) {
+            <p-chart type="doughnut" [data]="donutData" [options]="donutOptions" height="250px" />
+          }
         </div>
       </div>
 
@@ -115,7 +119,13 @@
           <i class="pi pi-clock text-zinc-300 text-lg"></i>
         </div>
         <div class="px-6 py-5" style="height: 300px">
-          <p-chart type="bar" [data]="peakHoursBarData" [options]="peakHoursOptions" height="250px" />
+          @if (peakHoursBarData && data.peakHours.length) {
+            <p-chart type="bar" [data]="peakHoursBarData" [options]="peakHoursOptions" height="250px" />
+          } @else {
+            <div class="h-full flex items-center justify-center">
+              <p class="text-sm text-zinc-400">{{ 'visitors.reports.noArrivalData' | translate }}</p>
+            </div>
+          }
         </div>
       </div>
 
@@ -130,21 +140,25 @@
         </div>
         <div class="px-6 py-6 flex flex-col gap-5">
 
-          <p-metergroup [value]="meterGroupValue" />
+          @if (data.confirmations.length) {
+            <p-metergroup [value]="meterGroupValue" />
 
-          <!-- Legend with counts -->
-          <ul class="grid grid-cols-2 gap-x-6 gap-y-3 mt-1">
-            @for (c of data().confirmations; track c.label) {
-              <li class="flex items-center gap-2">
-                <span
-                  class="w-2.5 h-2.5 rounded-full shrink-0"
-                  [style.background-color]="c.color"
-                ></span>
-                <span class="text-xs text-zinc-600 flex-1 truncate">{{ c.label }}</span>
-                <span class="text-xs font-semibold text-zinc-800 tabular-nums">{{ c.value }}</span>
-              </li>
-            }
-          </ul>
+            <!-- Legend with counts -->
+            <ul class="grid grid-cols-2 gap-x-6 gap-y-3 mt-1">
+              @for (c of data.confirmations; track c.label) {
+                <li class="flex items-center gap-2">
+                  <span
+                    class="w-2.5 h-2.5 rounded-full shrink-0"
+                    [style.background-color]="c.color"
+                  ></span>
+                  <span class="text-xs text-zinc-600 flex-1 truncate">{{ c.label }}</span>
+                  <span class="text-xs font-semibold text-zinc-800 tabular-nums">{{ c.value }}</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="text-sm text-zinc-400 text-center py-4">{{ 'visitors.reports.noRsvpData' | translate }}</p>
+          }
 
         </div>
       </div>
@@ -159,27 +173,31 @@
           <i class="pi pi-map-marker text-zinc-300 text-lg"></i>
         </div>
         <div class="px-6 py-5 flex flex-col gap-4">
-          @for (loc of data().topLocations; track loc.name; let i = $index) {
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="flex items-center gap-2 min-w-0">
-                  <span
-                    class="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold shrink-0"
-                    [class]="i === 0 ? 'bg-[#238cff] text-white' : 'bg-zinc-100 text-zinc-500'"
-                  >{{ i + 1 }}</span>
-                  <span class="text-sm text-zinc-700 truncate">{{ loc.name }}</span>
+          @if (data.topLocations.length) {
+            @for (loc of data.topLocations; track loc.name; let i = $index) {
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span
+                      class="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold shrink-0"
+                      [class]="i === 0 ? 'bg-[#238cff] text-white' : 'bg-zinc-100 text-zinc-500'"
+                    >{{ i + 1 }}</span>
+                    <span class="text-sm text-zinc-700 truncate">{{ loc.name }}</span>
+                  </div>
+                  <span class="text-xs font-semibold text-zinc-500 tabular-nums shrink-0 ml-2">
+                    {{ loc.count }} <span class="font-normal text-zinc-400">({{ loc.pct }}%)</span>
+                  </span>
                 </div>
-                <span class="text-xs font-semibold text-zinc-500 tabular-nums shrink-0 ml-2">
-                  {{ loc.count }} <span class="font-normal text-zinc-400">({{ loc.pct }}%)</span>
-                </span>
+                <p-progressbar
+                  [value]="loc.pct"
+                  [showValue]="false"
+                  styleClass="h-1.5"
+                  [style]="{ '--p-progressbar-value-background': i === 0 ? '#238cff' : '#93c5fd' }"
+                />
               </div>
-              <p-progressbar
-                [value]="loc.pct"
-                [showValue]="false"
-                styleClass="h-1.5"
-                [style]="{ '--p-progressbar-value-background': i === 0 ? '#238cff' : '#93c5fd' }"
-              />
-            </div>
+            }
+          } @else {
+            <p class="text-sm text-zinc-400 text-center py-4">{{ 'visitors.reports.noLocationData' | translate }}</p>
           }
         </div>
       </div>
@@ -194,7 +212,7 @@
           </div>
           <div>
             <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-1">{{ 'visitors.reports.avgDuration' | translate }}</p>
-            <p class="text-3xl font-bold text-zinc-800">{{ data().avgDuration }}</p>
+            <p class="text-3xl font-bold text-zinc-800">{{ data.avgDuration }}</p>
             <p class="text-xs text-zinc-400 mt-1">{{ 'visitors.reports.avgDurationDesc' | translate }}</p>
           </div>
         </div>
@@ -204,25 +222,25 @@
           <div class="flex items-center justify-between mb-4">
             <div>
               <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'visitors.reports.checkInRate' | translate }}</p>
-              <p class="text-3xl font-bold text-zinc-800 mt-1">{{ data().checkInRate }}%</p>
+              <p class="text-3xl font-bold text-zinc-800 mt-1">{{ data.checkInRate }}%</p>
             </div>
             <div
               class="w-14 h-14 rounded-full flex items-center justify-center text-sm font-bold border-4"
-              [class]="data().checkInRate >= 80 ? 'border-green-400 text-green-600 bg-green-50' :
-                        data().checkInRate >= 60 ? 'border-amber-400 text-amber-600 bg-amber-50' :
-                                                    'border-red-400 text-red-500 bg-red-50'"
+              [class]="data.checkInRate >= 80 ? 'border-green-400 text-green-600 bg-green-50' :
+                        data.checkInRate >= 60 ? 'border-amber-400 text-amber-600 bg-amber-50' :
+                                                  'border-red-400 text-red-500 bg-red-50'"
             >
-              {{ data().checkInRate }}%
+              {{ data.checkInRate }}%
             </div>
           </div>
           <p-progressbar
-            [value]="data().checkInRate"
+            [value]="data.checkInRate"
             [showValue]="false"
             styleClass="h-2"
             [style]="{
               '--p-progressbar-value-background':
-                data().checkInRate >= 80 ? '#22c55e' :
-                data().checkInRate >= 60 ? '#f59e0b' : '#f87171'
+                data.checkInRate >= 80 ? '#22c55e' :
+                data.checkInRate >= 60 ? '#f59e0b' : '#f87171'
             }"
           />
           <p class="text-xs text-zinc-400 mt-2">

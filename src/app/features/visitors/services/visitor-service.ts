@@ -3,6 +3,62 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '../../../core/services/config-service';
 
+// ─── Validation Error Types ───────────────────────────────────────────────────
+
+export interface ValidationErrorItem {
+  propertyName: string;
+  errorMessage: string;
+  attemptedValue: unknown;
+  customState: unknown;
+  severity: string;
+  errorCode: string;
+  formattedMessagePlaceholderValues: {
+    PropertyPath: string;
+    [key: string]: unknown;
+  };
+}
+
+export interface ValidationErrorResponse {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  Errors: ValidationErrorItem[];
+  traceId: string;
+}
+
+/**
+ * Maps a server-side PropertyPath (e.g. "VisitInput.End") to a form control
+ * name (e.g. "end") and returns a Record<controlName, firstErrorMessage>.
+ *
+ * The mapping strips any leading dot-separated prefix (e.g. "VisitInput.")
+ * and lowercases the first character of the remaining segment.
+ */
+export function parseValidationErrors(err: HttpErrorResponse): Record<string, string> {
+  if (err.status !== 400) return {};
+
+  const body = err.error as ValidationErrorResponse | null;
+  if (!body?.Errors?.length) return {};
+
+  const result: Record<string, string> = {};
+
+  for (const item of body.Errors) {
+    const path: string =
+      item.formattedMessagePlaceholderValues?.PropertyPath ?? item.propertyName ?? '';
+
+    // "VisitInput.End" → "End" → "end"
+    const segment = path.includes('.') ? path.split('.').pop()! : path;
+    const controlName = segment.charAt(0).toLowerCase() + segment.slice(1);
+
+    // Keep only the first error per field
+    if (controlName && !result[controlName]) {
+      result[controlName] = item.errorMessage;
+    }
+  }
+
+  return result;
+}
+
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
 export type VisitState =
