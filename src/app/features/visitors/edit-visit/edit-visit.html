@@ -92,7 +92,9 @@
               [invalid]="isInvalid('summary')"
             />
             @if (isInvalid('summary')) {
-              <p class="text-xs text-red-500">{{ 'visitors.editVisit.summaryRequired' | translate }}</p>
+              <p class="text-xs text-red-500">
+                {{ form.get('summary')?.errors?.['serverError'] ?? ('visitors.editVisit.summaryRequired' | translate) }}
+              </p>
             }
           </div>
 
@@ -115,7 +117,9 @@
                 [invalid]="isInvalid('start')"
               />
               @if (isInvalid('start')) {
-                <p class="text-xs text-red-500">{{ 'visitors.editVisit.startRequired' | translate }}</p>
+                <p class="text-xs text-red-500">
+                  {{ form.get('start')?.errors?.['serverError'] ?? ('visitors.editVisit.startRequired' | translate) }}
+                </p>
               }
             </div>
 
@@ -135,7 +139,9 @@
                 [invalid]="isInvalid('end')"
               />
               @if (isInvalid('end')) {
-                <p class="text-xs text-red-500">{{ 'visitors.editVisit.endRequired' | translate }}</p>
+                <p class="text-xs text-red-500">
+                  {{ form.get('end')?.errors?.['serverError'] ?? ('visitors.editVisit.endRequired' | translate) }}
+                </p>
               }
             </div>
 

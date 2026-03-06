@@ -12,7 +12,9 @@ import {
   VisitorService,
   LocationDto,
   OrganizerDto,
+  parseValidationErrors,
 } from '../services/visitor-service';
+import { HttpErrorResponse } from '@angular/common/http';
 import { toLocalIso } from '../../../shared/utils/date-utils';
 import { LocationPicker } from '../../../shared/components/location-picker/location-picker';
 
@@ -122,8 +124,26 @@ export class CreateVisit implements OnInit {
       });
 
       this.router.navigate(['/visitors/edit', visit.id]);
-    } catch {
-      this.error.set(this.translate.instant('visitors.createVisit.createError'));
+    } catch (err) {
+      if (err instanceof HttpErrorResponse && err.status === 400) {
+        const fieldErrors = parseValidationErrors(err);
+        let hasFieldErrors = false;
+
+        for (const [field, message] of Object.entries(fieldErrors)) {
+          const ctrl = this.form.get(field);
+          if (ctrl) {
+            ctrl.setErrors({ serverError: message });
+            ctrl.markAsTouched();
+            hasFieldErrors = true;
+          }
+        }
+
+        if (!hasFieldErrors) {
+          this.error.set(this.translate.instant('visitors.createVisit.createError'));
+        }
+      } else {
+        this.error.set(this.translate.instant('visitors.createVisit.createError'));
+      }
       this.saving.set(false);
     }
   }

@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -19,6 +20,7 @@ import {
   OrganizerDto,
   LocationDto,
   buildFilter,
+  parseValidationErrors,
 } from '../services/visitor-service';
 import { toLocalIso, fromServerDate } from '../../../shared/utils/date-utils';
 import { VisitStateBadge } from '../../../shared/components/visit-state-badge/visit-state-badge';
@@ -237,8 +239,26 @@ export class EditVisit implements OnInit {
       this.saveSuccess.set(true);
 
       setTimeout(() => this.saveSuccess.set(false), 3000);
-    } catch {
-      this.saveError.set(this.translate.instant('visitors.editVisit.saveError'));
+    } catch (err) {
+      if (err instanceof HttpErrorResponse && err.status === 400) {
+        const fieldErrors = parseValidationErrors(err);
+        let hasFieldErrors = false;
+
+        for (const [field, message] of Object.entries(fieldErrors)) {
+          const ctrl = this.form.get(field);
+          if (ctrl) {
+            ctrl.setErrors({ serverError: message });
+            ctrl.markAsTouched();
+            hasFieldErrors = true;
+          }
+        }
+
+        if (!hasFieldErrors) {
+          this.saveError.set(this.translate.instant('visitors.editVisit.saveError'));
+        }
+      } else {
+        this.saveError.set(this.translate.instant('visitors.editVisit.saveError'));
+      }
     } finally {
       this.saving.set(false);
     }
