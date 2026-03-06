@@ -20,6 +20,14 @@ import { SidebarNavService } from '../../services/sidebar-nav-service';
 })
 export class Layout {
   mobileMenuOpen = false;
+  mobileAppSwitcherOpen = false;
+  mobileLangOpen = false;
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+    this.mobileAppSwitcherOpen = false;
+    this.mobileLangOpen = false;
+  }
 
   private appSwitcher = inject(AppSwitcherService);
   private sidebarNav = inject(SidebarNavService);
