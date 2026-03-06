@@ -19,7 +19,7 @@
         <h2 class="text-sm font-semibold text-zinc-700">
           {{ 'settings.users.users.title' | translate }}
           @if (!usersLoading()) {
-            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ allUsers().length }})</span>
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ filteredUsers().length }}{{ userSearch() ? ' / ' + allUsers().length : '' }})</span>
           }
         </h2>
         <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.users.subtitle' | translate }}</p>
@@ -27,7 +27,9 @@
       <div class="flex items-center gap-2">
         <p-iconfield>
           <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-          <input pInputText type="text" (input)="onUserSearchInput($event)"
+          <input pInputText type="text"
+            [value]="userSearch()"
+            (input)="userSearch.set($any($event.target).value)"
             [placeholder]="'settings.users.users.searchPlaceholder' | translate"
             class="text-sm w-full sm:w-52" />
         </p-iconfield>
@@ -326,7 +328,7 @@
         <h2 class="text-sm font-semibold text-zinc-700">
           {{ 'settings.users.groups.title' | translate }}
           @if (!groupsLoading()) {
-            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ allGroups().length }})</span>
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ filteredGroups().length }}{{ groupSearch() ? ' / ' + allGroups().length : '' }})</span>
           }
         </h2>
         <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.groups.subtitle' | translate }}</p>
@@ -334,7 +336,9 @@
       <div class="flex items-center gap-2">
         <p-iconfield>
           <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-          <input pInputText type="text" (input)="onGroupSearchInput($event)"
+          <input pInputText type="text"
+            [value]="groupSearch()"
+            (input)="groupSearch.set($any($event.target).value)"
             [placeholder]="'settings.users.groups.searchPlaceholder' | translate"
             class="text-sm w-full sm:w-52" />
         </p-iconfield>
@@ -582,7 +586,7 @@
         <h2 class="text-sm font-semibold text-zinc-700">
           {{ 'settings.users.roles.title' | translate }}
           @if (!rolesLoading()) {
-            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ allRoles().length }})</span>
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ filteredRoles().length }}{{ roleSearch() ? ' / ' + allRoles().length : '' }})</span>
           }
         </h2>
         <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.roles.subtitle' | translate }}</p>
@@ -590,7 +594,9 @@
       <div class="flex items-center gap-2">
         <p-iconfield>
           <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-          <input pInputText type="text" (input)="onRoleSearchInput($event)"
+          <input pInputText type="text"
+            [value]="roleSearch()"
+            (input)="roleSearch.set($any($event.target).value)"
             [placeholder]="'settings.users.roles.searchPlaceholder' | translate"
             class="text-sm w-full sm:w-52" />
         </p-iconfield>

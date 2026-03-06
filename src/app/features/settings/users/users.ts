@@ -224,20 +224,6 @@ export class SettingsUsers implements OnInit {
     }
   }
 
-  // ── Search handlers ───────────────────────────────────────────────────────
-
-  onUserSearchInput(event: Event): void {
-    this.userSearch.set((event.target as HTMLInputElement).value);
-  }
-
-  onGroupSearchInput(event: Event): void {
-    this.groupSearch.set((event.target as HTMLInputElement).value);
-  }
-
-  onRoleSearchInput(event: Event): void {
-    this.roleSearch.set((event.target as HTMLInputElement).value);
-  }
-
   // ── Create user ───────────────────────────────────────────────────────────
 
   openCreateUser(): void {
