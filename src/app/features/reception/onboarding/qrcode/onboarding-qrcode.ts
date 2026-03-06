@@ -12,13 +12,17 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { BrowserQRCodeReader, IScannerControls } from '@zxing/browser';
 import { NotFoundException } from '@zxing/library';
 import { KioskSessionService } from '../services/kiosk-session-service';
 import { VisitorService } from '../../../visitors/services/visitor-service';
+import { CameraService } from '../services/camera-service';
+import { CameraPreferenceService } from '../services/camera-preference-service';
 
 @Component({
   selector: 'app-onboarding-qrcode',
+  imports: [FormsModule],
   templateUrl: './onboarding-qrcode.html',
   host: { class: 'block' },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +36,9 @@ export class OnboardingQrcode implements OnInit, AfterViewInit, OnDestroy {
   private session = inject(KioskSessionService);
   private visitorService = inject(VisitorService);
   private cdr = inject(ChangeDetectorRef);
+
+  readonly camera = inject(CameraService);
+  private prefs = inject(CameraPreferenceService);
 
   // ─── Element Refs ─────────────────────────────────────────────────────────
 
@@ -68,6 +75,12 @@ export class OnboardingQrcode implements OnInit, AfterViewInit, OnDestroy {
     return 'transparent';
   });
 
+  readonly videoTransform = computed(() =>
+    this.camera.mirrored() ? 'scaleX(-1)' : 'none'
+  );
+
+  readonly hasMultipleCameras = computed(() => this.camera.cameras().length > 1);
+
   // ─── Scanner Controls ─────────────────────────────────────────────────────
 
   private scannerControls: IScannerControls | null = null;
@@ -82,26 +95,68 @@ export class OnboardingQrcode implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     const videoEl = this.videoEl()?.nativeElement;
     if (!videoEl) return;
-    this.startScanner(videoEl);
+
+    // Restore saved preferences.
+    const pref = this.prefs.load('qr');
+    this.camera.mirrored.set(pref.mirrored);
+
+    // Enumerate devices so the selector is populated, then start scanning.
+    this.camera.enumerateDevices(pref.deviceId).then(() => {
+      const selected = this.camera.selectedCamera();
+      this.startScanner(videoEl, selected?.deviceId ?? null);
+      this.cdr.markForCheck();
+    });
   }
 
   ngOnDestroy(): void {
     this.scannerControls?.stop();
   }
 
+  // ─── Camera controls ──────────────────────────────────────────────────────
+
+  onCameraChange(deviceId: string): void {
+    const videoEl = this.videoEl()?.nativeElement;
+    if (!videoEl) return;
+
+    const device = this.camera.cameras().find(c => c.deviceId === deviceId);
+    if (!device) return;
+
+    this.camera.selectedCamera.set(device);
+    this.prefs.saveDeviceId('qr', deviceId);
+
+    // Stop current scanner and restart with the new device.
+    this.scannerControls?.stop();
+    this.scannerControls = null;
+    this.lastScannedQr.set(null);
+    this.borderColor.set('transparent');
+    this.errorMessage.set(null);
+
+    this.startScanner(videoEl, deviceId);
+  }
+
+  toggleMirror(): void {
+    const next = !this.camera.mirrored();
+    this.camera.mirrored.set(next);
+    this.prefs.saveMirrored('qr', next);
+    this.cdr.markForCheck();
+  }
+
   // ─── Scanner ──────────────────────────────────────────────────────────────
 
   /**
-   * Uses ZXing's decodeFromConstraints which handles camera permission,
-   * stream setup and the decode loop internally — no pre-enumeration needed.
-   * The environment-facing camera is preferred so visitors can scan a code
-   * they're holding; falls back to any available camera.
+   * Uses ZXing's decodeFromConstraints which handles stream setup and the
+   * decode loop internally. When a saved deviceId exists, it is passed as an
+   * exact constraint; otherwise the environment-facing camera is preferred.
    */
-  private startScanner(videoEl: HTMLVideoElement): void {
+  private startScanner(videoEl: HTMLVideoElement, deviceId: string | null): void {
     const reader = new BrowserQRCodeReader();
 
+    const videoConstraints: MediaTrackConstraints = deviceId
+      ? { deviceId: { exact: deviceId } }
+      : { facingMode: 'environment' };
+
     reader.decodeFromConstraints(
-      { video: { facingMode: 'environment' } },
+      { video: videoConstraints },
       videoEl,
       (result, error, controls) => {
         if (controls && !this.scannerControls) {

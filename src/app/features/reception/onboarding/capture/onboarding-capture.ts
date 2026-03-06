@@ -6,16 +6,20 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
+  computed,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { KioskSessionService } from '../services/kiosk-session-service';
+import { CameraService } from '../services/camera-service';
+import { CameraPreferenceService } from '../services/camera-preference-service';
 
 @Component({
   selector: 'app-onboarding-capture',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './onboarding-capture.html',
   host: { class: 'block' },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,6 +32,9 @@ export class OnboardingCapture implements OnInit, AfterViewInit, OnDestroy {
   private router = inject(Router);
   private session = inject(KioskSessionService);
   private cdr = inject(ChangeDetectorRef);
+
+  readonly camera = inject(CameraService);
+  private prefs = inject(CameraPreferenceService);
 
   // ── Element Refs ────────────────────────────────────────────────────────────
 
@@ -46,8 +53,13 @@ export class OnboardingCapture implements OnInit, AfterViewInit, OnDestroy {
   readonly preview = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
 
-  /** Active MediaStream — stopped on destroy or after capture. */
-  private activeStream: MediaStream | null = null;
+  // ── Computed ────────────────────────────────────────────────────────────────
+
+  readonly videoTransform = computed(() =>
+    this.camera.mirrored() ? 'scaleX(-1)' : 'none'
+  );
+
+  readonly hasMultipleCameras = computed(() => this.camera.cameras().length > 1);
 
   // ── Lifecycle ───────────────────────────────────────────────────────────────
 
@@ -59,42 +71,75 @@ export class OnboardingCapture implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.startCamera();
+    // Restore saved preferences before starting stream.
+    const pref = this.prefs.load('document');
+    this.camera.mirrored.set(pref.mirrored);
+
+    this.startCamera(pref.deviceId ?? undefined);
   }
 
   ngOnDestroy(): void {
-    this.stopCamera();
+    this.camera.stopStream();
   }
 
   // ── Camera ──────────────────────────────────────────────────────────────────
 
-  private startCamera(): void {
+  private startCamera(savedDeviceId?: string): void {
     const videoRef = this.videoEl();
     if (!videoRef) return;
 
     const video = videoRef.nativeElement;
 
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
-      .then(stream => {
-        this.activeStream = stream;
-        video.srcObject = stream;
-        video.addEventListener('loadedmetadata', () => {
+    this.camera.enumerateDevices(savedDeviceId).then(async () => {
+      const selected = this.camera.selectedCamera();
+      if (!selected) {
+        this.errorMessage.set('No camera found.');
+        this.cdr.markForCheck();
+        return;
+      }
+
+      try {
+        await this.camera.enableCameraForVideoElement(video, selected.deviceId, () => {
           this.cameraReady.set(true);
           this.cdr.markForCheck();
-        }, { once: true });
-      })
-      .catch(err => {
+        });
+      } catch (err) {
         this.errorMessage.set('Camera access denied: ' + String(err));
         this.cdr.markForCheck();
-      });
+      }
+    });
   }
 
-  private stopCamera(): void {
-    if (this.activeStream) {
-      for (const track of this.activeStream.getTracks()) track.stop();
-      this.activeStream = null;
+  // ── Camera controls ─────────────────────────────────────────────────────────
+
+  async onCameraChange(deviceId: string): Promise<void> {
+    const videoRef = this.videoEl();
+    if (!videoRef) return;
+
+    const device = this.camera.cameras().find(c => c.deviceId === deviceId);
+    if (!device) return;
+
+    this.camera.selectedCamera.set(device);
+    this.prefs.saveDeviceId('document', deviceId);
+    this.cameraReady.set(false);
+    this.cdr.markForCheck();
+
+    try {
+      await this.camera.switchCamera(videoRef.nativeElement, deviceId, () => {
+        this.cameraReady.set(true);
+        this.cdr.markForCheck();
+      });
+    } catch (err) {
+      this.errorMessage.set('Could not switch camera: ' + String(err));
+      this.cdr.markForCheck();
     }
+  }
+
+  toggleMirror(): void {
+    const next = !this.camera.mirrored();
+    this.camera.mirrored.set(next);
+    this.prefs.saveMirrored('document', next);
+    this.cdr.markForCheck();
   }
 
   // ── Actions ─────────────────────────────────────────────────────────────────
@@ -113,11 +158,17 @@ export class OnboardingCapture implements OnInit, AfterViewInit, OnDestroy {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Apply mirror flip to the captured image if mirrored mode is on.
+    if (this.camera.mirrored()) {
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+    }
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const base64 = canvas.toDataURL('image/jpeg', 0.9);
 
     // Pause the stream while the user reviews the preview.
-    this.stopCamera();
+    this.camera.stopStream();
     this.preview.set(base64);
     this.cdr.markForCheck();
   }
@@ -131,9 +182,11 @@ export class OnboardingCapture implements OnInit, AfterViewInit, OnDestroy {
 
   retake(): void {
     this.preview.set(null);
+    this.cameraReady.set(false);
     this.cdr.markForCheck();
     // Restart the camera stream for another attempt.
-    this.startCamera();
+    const pref = this.prefs.load('document');
+    this.startCamera(pref.deviceId ?? undefined);
   }
 
   cancel(): void {

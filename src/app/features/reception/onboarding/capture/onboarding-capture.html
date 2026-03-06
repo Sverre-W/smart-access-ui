@@ -32,6 +32,7 @@
     @if (!preview()) {
       <div class="relative w-full flex justify-center">
         <video #videoEl autoplay playsinline muted
+          [style.transform]="videoTransform()"
           style="
             width: 100%;
             max-width: 640px;
@@ -55,17 +56,58 @@
         }
       </div>
 
-      <!-- Capture button -->
-      <button
-        type="button"
-        [disabled]="!cameraReady()"
-        (click)="takePhoto()"
-        class="flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition
-               bg-[#238cff] hover:bg-[#1a7ae0] disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        <i class="pi pi-camera"></i>
-        Capture
-      </button>
+      <!-- Camera controls bar -->
+      <div class="flex flex-wrap items-center justify-center gap-3 w-full max-w-xl">
+
+        <!-- Camera selector — only shown when multiple cameras are available -->
+        @if (hasMultipleCameras()) {
+          <div class="flex items-center gap-2 min-w-0 flex-1">
+            <i class="pi pi-video text-zinc-400 text-sm shrink-0"></i>
+            <select
+              [ngModel]="camera.selectedCamera()?.deviceId"
+              (ngModelChange)="onCameraChange($event)"
+              class="flex-1 min-w-0 rounded-lg border border-zinc-200 bg-white px-3 py-2
+                     text-sm text-zinc-700 shadow-xs focus:outline-none focus:ring-2
+                     focus:ring-[#238cff]/40 focus:border-[#238cff] transition"
+              aria-label="Select camera"
+            >
+              @for (cam of camera.cameras(); track cam.deviceId) {
+                <option [value]="cam.deviceId">{{ cam.label }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Mirror toggle -->
+        <button
+          type="button"
+          (click)="toggleMirror()"
+          [class.text-[#238cff]]="camera.mirrored()"
+          [class.border-[#238cff]]="camera.mirrored()"
+          [class.bg-blue-50]="camera.mirrored()"
+          class="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white
+                 px-3 py-2 text-sm text-zinc-500 shadow-xs hover:bg-zinc-50
+                 transition shrink-0"
+          [attr.aria-pressed]="camera.mirrored()"
+          aria-label="Toggle mirror"
+        >
+          <i class="pi pi-arrows-h text-sm"></i>
+          Mirror
+        </button>
+
+        <!-- Capture button -->
+        <button
+          type="button"
+          [disabled]="!cameraReady()"
+          (click)="takePhoto()"
+          class="flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-semibold text-white transition
+                 bg-[#238cff] hover:bg-[#1a7ae0] disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+        >
+          <i class="pi pi-camera"></i>
+          Capture
+        </button>
+
+      </div>
     }
 
     <!-- Preview (shown after snapshot) -->

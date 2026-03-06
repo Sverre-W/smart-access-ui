@@ -12,15 +12,18 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { KioskSessionService } from '../services/kiosk-session-service';
 import { FaceDetectorService } from '../services/face-detector-service';
+import { CameraService } from '../services/camera-service';
+import { CameraPreferenceService } from '../services/camera-preference-service';
 
 /** How many milliseconds of continuous valid-face before the photo is taken. */
 const CAPTURE_DELAY_MS = 3000;
 
 @Component({
   selector: 'app-onboarding-selfie',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './onboarding-selfie.html',
   host: { class: 'block' },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +37,9 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
   private session = inject(KioskSessionService);
   private faceDetector = inject(FaceDetectorService);
   private cdr = inject(ChangeDetectorRef);
+
+  readonly camera = inject(CameraService);
+  private prefs = inject(CameraPreferenceService);
 
   // ── Element Refs ────────────────────────────────────────────────────────────
 
@@ -66,7 +72,6 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
   private captureStarted = false;
 
   private rafId: number | null = null;
-  private activeStream: MediaStream | null = null;
 
   // ── Computed ────────────────────────────────────────────────────────────────
 
@@ -75,6 +80,12 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
       ? '6px solid rgba(34,197,94,0.8)'
       : '6px solid transparent'
   );
+
+  readonly canvasTransform = computed(() =>
+    this.camera.mirrored() ? 'scaleX(-1)' : 'none'
+  );
+
+  readonly hasMultipleCameras = computed(() => this.camera.cameras().length > 1);
 
   // ── Lifecycle ───────────────────────────────────────────────────────────────
 
@@ -92,33 +103,38 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
     const video  = videoRef.nativeElement;
     const canvas = canvasRef.nativeElement;
 
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: 'user' } })
-      .then(async stream => {
-        this.activeStream = stream;
-        video.srcObject = stream;
+    // Restore saved preferences before starting stream.
+    const pref = this.prefs.load('selfie');
+    this.camera.mirrored.set(pref.mirrored);
 
-        await new Promise<void>(resolve => {
-          video.addEventListener('loadedmetadata', () => resolve(), { once: true });
+    this.camera.enumerateDevices(pref.deviceId).then(async () => {
+      const selected = this.camera.selectedCamera();
+      if (!selected) {
+        this.errorMessage.set('No camera found.');
+        this.cdr.markForCheck();
+        return;
+      }
+
+      try {
+        await this.camera.enableCameraForVideoElement(video, selected.deviceId, async () => {
+          // Canvas internal resolution = square matching the video crop.
+          const size = Math.min(video.videoWidth || 640, video.videoHeight || 640);
+          canvas.width  = size;
+          canvas.height = size;
+
+          await this.faceDetector.initialize();
+          this.startLoop(video, canvas);
         });
-
-        // Canvas internal resolution = square matching the video crop.
-        const size = Math.min(video.videoWidth || 640, video.videoHeight || 640);
-        canvas.width  = size;
-        canvas.height = size;
-
-        await this.faceDetector.initialize();
-        this.startLoop(video, canvas);
-      })
-      .catch(err => {
+      } catch (err) {
         this.errorMessage.set('Camera access denied: ' + String(err));
         this.cdr.markForCheck();
-      });
+      }
+    });
   }
 
   ngOnDestroy(): void {
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
-    this.stopCamera();
+    this.camera.stopStream();
     this.faceDetector.dispose();
   }
 
@@ -126,14 +142,51 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigateByUrl(this.returnTo);
   }
 
-  // ── Private ─────────────────────────────────────────────────────────────────
+  // ── Camera controls ─────────────────────────────────────────────────────────
 
-  private stopCamera(): void {
-    if (this.activeStream) {
-      for (const track of this.activeStream.getTracks()) track.stop();
-      this.activeStream = null;
+  async onCameraChange(deviceId: string): Promise<void> {
+    const videoRef = this.videoEl();
+    const canvasRef = this.canvasEl();
+    if (!videoRef || !canvasRef) return;
+
+    const device = this.camera.cameras().find(c => c.deviceId === deviceId);
+    if (!device) return;
+
+    this.camera.selectedCamera.set(device);
+    this.prefs.saveDeviceId('selfie', deviceId);
+
+    // Stop the detection loop while we restart the stream.
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    this.captureStarted = false;
+    this.faceValidSince = null;
+
+    const video  = videoRef.nativeElement;
+    const canvas = canvasRef.nativeElement;
+
+    try {
+      await this.camera.switchCamera(video, deviceId, async () => {
+        const size = Math.min(video.videoWidth || 640, video.videoHeight || 640);
+        canvas.width  = size;
+        canvas.height = size;
+        this.startLoop(video, canvas);
+      });
+    } catch (err) {
+      this.errorMessage.set('Could not switch camera: ' + String(err));
+      this.cdr.markForCheck();
     }
   }
+
+  toggleMirror(): void {
+    const next = !this.camera.mirrored();
+    this.camera.mirrored.set(next);
+    this.prefs.saveMirrored('selfie', next);
+    this.cdr.markForCheck();
+  }
+
+  // ── Private ─────────────────────────────────────────────────────────────────
 
   private startLoop(video: HTMLVideoElement, canvas: HTMLCanvasElement): void {
     const loop = (timestamp: number) => {
@@ -156,7 +209,7 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
         if (remaining <= 0) {
           // Time's up — capture.
           this.captureStarted = true;
-          this.faceDetector.drawOverlay(video, canvas, true, '', null);
+          this.faceDetector.drawOverlay(video, canvas, true, '', null, this.camera.mirrored());
           this.capture(canvas);
           return;
         }
@@ -168,7 +221,7 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
       }
 
       // ── Draw overlay ────────────────────────────────────────────────────────
-      this.faceDetector.drawOverlay(video, canvas, faceValid, hint, countdown);
+      this.faceDetector.drawOverlay(video, canvas, faceValid, hint, countdown, this.camera.mirrored());
 
       // ── Update Angular signals only when something changed ──────────────────
       const newValid = faceValid;
@@ -205,6 +258,13 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
       const srcSize = Math.min(vw, vh);
       const srcX = (vw - srcSize) / 2;
       const srcY = (vh - srcSize) / 2;
+
+      // Apply mirror flip to the captured image if mirrored mode is on.
+      if (this.camera.mirrored()) {
+        ctx.translate(offscreen.width, 0);
+        ctx.scale(-1, 1);
+      }
+
       ctx.drawImage(video, srcX, srcY, srcSize, srcSize, 0, 0, offscreen.width, offscreen.height);
       base64 = offscreen.toDataURL('image/jpeg', 0.9);
     } else {
@@ -214,7 +274,7 @@ export class OnboardingSelfie implements OnInit, AfterViewInit, OnDestroy {
 
     this.session.setDoc(this.label, base64);
 
-    this.stopCamera();
+    this.camera.stopStream();
     this.statusMessage.set('Photo captured!');
     this.faceValid.set(true);
     this.cdr.markForCheck();

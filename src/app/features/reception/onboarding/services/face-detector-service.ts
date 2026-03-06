@@ -144,6 +144,8 @@ export class FaceDetectorService {
     faceValid: boolean,
     hint: string,
     countdown: number | null,
+    /** When true the canvas has CSS scaleX(-1); counter-mirror text so it reads correctly. */
+    mirrored = true,
   ): void {
     const ctx = canvasEl.getContext('2d');
     if (!ctx || videoEl.readyState < 2) return;
@@ -198,12 +200,14 @@ export class FaceDetectorService {
     ctx.stroke();
 
     // ── 4. Countdown number inside oval OR hint text below oval ───────────────
-    // Counter-mirror the canvas CSS scaleX(-1) so text is legible.
+    // Counter-mirror the canvas CSS scaleX(-1) so text is legible (only when mirrored).
     const fontSize = Math.round(cw * 0.045);
     ctx.save();
-    ctx.translate(centreX, 0);
-    ctx.scale(-1, 1);
-    ctx.translate(-centreX, 0);
+    if (mirrored) {
+      ctx.translate(centreX, 0);
+      ctx.scale(-1, 1);
+      ctx.translate(-centreX, 0);
+    }
     ctx.textAlign = 'center';
     ctx.shadowColor = 'rgba(0,0,0,0.7)';
     ctx.shadowBlur = 6;

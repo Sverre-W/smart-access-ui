@@ -20,6 +20,7 @@
         autoplay
         playsinline
         muted
+        [style.transform]="videoTransform()"
         style="
           width: clamp(240px, min(38vh, 38vw), 520px);
           height: clamp(240px, min(38vh, 38vw), 520px);
@@ -33,6 +34,47 @@
       <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-zinc-400 rounded-tr"></div>
       <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-zinc-400 rounded-bl"></div>
       <div class="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-zinc-400 rounded-br"></div>
+    </div>
+
+    <!-- Camera controls bar -->
+    <div class="flex flex-wrap items-center justify-center gap-3 w-full max-w-md shrink-0">
+
+      <!-- Camera selector — only shown when multiple cameras are available -->
+      @if (hasMultipleCameras()) {
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+          <i class="pi pi-video text-zinc-400 text-sm shrink-0"></i>
+          <select
+            [ngModel]="camera.selectedCamera()?.deviceId"
+            (ngModelChange)="onCameraChange($event)"
+            class="flex-1 min-w-0 rounded-lg border border-zinc-200 bg-white px-3 py-2
+                   text-sm text-zinc-700 shadow-xs focus:outline-none focus:ring-2
+                   focus:ring-[#238cff]/40 focus:border-[#238cff] transition"
+            aria-label="Select camera"
+          >
+            @for (cam of camera.cameras(); track cam.deviceId) {
+              <option [value]="cam.deviceId">{{ cam.label }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <!-- Mirror toggle -->
+      <button
+        type="button"
+        (click)="toggleMirror()"
+        [class.text-[#238cff]]="camera.mirrored()"
+        [class.border-[#238cff]]="camera.mirrored()"
+        [class.bg-blue-50]="camera.mirrored()"
+        class="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white
+               px-3 py-2 text-sm text-zinc-500 shadow-xs hover:bg-zinc-50
+               transition shrink-0"
+        [attr.aria-pressed]="camera.mirrored()"
+        aria-label="Toggle mirror"
+      >
+        <i class="pi pi-arrows-h text-sm"></i>
+        Mirror
+      </button>
+
     </div>
 
     <!-- Scanning status -->

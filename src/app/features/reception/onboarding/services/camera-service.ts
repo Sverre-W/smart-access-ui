@@ -22,6 +22,9 @@ export class CameraService {
   /** The currently selected camera device. */
   readonly selectedCamera = signal<CameraDevice | null>(null);
 
+  /** Whether the camera feed is horizontally mirrored. */
+  readonly mirrored = signal(false);
+
   /** The active MediaStream, kept for track cleanup on camera switches. */
   private activeStream: MediaStream | null = null;
 
@@ -29,9 +32,10 @@ export class CameraService {
 
   /**
    * Queries the browser for all video input devices and populates `cameras`.
-   * Automatically selects the first available device.
+   * Restores the previously selected camera by `savedDeviceId` if provided and
+   * still available; otherwise falls back to the first device.
    */
-  async enumerateDevices(): Promise<void> {
+  async enumerateDevices(savedDeviceId?: string | null): Promise<void> {
     const allDevices = await navigator.mediaDevices.enumerateDevices();
 
     const videoDevices: CameraDevice[] = allDevices
@@ -39,7 +43,12 @@ export class CameraService {
       .map(d => ({ deviceId: d.deviceId, label: d.label || `Camera ${d.deviceId}` }));
 
     this.cameras.set(videoDevices);
-    this.selectedCamera.set(videoDevices[0] ?? null);
+
+    const preferred = savedDeviceId
+      ? (videoDevices.find(d => d.deviceId === savedDeviceId) ?? videoDevices[0])
+      : videoDevices[0];
+
+    this.selectedCamera.set(preferred ?? null);
   }
 
   // ── Stream Management ──────────────────────────────────────────────────────
