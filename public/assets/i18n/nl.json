@@ -658,7 +658,8 @@
         "keep": "Behouden",
         "yesDelete": "Ja, verwijderen",
         "loadError": "Gebruikers laden mislukt. Probeer het opnieuw.",
-        "deleteError": "Verwijderen van \"{{name}}\" mislukt. Probeer het opnieuw."
+        "deleteError": "Verwijderen van \"{{name}}\" mislukt. Probeer het opnieuw.",
+        "noResults": "Geen gebruikers komen overeen met uw zoekopdracht."
       },
       "createUser": {
         "title": "Nieuwe gebruiker",
@@ -694,7 +695,8 @@
         "keep": "Behouden",
         "yesDelete": "Ja, verwijderen",
         "loadError": "Groepen laden mislukt. Probeer het opnieuw.",
-        "deleteError": "Verwijderen van \"{{name}}\" mislukt. Probeer het opnieuw."
+        "deleteError": "Verwijderen van \"{{name}}\" mislukt. Probeer het opnieuw.",
+        "noResults": "Geen groepen komen overeen met uw zoekopdracht."
       },
       "createGroup": {
         "title": "Nieuwe groep",
@@ -797,7 +799,8 @@
         "keep": "Behouden",
         "yesDelete": "Ja, verwijderen",
         "loadError": "Rollen konden niet worden geladen. Probeer het opnieuw.",
-        "deleteError": "“{{name}}” kon niet worden verwijderd. Probeer het opnieuw."
+        "deleteError": "“{{name}}” kon niet worden verwijderd. Probeer het opnieuw.",
+        "noResults": "Geen rollen komen overeen met uw zoekopdracht."
       },
       "createRole": {
         "title": "Nieuwe rol",

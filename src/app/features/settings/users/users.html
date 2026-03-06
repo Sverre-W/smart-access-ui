@@ -19,7 +19,7 @@
         <h2 class="text-sm font-semibold text-zinc-700">
           {{ 'settings.users.users.title' | translate }}
           @if (!usersLoading()) {
-            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ filteredUsers().length }}{{ userSearch() ? ' / ' + allUsers().length : '' }})</span>
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ usersTotal() }})</span>
           }
         </h2>
         <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.users.subtitle' | translate }}</p>
@@ -29,7 +29,7 @@
           <p-inputicon><i class="pi pi-search"></i></p-inputicon>
           <input pInputText type="text"
             [value]="userSearch()"
-            (input)="userSearch.set($any($event.target).value)"
+            (input)="onUserSearchInput($any($event.target).value)"
             [placeholder]="'settings.users.users.searchPlaceholder' | translate"
             class="text-sm w-full sm:w-52" />
         </p-iconfield>
@@ -165,12 +165,16 @@
             <tr>
               <td colspan="4" class="px-6 py-16 text-center">
                 <i class="pi pi-user text-3xl text-zinc-300 mb-3 block"></i>
-                <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.users.emptyTitle' | translate }}</p>
-                <p class="text-xs text-zinc-400 mt-1">{{ 'settings.users.users.emptyHint' | translate }}</p>
+                @if (userSearch()) {
+                  <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.users.noResults' | translate }}</p>
+                } @else {
+                  <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.users.emptyTitle' | translate }}</p>
+                  <p class="text-xs text-zinc-400 mt-1">{{ 'settings.users.users.emptyHint' | translate }}</p>
+                }
               </td>
             </tr>
           } @else {
-            @for (user of filteredUsers(); track user.id) {
+            @for (user of users(); track user.id) {
 
               <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
 
@@ -268,10 +272,14 @@
       } @else if (!hasUsers()) {
         <div class="px-4 py-14 text-center">
           <i class="pi pi-user text-3xl text-zinc-300 mb-3 block"></i>
-          <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.users.emptyTitle' | translate }}</p>
+          @if (userSearch()) {
+            <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.users.noResults' | translate }}</p>
+          } @else {
+            <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.users.emptyTitle' | translate }}</p>
+          }
         </div>
       } @else {
-        @for (user of filteredUsers(); track user.id) {
+        @for (user of users(); track user.id) {
           <div class="px-4 py-3">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-2.5 min-w-0">
@@ -315,6 +323,23 @@
       }
 
     </div>
+
+    <!-- Pager -->
+    @if (!usersLoading() && usersTotalPages() > 1) {
+      <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-zinc-100">
+        <span class="text-xs text-zinc-400">
+          {{ usersRangeStart() }}–{{ usersRangeEnd() }} / {{ usersTotal() }}
+        </span>
+        <div class="flex items-center gap-1">
+          <p-button icon="pi pi-chevron-left" severity="secondary" [text]="true" [rounded]="true"
+            size="small" [disabled]="usersPage() <= 1" (click)="usersPrevPage()" />
+          <span class="text-xs text-zinc-500 px-1">{{ usersPage() }} / {{ usersTotalPages() }}</span>
+          <p-button icon="pi pi-chevron-right" severity="secondary" [text]="true" [rounded]="true"
+            size="small" [disabled]="usersPage() >= usersTotalPages()" (click)="usersNextPage()" />
+        </div>
+      </div>
+    }
+
   </div>
 
   <!-- ════════════════════════════════════════════════════════════════════════
@@ -328,7 +353,7 @@
         <h2 class="text-sm font-semibold text-zinc-700">
           {{ 'settings.users.groups.title' | translate }}
           @if (!groupsLoading()) {
-            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ filteredGroups().length }}{{ groupSearch() ? ' / ' + allGroups().length : '' }})</span>
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ groupsTotal() }})</span>
           }
         </h2>
         <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.groups.subtitle' | translate }}</p>
@@ -338,7 +363,7 @@
           <p-inputicon><i class="pi pi-search"></i></p-inputicon>
           <input pInputText type="text"
             [value]="groupSearch()"
-            (input)="groupSearch.set($any($event.target).value)"
+            (input)="onGroupSearchInput($any($event.target).value)"
             [placeholder]="'settings.users.groups.searchPlaceholder' | translate"
             class="text-sm w-full sm:w-52" />
         </p-iconfield>
@@ -434,12 +459,16 @@
             <tr>
               <td colspan="3" class="px-6 py-16 text-center">
                 <i class="pi pi-sitemap text-3xl text-zinc-300 mb-3 block"></i>
-                <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.groups.emptyTitle' | translate }}</p>
-                <p class="text-xs text-zinc-400 mt-1">{{ 'settings.users.groups.emptyHint' | translate }}</p>
+                @if (groupSearch()) {
+                  <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.groups.noResults' | translate }}</p>
+                } @else {
+                  <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.groups.emptyTitle' | translate }}</p>
+                  <p class="text-xs text-zinc-400 mt-1">{{ 'settings.users.groups.emptyHint' | translate }}</p>
+                }
               </td>
             </tr>
           } @else {
-            @for (group of filteredGroups(); track group.id) {
+            @for (group of groups(); track group.id) {
 
               <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
 
@@ -524,10 +553,14 @@
       } @else if (!hasGroups()) {
         <div class="px-4 py-14 text-center">
           <i class="pi pi-sitemap text-3xl text-zinc-300 mb-3 block"></i>
-          <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.groups.emptyTitle' | translate }}</p>
+          @if (groupSearch()) {
+            <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.groups.noResults' | translate }}</p>
+          } @else {
+            <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.groups.emptyTitle' | translate }}</p>
+          }
         </div>
       } @else {
-        @for (group of filteredGroups(); track group.id) {
+        @for (group of groups(); track group.id) {
           <div class="px-4 py-3">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-2.5 min-w-0">
@@ -573,6 +606,23 @@
       }
 
     </div>
+
+    <!-- Pager -->
+    @if (!groupsLoading() && groupsTotalPages() > 1) {
+      <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-zinc-100">
+        <span class="text-xs text-zinc-400">
+          {{ groupsRangeStart() }}–{{ groupsRangeEnd() }} / {{ groupsTotal() }}
+        </span>
+        <div class="flex items-center gap-1">
+          <p-button icon="pi pi-chevron-left" severity="secondary" [text]="true" [rounded]="true"
+            size="small" [disabled]="groupsPage() <= 1" (click)="groupsPrevPage()" />
+          <span class="text-xs text-zinc-500 px-1">{{ groupsPage() }} / {{ groupsTotalPages() }}</span>
+          <p-button icon="pi pi-chevron-right" severity="secondary" [text]="true" [rounded]="true"
+            size="small" [disabled]="groupsPage() >= groupsTotalPages()" (click)="groupsNextPage()" />
+        </div>
+      </div>
+    }
+
   </div>
 
   <!-- ════════════════════════════════════════════════════════════════════════
@@ -586,7 +636,7 @@
         <h2 class="text-sm font-semibold text-zinc-700">
           {{ 'settings.users.roles.title' | translate }}
           @if (!rolesLoading()) {
-            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ filteredRoles().length }}{{ roleSearch() ? ' / ' + allRoles().length : '' }})</span>
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ rolesTotal() }})</span>
           }
         </h2>
         <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.users.roles.subtitle' | translate }}</p>
@@ -596,7 +646,7 @@
           <p-inputicon><i class="pi pi-search"></i></p-inputicon>
           <input pInputText type="text"
             [value]="roleSearch()"
-            (input)="roleSearch.set($any($event.target).value)"
+            (input)="onRoleSearchInput($any($event.target).value)"
             [placeholder]="'settings.users.roles.searchPlaceholder' | translate"
             class="text-sm w-full sm:w-52" />
         </p-iconfield>
@@ -688,12 +738,16 @@
             <tr>
               <td colspan="2" class="px-6 py-16 text-center">
                 <i class="pi pi-shield text-3xl text-zinc-300 mb-3 block"></i>
-                <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.roles.emptyTitle' | translate }}</p>
-                <p class="text-xs text-zinc-400 mt-1">{{ 'settings.users.roles.emptyHint' | translate }}</p>
+                @if (roleSearch()) {
+                  <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.roles.noResults' | translate }}</p>
+                } @else {
+                  <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.roles.emptyTitle' | translate }}</p>
+                  <p class="text-xs text-zinc-400 mt-1">{{ 'settings.users.roles.emptyHint' | translate }}</p>
+                }
               </td>
             </tr>
           } @else {
-            @for (role of filteredRoles(); track role.id) {
+            @for (role of roles(); track role.id) {
 
               <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
 
@@ -820,10 +874,14 @@
       } @else if (!hasRoles()) {
         <div class="px-4 py-14 text-center">
           <i class="pi pi-shield text-3xl text-zinc-300 mb-3 block"></i>
-          <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.roles.emptyTitle' | translate }}</p>
+          @if (roleSearch()) {
+            <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.roles.noResults' | translate }}</p>
+          } @else {
+            <p class="text-sm font-medium text-zinc-500">{{ 'settings.users.roles.emptyTitle' | translate }}</p>
+          }
         </div>
       } @else {
-        @for (role of filteredRoles(); track role.id) {
+        @for (role of roles(); track role.id) {
           <div class="px-4 py-3">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-2.5 min-w-0">
@@ -912,7 +970,25 @@
       }
 
     </div>
+
+    <!-- Pager -->
+    @if (!rolesLoading() && rolesTotalPages() > 1) {
+      <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-zinc-100">
+        <span class="text-xs text-zinc-400">
+          {{ rolesRangeStart() }}–{{ rolesRangeEnd() }} / {{ rolesTotal() }}
+        </span>
+        <div class="flex items-center gap-1">
+          <p-button icon="pi pi-chevron-left" severity="secondary" [text]="true" [rounded]="true"
+            size="small" [disabled]="rolesPage() <= 1" (click)="rolesPrevPage()" />
+          <span class="text-xs text-zinc-500 px-1">{{ rolesPage() }} / {{ rolesTotalPages() }}</span>
+          <p-button icon="pi pi-chevron-right" severity="secondary" [text]="true" [rounded]="true"
+            size="small" [disabled]="rolesPage() >= rolesTotalPages()" (click)="rolesNextPage()" />
+        </div>
+      </div>
+    }
+
   </div>
 
 </div>
+
 

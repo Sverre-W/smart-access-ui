@@ -659,7 +659,8 @@
         "keep": "Keep",
         "yesDelete": "Yes, delete",
         "loadError": "Failed to load users. Please try again.",
-        "deleteError": "Failed to delete \"{{name}}\". Please try again."
+        "deleteError": "Failed to delete \"{{name}}\". Please try again.",
+        "noResults": "No users match your search."
       },
       "createUser": {
         "title": "New User",
@@ -695,7 +696,8 @@
         "keep": "Keep",
         "yesDelete": "Yes, delete",
         "loadError": "Failed to load groups. Please try again.",
-        "deleteError": "Failed to delete \"{{name}}\". Please try again."
+        "deleteError": "Failed to delete \"{{name}}\". Please try again.",
+        "noResults": "No groups match your search."
       },
       "createGroup": {
         "title": "New Group",
@@ -798,7 +800,8 @@
         "keep": "Keep",
         "yesDelete": "Yes, delete",
         "loadError": "Failed to load roles. Please try again.",
-        "deleteError": "Failed to delete “{{name}}”. Please try again."
+        "deleteError": "Failed to delete “{{name}}”. Please try again.",
+        "noResults": "No roles match your search."
       },
       "createRole": {
         "title": "New Role",

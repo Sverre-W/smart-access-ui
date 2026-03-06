@@ -658,7 +658,8 @@
         "keep": "Conserver",
         "yesDelete": "Oui, supprimer",
         "loadError": "Échec du chargement des utilisateurs. Veuillez réessayer.",
-        "deleteError": "Échec de la suppression de « {{name}} ». Veuillez réessayer."
+        "deleteError": "Échec de la suppression de « {{name}} ». Veuillez réessayer.",
+        "noResults": "Aucun utilisateur ne correspond à votre recherche."
       },
       "createUser": {
         "title": "Nouvel utilisateur",
@@ -694,7 +695,8 @@
         "keep": "Conserver",
         "yesDelete": "Oui, supprimer",
         "loadError": "Échec du chargement des groupes. Veuillez réessayer.",
-        "deleteError": "Échec de la suppression de « {{name}} ». Veuillez réessayer."
+        "deleteError": "Échec de la suppression de « {{name}} ». Veuillez réessayer.",
+        "noResults": "Aucun groupe ne correspond à votre recherche."
       },
       "createGroup": {
         "title": "Nouveau groupe",
@@ -797,7 +799,8 @@
         "keep": "Conserver",
         "yesDelete": "Oui, supprimer",
         "loadError": "Impossible de charger les rôles. Veuillez réessayer.",
-        "deleteError": "Impossible de supprimer « {{name}} ». Veuillez réessayer."
+        "deleteError": "Impossible de supprimer « {{name}} ». Veuillez réessayer.",
+        "noResults": "Aucun rôle ne correspond à votre recherche."
       },
       "createRole": {
         "title": "Nouveau rôle",
