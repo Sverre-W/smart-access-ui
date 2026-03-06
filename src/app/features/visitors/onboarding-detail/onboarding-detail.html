@@ -205,7 +205,7 @@
               class="group relative rounded-lg overflow-hidden border border-zinc-200 bg-zinc-50 aspect-[4/3] flex flex-col items-center justify-center hover:border-[#238cff] transition-colors"
             >
               <img
-                [src]="'data:image/jpeg;base64,' + img.base64ImageData"
+                [src]="img.base64ImageData"
                 [alt]="imageLabel(img)"
                 class="w-full h-full object-cover"
               />
@@ -247,7 +247,7 @@
         />
       </div>
       <img
-        [src]="'data:image/jpeg;base64,' + previewImage()!.base64ImageData"
+        [src]="previewImage()!.base64ImageData"
         [alt]="imageLabel(previewImage()!)"
         class="w-full object-contain max-h-[80vh]"
       />
