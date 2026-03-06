@@ -61,6 +61,9 @@ export class EditUser implements OnInit {
 
   // ── Password form ─────────────────────────────────────────────────────────
 
+  readonly passwordExpanded = signal(false);
+  readonly temporaryPassword = signal(false);
+
   readonly passwordForm = this.fb.nonNullable.group({
     password: ['', [Validators.required, Validators.minLength(8)]],
     confirm: ['', Validators.required],
@@ -168,9 +171,11 @@ export class EditUser implements OnInit {
     try {
       await this.service.changeCredentials(this.tenant, this.userId, {
         password: this.passwordForm.controls.password.value,
-        temporary: false,
+        temporary: this.temporaryPassword(),
       });
       this.passwordForm.reset();
+      this.temporaryPassword.set(false);
+      this.passwordExpanded.set(false);
       this.passwordSuccess.set(true);
       setTimeout(() => this.passwordSuccess.set(false), 3000);
     } catch (err) {

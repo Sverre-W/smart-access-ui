@@ -114,39 +114,75 @@
         </div>
       }
 
-      <div class="px-4 sm:px-6 py-5">
-        <div [formGroup]="passwordForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-zinc-700">
-              {{ 'settings.users.editUser.fieldNewPassword' | translate }} <span class="text-red-400">*</span>
-            </label>
-            <input pInputText type="password" formControlName="password" placeholder="••••••••" [fluid]="true"
-              [invalid]="passwordForm.get('password')!.invalid && passwordForm.get('password')!.touched" />
-            @if (passwordForm.get('password')!.errors?.['required'] && passwordForm.get('password')!.touched) {
-              <p class="text-xs text-red-500">{{ 'settings.users.editUser.validPasswordRequired' | translate }}</p>
-            }
-            @if (passwordForm.get('password')!.errors?.['minlength'] && passwordForm.get('password')!.touched) {
-              <p class="text-xs text-red-500">{{ 'settings.users.editUser.validPasswordMinLength' | translate }}</p>
-            }
+      @if (!passwordExpanded()) {
+        <!-- Collapsed: trigger button -->
+        <div class="px-4 sm:px-6 py-4">
+          <p-button
+            type="button"
+            severity="secondary"
+            icon="pi pi-lock"
+            [label]="'settings.users.editUser.passwordSetAction' | translate"
+            (click)="passwordExpanded.set(true)"
+          />
+        </div>
+      } @else {
+        <!-- Expanded: form -->
+        <div class="px-4 sm:px-6 py-5 space-y-4">
+          <div [formGroup]="passwordForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'settings.users.editUser.fieldNewPassword' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input pInputText type="password" formControlName="password" placeholder="••••••••" [fluid]="true"
+                [invalid]="passwordForm.get('password')!.invalid && passwordForm.get('password')!.touched" />
+              @if (passwordForm.get('password')!.errors?.['required'] && passwordForm.get('password')!.touched) {
+                <p class="text-xs text-red-500">{{ 'settings.users.editUser.validPasswordRequired' | translate }}</p>
+              }
+              @if (passwordForm.get('password')!.errors?.['minlength'] && passwordForm.get('password')!.touched) {
+                <p class="text-xs text-red-500">{{ 'settings.users.editUser.validPasswordMinLength' | translate }}</p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'settings.users.editUser.fieldConfirmPassword' | translate }} <span class="text-red-400">*</span>
+              </label>
+              <input pInputText type="password" formControlName="confirm" placeholder="••••••••" [fluid]="true"
+                [invalid]="passwordMismatch()" />
+              @if (passwordMismatch()) {
+                <p class="text-xs text-red-500">{{ 'settings.users.editUser.validPasswordMismatch' | translate }}</p>
+              }
+            </div>
           </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-zinc-700">
-              {{ 'settings.users.editUser.fieldConfirmPassword' | translate }} <span class="text-red-400">*</span>
-            </label>
-            <input pInputText type="password" formControlName="confirm" placeholder="••••••••" [fluid]="true"
-              [invalid]="passwordMismatch()" />
-            @if (passwordMismatch()) {
-              <p class="text-xs text-red-500">{{ 'settings.users.editUser.validPasswordMismatch' | translate }}</p>
-            }
+
+          <!-- Temporary password toggle -->
+          <div class="flex items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3">
+            <p-toggleswitch
+              [ngModel]="temporaryPassword()"
+              (ngModelChange)="temporaryPassword.set($event)"
+              inputId="temp-password-toggle"
+            />
+            <div class="flex flex-col gap-0.5">
+              <label for="temp-password-toggle" class="text-sm font-medium text-zinc-700 cursor-pointer select-none">
+                {{ 'settings.users.editUser.temporaryPassword' | translate }}
+              </label>
+              <p class="text-xs text-zinc-400">{{ 'settings.users.editUser.temporaryPasswordHint' | translate }}</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="px-4 sm:px-6 py-4 border-t border-zinc-100 flex justify-end">
-        <p-button type="button" icon="pi pi-lock" [label]="'settings.users.editUser.setPassword' | translate"
-          [loading]="passwordSaving()" [disabled]="passwordSaving()"
-          loadingIcon="pi pi-spin pi-spinner" (click)="savePassword()" />
-      </div>
+        <div class="px-4 sm:px-6 py-4 border-t border-zinc-100 flex items-center justify-between gap-3">
+          <p-button
+            type="button"
+            severity="secondary"
+            [text]="true"
+            [label]="'settings.users.editUser.cancel' | translate"
+            (click)="passwordExpanded.set(false); passwordForm.reset(); temporaryPassword.set(false)"
+          />
+          <p-button type="button" icon="pi pi-lock" [label]="'settings.users.editUser.setPassword' | translate"
+            [loading]="passwordSaving()" [disabled]="passwordSaving()"
+            loadingIcon="pi pi-spin pi-spinner" (click)="savePassword()" />
+        </div>
+      }
     </div>
 
     <!-- ════════════════════════════════════════════════════════════════════
