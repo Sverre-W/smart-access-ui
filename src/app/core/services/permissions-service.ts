@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 /** Maps UI app IDs to the backend application names they depend on. */
 const APP_BACKEND_MAP: Record<string, string[]> = {
   'univisit':       ['Visitors Service'],
-  'facility':       ['Settings Server', 'Agent Server', 'Access Policies', 'Locations Service'],
+  'facility':       ['Settings Server', 'Agent Server', 'Access Policies', 'Locations Service', 'Onboarding Service'],
   'reception-desk': ['Visitors Service'],
   'settings':       ['Persons Service', 'Settings Server'],
 };

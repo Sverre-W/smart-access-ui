@@ -1,0 +1,856 @@
+<div class="p-4 sm:p-8">
+
+  <!-- Back button + header -->
+  <div class="mb-8">
+    <button
+      type="button"
+      class="mb-3 flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-700 transition-colors"
+      (click)="goBack()"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+      {{ 'facility.onboardingTemplateDetail.back' | translate }}
+    </button>
+
+    @if (loading()) {
+      <div class="h-7 w-64 rounded bg-zinc-100 animate-pulse mb-1"></div>
+      <div class="h-4 w-40 rounded bg-zinc-100 animate-pulse"></div>
+    } @else if (template(); as t) {
+      <div class="flex items-center gap-3 flex-wrap">
+        <h1 class="text-2xl font-semibold text-zinc-800">{{ t.name }}</h1>
+        <p-tag
+          [value]="activeLabel(t.isActive)"
+          [severity]="activeSeverity(t.isActive)"
+        />
+      </div>
+      @if (t.description) {
+        <p class="text-sm text-zinc-500 mt-1">{{ t.description }}</p>
+      }
+      <p class="text-xs text-zinc-400 mt-1">
+        v{{ t.templateVersion }} &middot;
+        {{ 'facility.onboardingTemplateDetail.modified' | translate }}: {{ formatDate(t.modifiedAt) }}
+      </p>
+    }
+  </div>
+
+  <!-- Page-level load error -->
+  @if (error()) {
+    <div
+      class="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+    >
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (!loading() && template(); as t) {
+
+    <!-- ── Details card ──────────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-6">
+      <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <h2 class="text-sm font-semibold text-zinc-700">
+          {{ 'facility.onboardingTemplateDetail.detailsTitle' | translate }}
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">
+          {{ 'facility.onboardingTemplateDetail.detailsDesc' | translate }}
+        </p>
+      </div>
+
+      <div class="px-4 sm:px-6 py-5">
+        @if (detailsSaveError()) {
+          <div
+            class="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+          >
+            <i class="pi pi-exclamation-circle shrink-0"></i>
+            <span>{{ detailsSaveError() }}</span>
+          </div>
+        }
+        @if (detailsSaveSuccess()) {
+          <div
+            class="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+          >
+            <i class="pi pi-check-circle shrink-0"></i>
+            <span>{{ 'facility.onboardingTemplateDetail.detailsSaved' | translate }}</span>
+          </div>
+        }
+
+        <div [formGroup]="detailsForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'facility.onboardingTemplates.nameLabel' | translate }}
+              <span class="text-red-400">*</span>
+            </label>
+            <input
+              pInputText
+              type="text"
+              formControlName="name"
+              [fluid]="true"
+              [invalid]="detailsForm.controls.name.invalid && detailsForm.controls.name.touched"
+            />
+            @if (detailsForm.controls.name.invalid && detailsForm.controls.name.touched) {
+              <p class="text-xs text-red-500">
+                {{ 'facility.onboardingTemplates.nameRequired' | translate }}
+              </p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'facility.onboardingTemplates.descriptionLabel' | translate }}
+            </label>
+            <textarea
+              pTextarea
+              formControlName="description"
+              [fluid]="true"
+              rows="2"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <!-- Activate / deactivate -->
+          <div class="flex items-center gap-3">
+            @if (toggleError()) {
+              <p class="text-xs text-red-600 flex items-center gap-1">
+                <i class="pi pi-exclamation-circle"></i>{{ toggleError() }}
+              </p>
+            }
+            <p-button
+              [icon]="t.isActive ? 'pi pi-pause' : 'pi pi-play'"
+              [label]="
+                (t.isActive
+                  ? 'facility.onboardingTemplates.deactivate'
+                  : 'facility.onboardingTemplates.activate'
+                ) | translate
+              "
+              severity="secondary"
+              size="small"
+              [loading]="toggling()"
+              [disabled]="toggling() || !canWrite()"
+              loadingIcon="pi pi-spin pi-spinner"
+              (click)="toggleActive()"
+            />
+          </div>
+          <!-- Save -->
+          <p-button
+            icon="pi pi-check"
+            [label]="'facility.onboardingTemplateDetail.saveDetails' | translate"
+            size="small"
+            [loading]="detailsSaving()"
+            [disabled]="detailsSaving() || !canWrite()"
+            loadingIcon="pi pi-spin pi-spinner"
+            (click)="saveDetails()"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Phases card ───────────────────────────────────────────────────────── -->
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+
+      <!-- Card header -->
+      <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+        <div>
+          <h2 class="text-sm font-semibold text-zinc-700">
+            {{ 'facility.onboardingTemplateDetail.phasesTitle' | translate }}
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ sortedPhases().length }})</span>
+          </h2>
+          <p class="text-xs text-zinc-400 mt-0.5">
+            {{ 'facility.onboardingTemplateDetail.phasesDesc' | translate }}
+          </p>
+        </div>
+        <p-button
+          icon="pi pi-plus"
+          [label]="'facility.onboardingTemplateDetail.addPhase' | translate"
+          size="small"
+          [disabled]="!canWrite()"
+          (click)="openAddPhase()"
+        />
+      </div>
+
+      <!-- Add phase panel -->
+      @if (addPhaseOpen()) {
+        <div class="px-4 sm:px-6 py-5 border-b border-zinc-100 bg-zinc-50">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-sm font-semibold text-zinc-700">
+              {{ 'facility.onboardingTemplateDetail.newPhasePanel' | translate }}
+            </p>
+            <p-button
+              icon="pi pi-times"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              size="small"
+              (click)="closeAddPhase()"
+            />
+          </div>
+          @if (addPhaseError()) {
+            <div
+              class="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+            >
+              <i class="pi pi-exclamation-circle shrink-0"></i>
+              <span>{{ addPhaseError() }}</span>
+            </div>
+          }
+          <div [formGroup]="addPhaseForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.onboardingTemplates.nameLabel' | translate }}
+                <span class="text-red-400">*</span>
+              </label>
+              <input
+                pInputText
+                type="text"
+                formControlName="name"
+                [fluid]="true"
+                [invalid]="addPhaseForm.controls.name.invalid && addPhaseForm.controls.name.touched"
+              />
+              @if (addPhaseForm.controls.name.invalid && addPhaseForm.controls.name.touched) {
+                <p class="text-xs text-red-500">
+                  {{ 'facility.onboardingTemplates.nameRequired' | translate }}
+                </p>
+              }
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.onboardingTemplateDetail.phaseType' | translate }}
+              </label>
+              <p-select
+                formControlName="phaseType"
+                [options]="phaseTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                [fluid]="true"
+              />
+            </div>
+            <div class="flex flex-col gap-1.5 sm:col-span-2">
+              <label class="text-sm font-medium text-zinc-700">
+                {{ 'facility.onboardingTemplates.descriptionLabel' | translate }}
+              </label>
+              <textarea
+                pTextarea
+                formControlName="description"
+                [fluid]="true"
+                rows="2"
+              ></textarea>
+            </div>
+            <div class="flex items-center gap-4 sm:col-span-2">
+              <label class="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer select-none">
+                <p-checkbox formControlName="executeInParallel" [binary]="true" />
+                {{ 'facility.onboardingTemplateDetail.executeInParallel' | translate }}
+              </label>
+              <label class="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer select-none">
+                <p-checkbox formControlName="continueOnOptionalFailure" [binary]="true" />
+                {{ 'facility.onboardingTemplateDetail.continueOnOptionalFailure' | translate }}
+              </label>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2">
+            <p-button
+              type="button"
+              [label]="'facility.onboardingTemplates.cancel' | translate"
+              severity="secondary"
+              size="small"
+              (click)="closeAddPhase()"
+            />
+            <p-button
+              type="button"
+              icon="pi pi-check"
+              [label]="'facility.onboardingTemplateDetail.createPhase' | translate"
+              size="small"
+              [loading]="addPhaseSaving()"
+              [disabled]="addPhaseSaving() || !canWrite()"
+              loadingIcon="pi pi-spin pi-spinner"
+              (click)="saveAddPhase()"
+            />
+          </div>
+        </div>
+      }
+
+      <!-- Phase-level errors -->
+      @if (deletePhaseError()) {
+        <div
+          class="mx-4 sm:mx-6 mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600"
+        >
+          <i class="pi pi-exclamation-circle shrink-0"></i>{{ deletePhaseError() }}
+        </div>
+      }
+
+      <!-- Empty state -->
+      @if (sortedPhases().length === 0) {
+        <div class="px-6 py-14 text-center">
+          <i class="pi pi-sitemap text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">
+            {{ 'facility.onboardingTemplateDetail.noPhases' | translate }}
+          </p>
+          <p class="text-xs text-zinc-400 mt-1">
+            {{ 'facility.onboardingTemplateDetail.noPhasesHint' | translate }}
+          </p>
+        </div>
+      }
+
+      <!-- Phase list -->
+      <div class="divide-y divide-zinc-100">
+        @for (phase of sortedPhases(); track phase.id) {
+
+          <!-- Phase row -->
+          <div>
+            <div
+              class="flex items-center justify-between px-4 sm:px-6 py-3 hover:bg-zinc-50/60 transition-colors cursor-pointer"
+              (click)="togglePhase(phase.id)"
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                  <i class="pi pi-sitemap text-xs text-blue-500"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <p class="font-medium text-zinc-800 text-sm">{{ phase.name }}</p>
+                    <span
+                      class="text-xs text-zinc-400 rounded-full bg-zinc-100 px-2 py-0.5"
+                    >{{ phase.phaseType }}</span>
+                    @if (phase.executeInParallel) {
+                      <span class="text-xs text-blue-500 rounded-full bg-blue-50 px-2 py-0.5">
+                        {{ 'facility.onboardingTemplateDetail.parallel' | translate }}
+                      </span>
+                    }
+                  </div>
+                  <p class="text-xs text-zinc-400 mt-0.5">
+                    {{ phase.steps?.length ?? 0 }}
+                    {{ 'facility.onboardingTemplateDetail.steps' | translate }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0 ml-2">
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  [title]="'facility.onboardingTemplateDetail.deletePhase' | translate"
+                  [disabled]="!canWrite()"
+                  (click)="$event.stopPropagation(); confirmDeletePhase(phase.id)"
+                />
+                <i
+                  class="pi text-zinc-400 text-xs transition-transform"
+                  [class.pi-chevron-down]="!isPhaseExpanded(phase.id)"
+                  [class.pi-chevron-up]="isPhaseExpanded(phase.id)"
+                ></i>
+              </div>
+            </div>
+
+            <!-- Delete phase confirm bar -->
+            @if (deletePhaseConfirmId() === phase.id) {
+              <div class="bg-red-50 border-t border-red-100 px-4 sm:px-6 py-3">
+                <div class="flex items-center justify-between gap-4">
+                  <p class="text-sm text-red-700 font-medium">
+                    <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                    {{ 'facility.onboardingTemplateDetail.deletePhaseConfirm' | translate: { name: phase.name } }}
+                  </p>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <p-button
+                      type="button"
+                      [label]="'facility.onboardingTemplates.keep' | translate"
+                      severity="secondary"
+                      size="small"
+                      (click)="abortDeletePhase()"
+                    />
+                    <p-button
+                      type="button"
+                      [label]="'facility.onboardingTemplates.yesDelete' | translate"
+                      severity="danger"
+                      size="small"
+                      [loading]="deletingPhaseId() === phase.id"
+                      [disabled]="deletingPhaseId() === phase.id"
+                      loadingIcon="pi pi-spin pi-spinner"
+                      (click)="executeDeletePhase(phase)"
+                    />
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Steps panel (expanded) -->
+            @if (isPhaseExpanded(phase.id)) {
+              <div class="bg-zinc-50/50 border-t border-zinc-100">
+
+                <!-- Step-level error -->
+                @if (deleteStepError()) {
+                  <div
+                    class="mx-4 sm:mx-6 mt-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600"
+                  >
+                    <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteStepError() }}
+                  </div>
+                }
+
+                <!-- Add step panel -->
+                @if (addStepForPhaseId() === phase.id) {
+                  <div class="px-4 sm:px-6 py-4 border-b border-zinc-100 bg-white">
+                    <div class="flex items-center justify-between mb-3">
+                      <p class="text-sm font-semibold text-zinc-700">
+                        {{ 'facility.onboardingTemplateDetail.newStepPanel' | translate }}
+                      </p>
+                      <p-button
+                        icon="pi pi-times"
+                        severity="secondary"
+                        [text]="true"
+                        [rounded]="true"
+                        size="small"
+                        (click)="closeAddStep()"
+                      />
+                    </div>
+                    @if (addStepError()) {
+                      <div
+                        class="mb-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+                      >
+                        <i class="pi pi-exclamation-circle shrink-0"></i>
+                        <span>{{ addStepError() }}</span>
+                      </div>
+                    }
+                    <div [formGroup]="addStepForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                      <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-zinc-700">
+                          {{ 'facility.onboardingTemplateDetail.stepType' | translate }}
+                          <span class="text-red-400">*</span>
+                        </label>
+                        <p-select
+                          formControlName="stepType"
+                          [options]="stepOptions()"
+                          optionLabel="label"
+                          optionValue="value"
+                          [fluid]="true"
+                          [loading]="availableStepsLoading()"
+                        />
+                      </div>
+                      <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-zinc-700">
+                          {{ 'facility.onboardingTemplateDetail.displayName' | translate }}
+                        </label>
+                        <input
+                          pInputText
+                          type="text"
+                          formControlName="displayName"
+                          [fluid]="true"
+                        />
+                      </div>
+                      <div class="flex items-center gap-4 sm:col-span-2">
+                        <label class="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer select-none">
+                          <p-checkbox formControlName="isOptional" [binary]="true" />
+                          {{ 'facility.onboardingTemplateDetail.optional' | translate }}
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer select-none">
+                          <p-checkbox formControlName="isEnabled" [binary]="true" />
+                          {{ 'facility.onboardingTemplateDetail.enabled' | translate }}
+                        </label>
+                      </div>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                      <p-button
+                        type="button"
+                        [label]="'facility.onboardingTemplates.cancel' | translate"
+                        severity="secondary"
+                        size="small"
+                        (click)="closeAddStep()"
+                      />
+                      <p-button
+                        type="button"
+                        icon="pi pi-check"
+                        [label]="'facility.onboardingTemplateDetail.addStep' | translate"
+                        size="small"
+                        [loading]="addStepSaving()"
+                        [disabled]="addStepSaving() || !canWrite()"
+                        loadingIcon="pi pi-spin pi-spinner"
+                        (click)="saveAddStep(phase)"
+                      />
+                    </div>
+                  </div>
+                }
+
+                <!-- Steps list -->
+                @if (sortedSteps(phase).length === 0 && addStepForPhaseId() !== phase.id) {
+                  <div class="px-6 py-8 text-center">
+                    <i class="pi pi-list-check text-2xl text-zinc-300 mb-2 block"></i>
+                    <p class="text-sm text-zinc-500">
+                      {{ 'facility.onboardingTemplateDetail.noSteps' | translate }}
+                    </p>
+                  </div>
+                }
+
+                @for (step of sortedSteps(phase); track step.id) {
+                  <div class="border-b border-zinc-100 last:border-0">
+                    <div class="flex items-center justify-between px-4 sm:px-6 py-3">
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div
+                          class="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
+                          [class.bg-blue-50]="step.isEnabled"
+                          [class.bg-zinc-100]="!step.isEnabled"
+                        >
+                          <i
+                            class="pi pi-bolt text-xs"
+                            [class.text-blue-500]="step.isEnabled"
+                            [class.text-zinc-400]="!step.isEnabled"
+                          ></i>
+                        </div>
+                        <div class="min-w-0">
+                          <div class="flex items-center gap-2 flex-wrap">
+                            <p
+                              class="text-sm font-medium"
+                              [class.text-zinc-800]="step.isEnabled"
+                              [class.text-zinc-400]="!step.isEnabled"
+                            >
+                              {{ step.displayName ?? stepTypeLabel(step.stepType) }}
+                            </p>
+                            @if (!step.isEnabled) {
+                              <span class="text-xs text-zinc-400 bg-zinc-100 rounded-full px-2 py-0.5">
+                                {{ 'facility.onboardingTemplateDetail.disabled' | translate }}
+                              </span>
+                            }
+                            @if (step.isOptional) {
+                              <span class="text-xs text-zinc-400 bg-zinc-100 rounded-full px-2 py-0.5">
+                                {{ 'facility.onboardingTemplateDetail.optionalBadge' | translate }}
+                              </span>
+                            }
+                            @if (step.retryPolicy && step.retryPolicy.maxAttempts > 0) {
+                              <span class="text-xs text-amber-600 bg-amber-50 rounded-full px-2 py-0.5">
+                                {{ step.retryPolicy.maxAttempts }}×
+                              </span>
+                            }
+                            @if (step.dependencies?.length) {
+                              <span class="text-xs text-purple-600 bg-purple-50 rounded-full px-2 py-0.5">
+                                {{ step.dependencies.length }} dep
+                              </span>
+                            }
+                          </div>
+                          <p class="text-xs text-zinc-400 mt-0.5">{{ step.stepType }}</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-1 shrink-0 ml-2">
+                        <!-- Edit -->
+                        <p-button
+                          icon="pi pi-pencil"
+                          severity="secondary"
+                          [text]="true"
+                          [rounded]="true"
+                          size="small"
+                          [title]="'facility.onboardingTemplateDetail.editStep' | translate"
+                          [disabled]="!canWrite()"
+                          (click)="editStepId() === step.id ? closeEditStep() : openEditStep(step)"
+                        />
+                        <!-- Toggle enabled -->
+                        <p-button
+                          [icon]="step.isEnabled ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                          severity="secondary"
+                          [text]="true"
+                          [rounded]="true"
+                          size="small"
+                          [title]="
+                            (step.isEnabled
+                              ? 'facility.onboardingTemplateDetail.disableStep'
+                              : 'facility.onboardingTemplateDetail.enableStep'
+                            ) | translate
+                          "
+                          [loading]="togglingStepId() === step.id"
+                          [disabled]="togglingStepId() === step.id || !canWrite()"
+                          loadingIcon="pi pi-spin pi-spinner"
+                          (click)="toggleStepEnabled(phase, step)"
+                        />
+                        <!-- Delete -->
+                        <p-button
+                          icon="pi pi-trash"
+                          severity="danger"
+                          [text]="true"
+                          [rounded]="true"
+                          size="small"
+                          [title]="'facility.onboardingTemplateDetail.deleteStep' | translate"
+                          [disabled]="!canWrite()"
+                          (click)="confirmDeleteStep(step.id)"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Edit step panel -->
+                    @if (editStepId() === step.id) {
+                      <div class="bg-white border-t border-zinc-100 px-4 sm:px-6 py-5">
+                        <div class="flex items-center justify-between mb-4">
+                          <p class="text-sm font-semibold text-zinc-700">
+                            {{ 'facility.onboardingTemplateDetail.editStepPanel' | translate }}
+                            <span class="ml-1.5 font-normal text-zinc-400">
+                              — {{ step.displayName ?? stepTypeLabel(step.stepType) }}
+                            </span>
+                          </p>
+                          <p-button
+                            icon="pi pi-times"
+                            severity="secondary"
+                            [text]="true"
+                            [rounded]="true"
+                            size="small"
+                            (click)="closeEditStep()"
+                          />
+                        </div>
+
+                        @if (editStepError()) {
+                          <div
+                            class="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+                          >
+                            <i class="pi pi-exclamation-circle shrink-0"></i>
+                            <span>{{ editStepError() }}</span>
+                          </div>
+                        }
+                        @if (editStepSuccess()) {
+                          <div
+                            class="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+                          >
+                            <i class="pi pi-check-circle shrink-0"></i>
+                            <span>{{ 'facility.onboardingTemplateDetail.stepSaved' | translate }}</span>
+                          </div>
+                        }
+
+                        <div [formGroup]="editStepForm">
+
+                          <!-- ── Basic ───────────────────────────── -->
+                          <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-3">
+                            {{ 'facility.onboardingTemplateDetail.sectionBasic' | translate }}
+                          </p>
+                          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                            <div class="flex flex-col gap-1.5">
+                              <label class="text-sm font-medium text-zinc-700">
+                                {{ 'facility.onboardingTemplateDetail.displayName' | translate }}
+                              </label>
+                              <input
+                                pInputText
+                                type="text"
+                                formControlName="displayName"
+                                [fluid]="true"
+                              />
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                              <label class="text-sm font-medium text-zinc-700">
+                                {{ 'facility.onboardingTemplateDetail.notes' | translate }}
+                              </label>
+                              <input
+                                pInputText
+                                type="text"
+                                formControlName="notes"
+                                [fluid]="true"
+                              />
+                            </div>
+                            <div class="flex items-center gap-4 sm:col-span-2">
+                              <label class="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer select-none">
+                                <p-checkbox formControlName="isOptional" [binary]="true" />
+                                {{ 'facility.onboardingTemplateDetail.optional' | translate }}
+                              </label>
+                              <label class="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer select-none">
+                                <p-checkbox formControlName="isEnabled" [binary]="true" />
+                                {{ 'facility.onboardingTemplateDetail.enabled' | translate }}
+                              </label>
+                            </div>
+                          </div>
+
+                          <!-- ── Retry policy ────────────────────── -->
+                          <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-3">
+                            {{ 'facility.onboardingTemplateDetail.sectionRetry' | translate }}
+                          </p>
+                          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                            <div class="flex flex-col gap-1.5">
+                              <label class="text-sm font-medium text-zinc-700">
+                                {{ 'facility.onboardingTemplateDetail.retryStrategy' | translate }}
+                              </label>
+                              <p-select
+                                formControlName="retryStrategy"
+                                [options]="retryStrategyOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                [fluid]="true"
+                              />
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                              <label class="text-sm font-medium text-zinc-700">
+                                {{ 'facility.onboardingTemplateDetail.maxRetries' | translate }}
+                              </label>
+                              <p-inputnumber
+                                formControlName="maxRetries"
+                                [min]="0"
+                                [max]="20"
+                                [showButtons]="true"
+                                [fluid]="true"
+                              />
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                              <label class="text-sm font-medium text-zinc-700">
+                                {{ 'facility.onboardingTemplateDetail.timeoutSeconds' | translate }}
+                              </label>
+                              <p-inputnumber
+                                formControlName="timeoutSeconds"
+                                [min]="0"
+                                [showButtons]="false"
+                                [fluid]="true"
+                                placeholder="—"
+                              />
+                            </div>
+                            @if (editStepForm.controls.retryStrategy.value !== 'None') {
+                              <div class="flex flex-col gap-1.5">
+                                <label class="text-sm font-medium text-zinc-700">
+                                  {{ 'facility.onboardingTemplateDetail.initialDelaySeconds' | translate }}
+                                </label>
+                                <p-inputnumber
+                                  formControlName="initialDelaySeconds"
+                                  [min]="0"
+                                  [showButtons]="true"
+                                  [fluid]="true"
+                                />
+                              </div>
+                              <div class="flex flex-col gap-1.5">
+                                <label class="text-sm font-medium text-zinc-700">
+                                  {{ 'facility.onboardingTemplateDetail.maxDelaySeconds' | translate }}
+                                </label>
+                                <p-inputnumber
+                                  formControlName="maxDelaySeconds"
+                                  [min]="0"
+                                  [showButtons]="true"
+                                  [fluid]="true"
+                                />
+                              </div>
+                              @if (editStepForm.controls.retryStrategy.value === 'ExponentialBackoff') {
+                                <div class="flex flex-col gap-1.5">
+                                  <label class="text-sm font-medium text-zinc-700">
+                                    {{ 'facility.onboardingTemplateDetail.backoffMultiplier' | translate }}
+                                  </label>
+                                  <p-inputnumber
+                                    formControlName="backoffMultiplier"
+                                    [min]="1"
+                                    [minFractionDigits]="1"
+                                    [maxFractionDigits]="2"
+                                    [showButtons]="true"
+                                    [fluid]="true"
+                                  />
+                                </div>
+                              }
+                            }
+                          </div>
+
+                          <!-- ── Dependencies ───────────────────── -->
+                          @if (dependencyOptions(phase, step.id).length > 0) {
+                            <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-3">
+                              {{ 'facility.onboardingTemplateDetail.sectionDependencies' | translate }}
+                            </p>
+                            <div class="mb-6">
+                              @if (step.dependencies?.length) {
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                  @for (dep of step.dependencies; track dep.dependsOnStepId) {
+                                    <span class="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 border border-purple-200 rounded-full px-2.5 py-0.5">
+                                      <i class="pi pi-arrow-right text-[10px]"></i>
+                                      {{ dependencyLabel(phase, dep.dependsOnStepId) }}
+                                    </span>
+                                  }
+                                </div>
+                              } @else {
+                                <p class="text-xs text-zinc-400 italic">
+                                  {{ 'facility.onboardingTemplateDetail.noDependencies' | translate }}
+                                </p>
+                              }
+                              <p class="text-xs text-zinc-400 mt-1">
+                                {{ 'facility.onboardingTemplateDetail.dependenciesHint' | translate }}
+                              </p>
+                            </div>
+                          }
+
+                          <!-- ── Parameters ──────────────────────── -->
+                          <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-3">
+                            {{ 'facility.onboardingTemplateDetail.sectionParameters' | translate }}
+                          </p>
+                          <div class="mb-6">
+                            <p class="text-xs text-zinc-400 mb-2">
+                              {{ 'facility.onboardingTemplateDetail.parametersHint' | translate }}
+                            </p>
+                            <textarea
+                              pTextarea
+                              formControlName="parameters"
+                              [fluid]="true"
+                              rows="5"
+                              class="font-mono text-xs"
+                            ></textarea>
+                          </div>
+
+                        </div>
+
+                        <div class="flex items-center justify-end gap-2">
+                          <p-button
+                            type="button"
+                            [label]="'facility.onboardingTemplates.cancel' | translate"
+                            severity="secondary"
+                            size="small"
+                            (click)="closeEditStep()"
+                          />
+                          <p-button
+                            type="button"
+                            icon="pi pi-check"
+                            [label]="'facility.onboardingTemplateDetail.saveStep' | translate"
+                            size="small"
+                            [loading]="editStepSaving()"
+                            [disabled]="editStepSaving() || !canWrite()"
+                            loadingIcon="pi pi-spin pi-spinner"
+                            (click)="saveEditStep(phase, step)"
+                          />
+                        </div>
+                      </div>
+                    }
+
+                    <!-- Delete step confirm bar -->
+                    @if (deleteStepConfirmId() === step.id) {
+                      <div class="bg-red-50 border-t border-red-100 px-4 sm:px-6 py-3">
+                        <div class="flex items-center justify-between gap-4">
+                          <p class="text-sm text-red-700 font-medium">
+                            <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                            {{ 'facility.onboardingTemplateDetail.deleteStepConfirm' | translate: { name: step.displayName ?? step.stepType } }}
+                          </p>
+                          <div class="flex items-center gap-2 shrink-0">
+                            <p-button
+                              type="button"
+                              [label]="'facility.onboardingTemplates.keep' | translate"
+                              severity="secondary"
+                              size="small"
+                              (click)="abortDeleteStep()"
+                            />
+                            <p-button
+                              type="button"
+                              [label]="'facility.onboardingTemplates.yesDelete' | translate"
+                              severity="danger"
+                              size="small"
+                              [loading]="deletingStepId() === step.id"
+                              [disabled]="deletingStepId() === step.id"
+                              loadingIcon="pi pi-spin pi-spinner"
+                              (click)="executeDeleteStep(phase, step)"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Add step button footer -->
+                @if (addStepForPhaseId() !== phase.id) {
+                  <div class="px-4 sm:px-6 py-3">
+                    <p-button
+                      icon="pi pi-plus"
+                      [label]="'facility.onboardingTemplateDetail.addStep' | translate"
+                      severity="secondary"
+                      size="small"
+                      [disabled]="!canWrite()"
+                      (click)="openAddStep(phase.id)"
+                    />
+                  </div>
+                }
+
+              </div>
+            }
+
+          </div>
+
+        }
+      </div>
+
+    </div>
+
+  }
+
+</div>

@@ -41,7 +41,8 @@ const APP_NAV: Record<string, NavItemDef[]> = {
     { navKey: 'dashboard',      icon: 'pi pi-home',       route: '/facility'                                                                                                    },
     { navKey: 'agents',         icon: 'pi pi-users',      route: '/facility/agents',          requiredApp: 'Agent Server',      requiredPermissions: ['View Agents']             },
     { navKey: 'accessPolicies', icon: 'pi pi-lock',       route: '/facility/access-policies', requiredApp: 'Access Policies',   requiredPermissions: ['Read rule sets', 'Read systems'] },
-    { navKey: 'locations',      icon: 'pi pi-map-marker', route: '/facility/locations',       requiredApp: 'Locations Service', requiredPermissions: ['Locations:Read']          },
+    { navKey: 'locations',            icon: 'pi pi-map-marker', route: '/facility/locations',            requiredApp: 'Locations Service', requiredPermissions: ['Locations:Read'] },
+    { navKey: 'onboardingTemplates',  icon: 'pi pi-list',       route: '/facility/onboarding-templates'                                                                          },
   ],
   'reception-desk': [
     { navKey: 'arrivals', icon: 'pi pi-calendar-clock', route: '/reception/arrivals', requiredApp: 'Visitors Service', requiredPermissions: ['Visits:Read'] },
