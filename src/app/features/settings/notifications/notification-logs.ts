@@ -12,6 +12,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
+import { PaginatorModule } from 'primeng/paginator';
+import type { PaginatorState } from 'primeng/paginator';
 import {
   NotificationsService,
   NotificationLogDto,
@@ -48,14 +50,24 @@ interface LogFilters {
 
 const EMPTY_FILTERS: LogFilters = { channel: null, status: null, from: null, to: null };
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+const DEFAULT_PAGE_SIZE = 25;
 
 const KNOWN_STATUSES = ['Sent', 'Delivered', 'Pending', 'Queued', 'Failed', 'Bounced'];
 
 @Component({
   selector: 'app-notification-logs',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslateModule, ButtonModule, SelectModule, TagModule, DatePipe, FormsModule],
+  imports: [
+    RouterLink,
+    TranslateModule,
+    ButtonModule,
+    SelectModule,
+    TagModule,
+    DatePipe,
+    FormsModule,
+    PaginatorModule,
+  ],
   templateUrl: './notification-logs.html',
 })
 export class NotificationLogs implements OnInit {
@@ -73,9 +85,12 @@ export class NotificationLogs implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
-  readonly totalItems = signal(0);
-  readonly totalPages = signal(0);
-  readonly currentPage = signal(0);
+  // ── Pagination state (matches p-paginator's offset-based model) ───────────────
+
+  readonly first = signal(0);
+  readonly totalRecords = signal(0);
+  readonly pageSize = signal(DEFAULT_PAGE_SIZE);
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
 
   readonly channels = signal<NotificationChannel[]>([]);
 
@@ -98,7 +113,7 @@ export class NotificationLogs implements OnInit {
   // ── Lifecycle ─────────────────────────────────────────────────────────────────
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([this.loadChannels(), this.loadPage(0)]);
+    await Promise.all([this.loadChannels(), this.load(0)]);
   }
 
   // ── Data loading ─────────────────────────────────────────────────────────────
@@ -108,27 +123,27 @@ export class NotificationLogs implements OnInit {
       const ch = await this.service.getChannels();
       this.channels.set(ch);
     } catch {
-      // non-critical — filters degrade gracefully
+      // non-critical — channel filter degrades gracefully
     }
   }
 
-  private async loadPage(page: number): Promise<void> {
+  private async load(firstOffset: number): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
     const f = this.filters();
+    const size = this.pageSize();
+    const page = Math.floor(firstOffset / size);
     try {
       const result: IPagedOf<NotificationLogDto> = await this.service.getLogs({
         page,
-        pageSize: PAGE_SIZE,
+        pageSize: size,
         channel: f.channel ?? undefined,
         status: f.status ?? undefined,
         from: f.from ?? undefined,
         to: f.to ?? undefined,
       });
       this.logs.set(result.items);
-      this.totalItems.set(result.totalItems ?? 0);
-      this.totalPages.set(result.totalPages ?? 0);
-      this.currentPage.set(page);
+      this.totalRecords.set(result.totalItems ?? result.items.length);
     } catch {
       this.error.set(this.translate.instant('settings.notifications.logs.loadError'));
     } finally {
@@ -136,59 +151,57 @@ export class NotificationLogs implements OnInit {
     }
   }
 
+  // ── Pagination ────────────────────────────────────────────────────────────────
+
+  async onPageChange(event: PaginatorState): Promise<void> {
+    const newFirst = event.first ?? 0;
+    const newRows = event.rows ?? this.pageSize();
+    if (newRows !== this.pageSize()) {
+      this.pageSize.set(newRows);
+      this.first.set(0);
+      await this.load(0);
+    } else {
+      this.first.set(newFirst);
+      await this.load(newFirst);
+    }
+  }
+
   // ── Filter actions ────────────────────────────────────────────────────────────
 
   setChannel(value: string | null): void {
     this.filters.update(f => ({ ...f, channel: value }));
-    this.loadPage(0);
+    this.first.set(0);
+    this.load(0);
   }
 
   setStatus(value: string | null): void {
     this.filters.update(f => ({ ...f, status: value }));
-    this.loadPage(0);
+    this.first.set(0);
+    this.load(0);
   }
 
   setFrom(value: string | null): void {
     this.filters.update(f => ({ ...f, from: value }));
-    this.loadPage(0);
+    this.first.set(0);
+    this.load(0);
   }
 
   setTo(value: string | null): void {
     this.filters.update(f => ({ ...f, to: value }));
-    this.loadPage(0);
+    this.first.set(0);
+    this.load(0);
   }
 
   applyFilters(): void {
-    this.loadPage(0);
+    this.first.set(0);
+    this.load(0);
   }
 
   clearFilters(): void {
     this.filters.set({ ...EMPTY_FILTERS });
-    this.loadPage(0);
+    this.first.set(0);
+    this.load(0);
   }
-
-  onFilterChange(): void {
-    this.loadPage(0);
-  }
-
-  // ── Pagination ────────────────────────────────────────────────────────────────
-
-  goToPage(page: number): void {
-    if (page < 0 || page >= this.totalPages()) return;
-    this.loadPage(page);
-  }
-
-  readonly hasPrev = computed(() => this.currentPage() > 0);
-  readonly hasNext = computed(() => this.currentPage() < this.totalPages() - 1);
-
-  readonly pageLabel = computed(() => {
-    const total = this.totalPages();
-    if (!total) return '';
-    return this.translate.instant('settings.notifications.logs.pageOf', {
-      current: this.currentPage() + 1,
-      total,
-    });
-  });
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
 

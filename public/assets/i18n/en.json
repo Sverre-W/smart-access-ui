@@ -992,7 +992,7 @@
         "noLogs": "No log entries found",
         "noLogsHint": "Notifications sent through this system will appear here.",
         "loadError": "Failed to load notification logs. Please try again.",
-        "pageOf": "Page {{current}} of {{total}}"
+        "pageReport": "Showing {first} to {last} of {totalRecords} entries"
       }
     }
   }

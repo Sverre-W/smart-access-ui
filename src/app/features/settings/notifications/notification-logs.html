@@ -107,8 +107,8 @@
       <div>
         <h2 class="text-sm font-semibold text-zinc-700">
           {{ 'settings.notifications.logs.results' | translate }}
-          @if (!loading() && totalItems() > 0) {
-            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ totalItems() }})</span>
+          @if (!loading() && totalRecords() > 0) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ totalRecords() }})</span>
           }
         </h2>
       </div>
@@ -242,28 +242,18 @@
 
     </div>
 
-    <!-- ── Pagination ─────────────────────────────────────────────────────────── -->
-    @if (!loading() && totalPages() > 1) {
-      <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-zinc-100">
-        <span class="text-xs text-zinc-400">{{ pageLabel() }}</span>
-        <div class="flex items-center gap-1">
-          <p-button
-            icon="pi pi-angle-left"
-            severity="secondary" [text]="true" [rounded]="true"
-            size="small"
-            [disabled]="!hasPrev()"
-            (click)="goToPage(currentPage() - 1)"
-          />
-          <p-button
-            icon="pi pi-angle-right"
-            severity="secondary" [text]="true" [rounded]="true"
-            size="small"
-            [disabled]="!hasNext()"
-            (click)="goToPage(currentPage() + 1)"
-          />
-        </div>
-      </div>
-    }
+    <!-- ── Paginator ─────────────────────────────────────────────────────────── -->
+    <div class="border-t border-zinc-100">
+      <p-paginator
+        [first]="first()"
+        [rows]="pageSize()"
+        [totalRecords]="totalRecords()"
+        [rowsPerPageOptions]="pageSizeOptions"
+        [showCurrentPageReport]="true"
+        [currentPageReportTemplate]="'settings.notifications.logs.pageReport' | translate"
+        (onPageChange)="onPageChange($event)"
+      />
+    </div>
 
   </div>
 
