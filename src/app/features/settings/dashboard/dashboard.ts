@@ -31,4 +31,8 @@ export class SettingsDashboard {
   readonly canSeeNotifications = computed(() =>
     this.permissions.hasAnyPermission('Notifications Server', 'View Templates')
   );
+
+  readonly canSeeLogs = computed(() =>
+    this.permissions.hasAnyPermission('Notifications Server', 'View Notifications Log')
+  );
 }

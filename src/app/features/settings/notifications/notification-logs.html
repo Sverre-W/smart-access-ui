@@ -1,0 +1,270 @@
+<div class="p-4 sm:p-8">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <div class="mb-6 flex items-center gap-3">
+    <a
+      routerLink="/settings/notifications"
+      class="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-700 transition-colors"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+      {{ 'settings.notifications.back' | translate }}
+    </a>
+  </div>
+
+  <div class="mb-8">
+    <h1 class="text-2xl font-semibold text-zinc-800">{{ 'settings.notifications.logs.title' | translate }}</h1>
+    <p class="text-sm text-zinc-500 mt-1">{{ 'settings.notifications.logs.subtitle' | translate }}</p>
+  </div>
+
+  <!-- ── Load error ────────────────────────────────────────────────────────── -->
+  @if (error()) {
+    <div class="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+      <button class="ml-auto text-xs underline underline-offset-2" (click)="applyFilters()">
+        {{ 'settings.notifications.logs.retry' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- ── Filters card ──────────────────────────────────────────────────────── -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs mb-5">
+    <div class="px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <h2 class="text-sm font-semibold text-zinc-700">{{ 'settings.notifications.logs.filters' | translate }}</h2>
+    </div>
+    <div class="px-4 sm:px-6 py-4 flex flex-wrap gap-3 items-end">
+
+      <!-- Channel filter -->
+      <div class="flex flex-col gap-1 min-w-[160px]">
+        <label class="text-xs font-medium text-zinc-500">{{ 'settings.notifications.logs.filterChannel' | translate }}</label>
+        <p-select
+          [options]="channelOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="filters().channel"
+          (ngModelChange)="filters.update(f => ({ ...f, channel: $event })); onFilterChange()"
+          [placeholder]="'settings.notifications.logs.allChannels' | translate"
+          styleClass="text-sm w-full"
+        />
+      </div>
+
+      <!-- Status filter -->
+      <div class="flex flex-col gap-1 min-w-[140px]">
+        <label class="text-xs font-medium text-zinc-500">{{ 'settings.notifications.logs.filterStatus' | translate }}</label>
+        <p-select
+          [options]="statusOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="filters().status"
+          (ngModelChange)="filters.update(f => ({ ...f, status: $event })); onFilterChange()"
+          [showClear]="true"
+          [placeholder]="'settings.notifications.logs.allStatuses' | translate"
+          styleClass="text-sm w-full"
+        />
+      </div>
+
+      <!-- Date from -->
+      <div class="flex flex-col gap-1 min-w-[148px]">
+        <label class="text-xs font-medium text-zinc-500">{{ 'settings.notifications.logs.filterFrom' | translate }}</label>
+        <input
+          type="date"
+          [ngModel]="filters().from"
+          (ngModelChange)="filters.update(f => ({ ...f, from: $event })); onFilterChange()"
+          class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+        />
+      </div>
+
+      <!-- Date to -->
+      <div class="flex flex-col gap-1 min-w-[148px]">
+        <label class="text-xs font-medium text-zinc-500">{{ 'settings.notifications.logs.filterTo' | translate }}</label>
+        <input
+          type="date"
+          [ngModel]="filters().to"
+          (ngModelChange)="filters.update(f => ({ ...f, to: $event })); onFilterChange()"
+          class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+        />
+      </div>
+
+      <!-- Clear filters -->
+      @if (hasActiveFilters()) {
+        <p-button
+          [label]="'settings.notifications.logs.clearFilters' | translate"
+          severity="secondary"
+          size="small"
+          icon="pi pi-filter-slash"
+          (click)="clearFilters()"
+        />
+      }
+
+    </div>
+  </div>
+
+  <!-- ── Logs card ─────────────────────────────────────────────────────────── -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-hidden">
+
+    <!-- Card header -->
+    <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <div>
+        <h2 class="text-sm font-semibold text-zinc-700">
+          {{ 'settings.notifications.logs.results' | translate }}
+          @if (!loading() && totalItems() > 0) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ totalItems() }})</span>
+          }
+        </h2>
+      </div>
+      <p-button
+        icon="pi pi-refresh"
+        severity="secondary"
+        [text]="true"
+        [rounded]="true"
+        size="small"
+        [title]="'settings.notifications.logs.refresh' | translate"
+        [loading]="loading()"
+        (click)="applyFilters()"
+      />
+    </div>
+
+    <!-- ── Desktop table ────────────────────────────────────────────────────── -->
+    <div class="hidden sm:block">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'settings.notifications.logs.colTemplate' | translate }}</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'settings.notifications.logs.colChannel' | translate }}</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'settings.notifications.logs.colRecipient' | translate }}</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'settings.notifications.logs.colStatus' | translate }}</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'settings.notifications.logs.colSent' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (loading()) {
+            @for (row of skeletonRows; track row) {
+              <tr class="border-b border-zinc-100">
+                <td class="px-6 py-4"><div class="h-4 w-44 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-20 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-36 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-5 w-16 rounded-full bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-28 rounded bg-zinc-100 animate-pulse"></div></td>
+              </tr>
+            }
+          } @else if (!hasLogs()) {
+            <tr>
+              <td colspan="5" class="px-6 py-16 text-center">
+                <i class="pi pi-inbox text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">{{ 'settings.notifications.logs.noLogs' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-1">{{ 'settings.notifications.logs.noLogsHint' | translate }}</p>
+              </td>
+            </tr>
+          } @else {
+            @for (log of logs(); track log.id) {
+              <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+
+                <!-- Template -->
+                <td class="px-6 py-4">
+                  <span class="font-medium text-zinc-800">{{ log.templateName }}</span>
+                  @if (log.errorMessage) {
+                    <p class="text-xs text-red-400 mt-0.5 truncate max-w-[220px]" [title]="log.errorMessage">
+                      {{ log.errorMessage }}
+                    </p>
+                  }
+                </td>
+
+                <!-- Channel -->
+                <td class="px-4 py-4">
+                  <span class="text-xs text-zinc-500 capitalize">{{ log.channel }}</span>
+                </td>
+
+                <!-- Recipient -->
+                <td class="px-4 py-4">
+                  <span class="text-xs text-zinc-600 truncate block max-w-[200px]">{{ log.recipient }}</span>
+                </td>
+
+                <!-- Status -->
+                <td class="px-4 py-4">
+                  <p-tag [value]="log.status" [severity]="statusSeverity(log.status)" styleClass="text-xs" />
+                </td>
+
+                <!-- Sent at -->
+                <td class="px-4 py-4">
+                  <span class="text-xs text-zinc-400">
+                    {{ (log.sentAt ?? log.createdAt) | date:'dd MMM yyyy, HH:mm' }}
+                  </span>
+                </td>
+
+              </tr>
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Mobile list ───────────────────────────────────────────────────────── -->
+    <div class="sm:hidden divide-y divide-zinc-100">
+
+      @if (loading()) {
+        @for (row of skeletonRows; track row) {
+          <div class="px-4 py-4 animate-pulse space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="h-3.5 w-40 rounded bg-zinc-100"></div>
+              <div class="h-5 w-14 rounded-full bg-zinc-100"></div>
+            </div>
+            <div class="h-3 w-28 rounded bg-zinc-50"></div>
+          </div>
+        }
+      } @else if (!hasLogs()) {
+        <div class="px-4 py-14 text-center">
+          <i class="pi pi-inbox text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">{{ 'settings.notifications.logs.noLogs' | translate }}</p>
+        </div>
+      } @else {
+        @for (log of logs(); track log.id) {
+          <div class="px-4 py-3">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <span class="font-medium text-zinc-800 text-sm leading-snug">{{ log.templateName }}</span>
+              <p-tag [value]="log.status" [severity]="statusSeverity(log.status)" styleClass="text-xs shrink-0" />
+            </div>
+            <div class="flex items-center gap-2 text-xs text-zinc-400">
+              <span class="capitalize">{{ log.channel }}</span>
+              <span>·</span>
+              <span class="truncate">{{ log.recipient }}</span>
+            </div>
+            <p class="text-xs text-zinc-400 mt-0.5">
+              {{ (log.sentAt ?? log.createdAt) | date:'dd MMM yyyy, HH:mm' }}
+            </p>
+            @if (log.errorMessage) {
+              <p class="text-xs text-red-400 mt-1 line-clamp-2">{{ log.errorMessage }}</p>
+            }
+          </div>
+        }
+      }
+
+    </div>
+
+    <!-- ── Pagination ─────────────────────────────────────────────────────────── -->
+    @if (!loading() && totalPages() > 1) {
+      <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-zinc-100">
+        <span class="text-xs text-zinc-400">{{ pageLabel() }}</span>
+        <div class="flex items-center gap-1">
+          <p-button
+            icon="pi pi-angle-left"
+            severity="secondary" [text]="true" [rounded]="true"
+            size="small"
+            [disabled]="!hasPrev()"
+            (click)="goToPage(currentPage() - 1)"
+          />
+          <p-button
+            icon="pi pi-angle-right"
+            severity="secondary" [text]="true" [rounded]="true"
+            size="small"
+            [disabled]="!hasNext()"
+            (click)="goToPage(currentPage() + 1)"
+          />
+        </div>
+      </div>
+    }
+
+  </div>
+
+</div>

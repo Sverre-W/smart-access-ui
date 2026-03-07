@@ -38,6 +38,10 @@ export const settingsRoutes: Routes = [
     loadComponent: () => import('./notifications/notifications').then(m => m.SettingsNotifications),
   },
   {
+    path: 'notifications/logs',
+    loadComponent: () => import('./notifications/notification-logs').then(m => m.NotificationLogs),
+  },
+  {
     path: 'notifications/:id',
     loadComponent: () => import('./notifications/edit-notification').then(m => m.EditNotification),
   },

@@ -85,6 +85,25 @@
       </a>
     }
 
+    <!-- Notification Logs -->
+    @if (canSeeLogs()) {
+      <a [routerLink]="['/settings/notifications/logs']"
+         class="rounded-xl border border-zinc-200 bg-white shadow-xs p-5 flex items-start gap-4 hover:border-[#238cff]/30 hover:bg-[#238cff]/[0.02] transition-colors group">
+        <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+          <i class="pi pi-list text-base text-indigo-500"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold text-zinc-700 group-hover:text-[#238cff] transition-colors">
+            {{ 'layout.nav.notificationLogs' | translate }}
+          </p>
+          <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+            {{ 'settings.dashboard.notificationLogsDesc' | translate }}
+          </p>
+        </div>
+        <i class="pi pi-arrow-right text-xs text-zinc-300 group-hover:text-[#238cff] transition-colors shrink-0 mt-0.5"></i>
+      </a>
+    }
+
   </div>
 
 </div>

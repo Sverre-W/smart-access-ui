@@ -29,7 +29,8 @@
       "guidedOnboarding": "Guided Onboarding",
       "onboardingTemplates": "Onboarding Templates",
       "userManagement": "User Management",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "notificationLogs": "Notification Logs"
     }
   },
   "home": {
@@ -736,7 +737,8 @@
       "userManagementDesc": "Manage users, groups and their role assignments.",
       "tenantsDesc": "Configure tenant identity providers and feature flags.",
       "rolesDesc": "Define roles and the permissions granted to each.",
-      "notificationsDesc": "Manage notification templates and translations."
+      "notificationsDesc": "Manage notification templates and translations.",
+      "notificationLogsDesc": "Browse sent notification history, filter by channel and status."
     },
     "users": {
       "title": "User Management",
@@ -967,7 +969,31 @@
       "noTranslations": "No translations added yet.",
       "save": "Save Changes",
       "create": "Create Template",
-      "saved": "Changes saved."
+      "saved": "Changes saved.",
+      "logs": {
+        "title": "Notification Logs",
+        "subtitle": "View a history of all notifications sent across channels.",
+        "filters": "Filters",
+        "filterChannel": "Channel",
+        "filterStatus": "Status",
+        "filterFrom": "From",
+        "filterTo": "To",
+        "allChannels": "All channels",
+        "allStatuses": "All statuses",
+        "clearFilters": "Clear filters",
+        "results": "Log entries",
+        "refresh": "Refresh",
+        "retry": "Retry",
+        "colTemplate": "Template",
+        "colChannel": "Channel",
+        "colRecipient": "Recipient",
+        "colStatus": "Status",
+        "colSent": "Sent",
+        "noLogs": "No log entries found",
+        "noLogsHint": "Notifications sent through this system will appear here.",
+        "loadError": "Failed to load notification logs. Please try again.",
+        "pageOf": "Page {{current}} of {{total}}"
+      }
     }
   }
 }
