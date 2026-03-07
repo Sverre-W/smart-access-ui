@@ -10,6 +10,7 @@ import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { PermissionsService } from '../../../core/services/permissions-service';
+import { NotificationsService } from '../../../core/services/notifications-service';
 import { SchemaForm } from '../../../shared/components/schema-form/schema-form';
 import {
   OnboardingService,
@@ -90,6 +91,7 @@ export class OnboardingTemplateDetail implements OnInit {
   private fb = inject(FormBuilder);
   private translate = inject(TranslateService);
   private permissions = inject(PermissionsService);
+  private notifications = inject(NotificationsService);
 
   readonly canWrite = computed(() =>
     this.permissions.hasPermission('Onboarding Service', 'Onboarding:ManageTemplates')
@@ -152,6 +154,10 @@ export class OnboardingTemplateDetail implements OnInit {
   readonly availableSteps = signal<AvailableStepDto[]>([]);
   readonly availableStepsLoading = signal(false);
 
+  // ── Mail template options (loaded once for schema-form dropdowns) ─────────
+
+  readonly mailTemplateOptions = signal<{ label: string; value: string }[]>([]);
+
   // ── Add step ─────────────────────────────────────────────────────────────
 
   /** phaseId currently showing the add-step panel, or null */
@@ -205,7 +211,7 @@ export class OnboardingTemplateDetail implements OnInit {
       this.loading.set(false);
       return;
     }
-    await Promise.all([this.load(id), this.loadAvailableSteps()]);
+    await Promise.all([this.load(id), this.loadAvailableSteps(), this.loadMailTemplates()]);
   }
 
   private async load(templateId: string): Promise<void> {
@@ -231,6 +237,15 @@ export class OnboardingTemplateDetail implements OnInit {
       // Non-fatal — step type picker will be empty
     } finally {
       this.availableStepsLoading.set(false);
+    }
+  }
+
+  private async loadMailTemplates(): Promise<void> {
+    try {
+      const result = await this.notifications.getTemplates(0, 100);
+      this.mailTemplateOptions.set(result.items.map(t => ({ label: t.name, value: t.name })));
+    } catch {
+      // Non-fatal — mail-template dropdowns will be empty
     }
   }
 

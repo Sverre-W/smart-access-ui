@@ -33,14 +33,4 @@ export const facilityRoutes: Routes = [
     path: 'locations/buildings/:buildingId',
     loadComponent: () => import('./locations/edit-building').then(m => m.EditBuilding),
   },
-  {
-    path: 'onboarding-templates',
-    loadComponent: () =>
-      import('./onboarding/onboarding-templates').then(m => m.FacilityOnboardingTemplates),
-  },
-  {
-    path: 'onboarding-templates/:templateId',
-    loadComponent: () =>
-      import('./onboarding/onboarding-template-detail').then(m => m.OnboardingTemplateDetail),
-  },
 ];

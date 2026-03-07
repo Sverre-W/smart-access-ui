@@ -807,6 +807,7 @@
                               [schema]="schemaForEditStep(step.id)"
                               [value]="editStepForm.controls.parameters.value"
                               [readonly]="!canWrite()"
+                              [mailTemplates]="mailTemplateOptions()"
                               (valueChange)="editStepForm.controls.parameters.setValue($event)"
                             />
                           </div>

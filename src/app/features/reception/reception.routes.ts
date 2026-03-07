@@ -15,4 +15,14 @@ export const receptionRoutes: Routes = [
     redirectTo: '/reception/onboarding/home',
     pathMatch: 'prefix',
   },
+  {
+    path: 'onboarding-templates',
+    loadComponent: () =>
+      import('./onboarding-templates/onboarding-templates').then(m => m.FacilityOnboardingTemplates),
+  },
+  {
+    path: 'onboarding-templates/:templateId',
+    loadComponent: () =>
+      import('./onboarding-templates/onboarding-template-detail').then(m => m.OnboardingTemplateDetail),
+  },
 ];
