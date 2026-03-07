@@ -28,7 +28,9 @@
       "arrivals": "الوصولات",
       "guidedOnboarding": "التسجيل الموجّه",
       "onboardingTemplates": "قوالب التسجيل",
-      "userManagement": "إدارة المستخدمين"
+      "userManagement": "إدارة المستخدمين",
+      "notifications": "الإشعارات",
+      "notificationLogs": "سجلات الإشعارات"
     }
   },
   "home": {
@@ -335,6 +337,7 @@
       "settingsSaved": "تم حفظ الإعدادات",
       "unsavedWarning": "ستضيع التغييرات غير المحفوظة عند التنقل.",
       "save": "حفظ",
+      "labelTemplate": "قالب الملصق",
       "loadError": "فشل تحميل إعدادات التحكم في الوصول.",
       "saveError": "فشل حفظ الإعدادات. يرجى المحاولة مرة أخرى."
     }
@@ -687,7 +690,11 @@
       "timeoutSeconds": "المهلة الزمنية (ث)",
       "noDependencies": "لم يتم تكوين أي اعتماديات.",
       "dependenciesHint": "تُدار الاعتماديات عبر واجهة برمجة التطبيقات وتُعرض هنا للقراءة فقط.",
-      "parametersHint": "كتلة JSON لتهيئة نوع الخطوة. يُرجى التعديل بعناية."
+      "parametersHint": "كتلة JSON لتهيئة نوع الخطوة. يُرجى التعديل بعناية.",
+      "sectionTrigger": "المشغّل",
+      "triggerType": "نوع المشغّل",
+      "triggerEvent": "حدث المشغّل",
+      "triggerEventPlaceholder": "اختر حدثاً…"
     }
   },
   "reception": {
@@ -731,7 +738,9 @@
       "subtitle": "إدارة المستخدمين والأدوار والمستأجرين وتكوين المنصة.",
       "userManagementDesc": "إدارة المستخدمين والمجموعات وتعيينات الأدوار.",
       "tenantsDesc": "تكوين موفري الهوية للمستأجرين وإشارات الميزات.",
-      "rolesDesc": "تعريف الأدوار والأذونات الممنوحة لكل منها."
+      "rolesDesc": "تعريف الأدوار والأذونات الممنوحة لكل منها.",
+      "notificationsDesc": "إدارة قوالب الإشعارات والترجمات.",
+      "notificationLogsDesc": "تصفح سجل الإشعارات المرسلة، مع تصفية حسب القناة والحالة."
     },
     "users": {
       "title": "إدارة المستخدمين",
@@ -919,6 +928,75 @@
         "validName": "الاسم مطلوب.",
         "cancel": "إلغاء",
         "submit": "حفظ التغييرات"
+      }
+    },
+    "notifications": {
+      "title": "قوالب الإشعارات",
+      "subtitle": "إدارة القوالب المستخدمة لإرسال الإشعارات عبر القنوات المختلفة.",
+      "allTemplates": "القوالب",
+      "allTemplatesDesc": "جميع قوالب الإشعارات المهيّأة لهذا المستأجر.",
+      "searchPlaceholder": "البحث في القوالب…",
+      "newTemplate": "قالب جديد",
+      "colTemplate": "القالب",
+      "colSubject": "الموضوع",
+      "colUpdated": "تاريخ التحديث",
+      "editTemplate": "تعديل القالب",
+      "deleteTemplate": "حذف القالب",
+      "noTemplatesFound": "لم يتم العثور على قوالب",
+      "noTemplatesHint": "أنشئ قالباً للبدء.",
+      "deleteConfirm": "حذف <strong>{{name}}</strong>؟ لا يمكن التراجع عن هذا الإجراء.",
+      "keep": "احتفظ",
+      "yesDelete": "نعم، احذف",
+      "loadError": "تعذّر تحميل قوالب الإشعارات. يُرجى المحاولة مجددًا.",
+      "loadOneError": "تعذّر تحميل هذا القالب. يُرجى المحاولة مجددًا.",
+      "deleteError": "تعذّر حذف القالب. يُرجى المحاولة مجددًا.",
+      "logsTitle": "سجلات الإشعارات",
+      "logsDesc": "تصفح سجل الإشعارات المرسلة، مع تصفية حسب القناة والحالة.",
+      "editSubtitle": "تعديل المحتوى والترجمات لهذا القالب.",
+      "back": "رجوع",
+      "sectionCore": "عام",
+      "sectionDefault": "المحتوى الافتراضي",
+      "sectionDefaultDesc": "يُستخدم عند عدم العثور على ترجمة مطابقة للغة المستلم.",
+      "sectionTranslations": "الترجمات",
+      "sectionTranslationsDesc": "تخصيص الموضوع والنص لكل لغة.",
+      "fieldName": "الاسم",
+      "fieldDescription": "الوصف",
+      "fieldSubject": "الموضوع",
+      "fieldBody": "النص",
+      "fieldLanguage": "اللغة",
+      "placeholderName": "مثال: تأكيد-الزائر",
+      "placeholderDescription": "الغرض من هذا القالب",
+      "placeholderSubject": "مثال: تم تأكيد زيارتك",
+      "placeholderBody": "نص القالب — يدعم {{المتغيرات}}",
+      "fieldRequired": "هذا الحقل مطلوب.",
+      "addTranslation": "إضافة ترجمة",
+      "noTranslations": "لم تتم إضافة أي ترجمات بعد.",
+      "save": "حفظ التغييرات",
+      "create": "إنشاء قالب",
+      "saved": "تم حفظ التغييرات.",
+      "logs": {
+        "title": "سجلات الإشعارات",
+        "subtitle": "عرض سجل جميع الإشعارات المرسلة عبر القنوات المختلفة.",
+        "filters": "الفلاتر",
+        "filterChannel": "القناة",
+        "filterStatus": "الحالة",
+        "filterFrom": "من",
+        "filterTo": "إلى",
+        "allChannels": "جميع القنوات",
+        "allStatuses": "جميع الحالات",
+        "clearFilters": "مسح الفلاتر",
+        "results": "إدخالات السجل",
+        "refresh": "تحديث",
+        "retry": "إعادة المحاولة",
+        "colTemplate": "القالب",
+        "colChannel": "القناة",
+        "colRecipient": "المستلم",
+        "colStatus": "الحالة",
+        "colSent": "تاريخ الإرسال",
+        "noLogs": "لم يتم العثور على إدخالات في السجل",
+        "noLogsHint": "ستظهر هنا الإشعارات المرسلة عبر هذا النظام.",
+        "loadError": "تعذّر تحميل سجلات الإشعارات. يُرجى المحاولة مجددًا.",
+        "pageReport": "عرض {first} إلى {last} من {totalRecords} إدخال"
       }
     }
   }

@@ -28,7 +28,9 @@
       "arrivals": "Aankomsten",
       "guidedOnboarding": "Begeleide Onboarding",
       "onboardingTemplates": "Onboarding Sjablonen",
-      "userManagement": "Gebruikersbeheer"
+      "userManagement": "Gebruikersbeheer",
+      "notifications": "Meldingen",
+      "notificationLogs": "Meldingslogboek"
     }
   },
   "home": {
@@ -335,6 +337,7 @@
       "settingsSaved": "Instellingen opgeslagen",
       "unsavedWarning": "Niet-opgeslagen wijzigingen gaan verloren bij navigatie.",
       "save": "Opslaan",
+      "labelTemplate": "Labelsjabloon",
       "loadError": "Instellingen voor toegangscontrole laden mislukt.",
       "saveError": "Instellingen opslaan mislukt. Probeer het opnieuw."
     }
@@ -687,7 +690,11 @@
       "timeoutSeconds": "Time-out (s)",
       "noDependencies": "Geen afhankelijkheden geconfigureerd.",
       "dependenciesHint": "Afhankelijkheden worden beheerd via de API en hier alleen weergegeven.",
-      "parametersHint": "JSON-configuratieblob voor dit staptype. Bewerk met zorg."
+      "parametersHint": "JSON-configuratieblob voor dit staptype. Bewerk met zorg.",
+      "sectionTrigger": "Trigger",
+      "triggerType": "Triggertype",
+      "triggerEvent": "Triggergebeurtenis",
+      "triggerEventPlaceholder": "Selecteer een gebeurtenis…"
     }
   },
   "reception": {
@@ -731,7 +738,9 @@
       "subtitle": "Beheer gebruikers, rollen, tenants en platformconfiguratie.",
       "userManagementDesc": "Beheer gebruikers, groepen en hun rollenassignaties.",
       "tenantsDesc": "Configureer tenant-identiteitsproviders en functievlaggen.",
-      "rolesDesc": "Definieer rollen en de bijbehorende machtigingen."
+      "rolesDesc": "Definieer rollen en de bijbehorende machtigingen.",
+      "notificationsDesc": "Beheer meldingssjablonen en vertalingen.",
+      "notificationLogsDesc": "Blader door de geschiedenis van verzonden meldingen, filter op kanaal en status."
     },
     "users": {
       "title": "Gebruikersbeheer",
@@ -919,6 +928,75 @@
         "validName": "Naam is verplicht.",
         "cancel": "Annuleren",
         "submit": "Wijzigingen opslaan"
+      }
+    },
+    "notifications": {
+      "title": "Meldingssjablonen",
+      "subtitle": "Beheer de sjablonen die worden gebruikt voor het verzenden van meldingen via kanalen.",
+      "allTemplates": "Sjablonen",
+      "allTemplatesDesc": "Alle meldingssjablonen die voor deze tenant zijn geconfigureerd.",
+      "searchPlaceholder": "Sjablonen zoeken…",
+      "newTemplate": "Nieuw sjabloon",
+      "colTemplate": "Sjabloon",
+      "colSubject": "Onderwerp",
+      "colUpdated": "Bijgewerkt",
+      "editTemplate": "Sjabloon bewerken",
+      "deleteTemplate": "Sjabloon verwijderen",
+      "noTemplatesFound": "Geen sjablonen gevonden",
+      "noTemplatesHint": "Maak een sjabloon aan om te beginnen.",
+      "deleteConfirm": "<strong>{{name}}</strong> verwijderen? Dit kan niet ongedaan worden gemaakt.",
+      "keep": "Behouden",
+      "yesDelete": "Ja, verwijderen",
+      "loadError": "Meldingssjablonen laden mislukt. Probeer het opnieuw.",
+      "loadOneError": "Dit sjabloon laden mislukt. Probeer het opnieuw.",
+      "deleteError": "Het sjabloon verwijderen mislukt. Probeer het opnieuw.",
+      "logsTitle": "Meldingslogboek",
+      "logsDesc": "Blader door de geschiedenis van verzonden meldingen, filter op kanaal en status.",
+      "editSubtitle": "Bewerk de inhoud en vertalingen van dit meldingssjabloon.",
+      "back": "Terug",
+      "sectionCore": "Algemeen",
+      "sectionDefault": "Standaardinhoud",
+      "sectionDefaultDesc": "Wordt gebruikt wanneer er geen overeenkomende vertaling is gevonden voor de taal van de ontvanger.",
+      "sectionTranslations": "Vertalingen",
+      "sectionTranslationsDesc": "Overschrijf onderwerp en inhoud voor specifieke talen.",
+      "fieldName": "Naam",
+      "fieldDescription": "Beschrijving",
+      "fieldSubject": "Onderwerp",
+      "fieldBody": "Inhoud",
+      "fieldLanguage": "Taal",
+      "placeholderName": "bijv. bezoeker-bevestiging",
+      "placeholderDescription": "Waarvoor dit sjabloon wordt gebruikt",
+      "placeholderSubject": "bijv. Uw bezoek is bevestigd",
+      "placeholderBody": "Sjablooninhoud — ondersteunt {{variabelen}}",
+      "fieldRequired": "Dit veld is verplicht.",
+      "addTranslation": "Vertaling toevoegen",
+      "noTranslations": "Nog geen vertalingen toegevoegd.",
+      "save": "Wijzigingen opslaan",
+      "create": "Sjabloon aanmaken",
+      "saved": "Wijzigingen opgeslagen.",
+      "logs": {
+        "title": "Meldingslogboek",
+        "subtitle": "Bekijk een geschiedenis van alle meldingen die via kanalen zijn verzonden.",
+        "filters": "Filters",
+        "filterChannel": "Kanaal",
+        "filterStatus": "Status",
+        "filterFrom": "Van",
+        "filterTo": "Tot",
+        "allChannels": "Alle kanalen",
+        "allStatuses": "Alle statussen",
+        "clearFilters": "Filters wissen",
+        "results": "Logvermeldingen",
+        "refresh": "Vernieuwen",
+        "retry": "Opnieuw proberen",
+        "colTemplate": "Sjabloon",
+        "colChannel": "Kanaal",
+        "colRecipient": "Ontvanger",
+        "colStatus": "Status",
+        "colSent": "Verzonden",
+        "noLogs": "Geen logvermeldingen gevonden",
+        "noLogsHint": "Meldingen die via dit systeem zijn verzonden, verschijnen hier.",
+        "loadError": "Meldingslogboek laden mislukt. Probeer het opnieuw.",
+        "pageReport": "Weergave {first} tot {last} van {totalRecords} vermeldingen"
       }
     }
   }

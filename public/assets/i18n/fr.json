@@ -28,7 +28,9 @@
       "arrivals": "Arrivées",
       "guidedOnboarding": "Enregistrement guidé",
       "onboardingTemplates": "Modèles d'intégration",
-      "userManagement": "Gestion des utilisateurs"
+      "userManagement": "Gestion des utilisateurs",
+      "notifications": "Notifications",
+      "notificationLogs": "Journaux de notifications"
     }
   },
   "home": {
@@ -335,6 +337,7 @@
       "settingsSaved": "Paramètres enregistrés",
       "unsavedWarning": "Les modifications non enregistrées seront perdues lors de la navigation.",
       "save": "Enregistrer",
+      "labelTemplate": "Modèle d'étiquette",
       "loadError": "Échec du chargement des paramètres de contrôle d'accès.",
       "saveError": "Échec de l'enregistrement des paramètres. Veuillez réessayer."
     }
@@ -687,7 +690,11 @@
       "timeoutSeconds": "Délai d'expiration (s)",
       "noDependencies": "Aucune dépendance configurée.",
       "dependenciesHint": "Les dépendances sont gérées via l'API et affichées ici en lecture seule.",
-      "parametersHint": "Blob JSON de configuration pour ce type d'étape. Modifier avec précaution."
+      "parametersHint": "Blob JSON de configuration pour ce type d'étape. Modifier avec précaution.",
+      "sectionTrigger": "Déclencheur",
+      "triggerType": "Type de déclencheur",
+      "triggerEvent": "Événement déclencheur",
+      "triggerEventPlaceholder": "Sélectionner un événement…"
     }
   },
   "reception": {
@@ -731,7 +738,9 @@
       "subtitle": "Gérez les utilisateurs, les rôles, les locataires et la configuration de la plateforme.",
       "userManagementDesc": "Gérez les utilisateurs, les groupes et leurs attributions de rôles.",
       "tenantsDesc": "Configurez les fournisseurs d'identité des locataires et les indicateurs de fonctionnalités.",
-      "rolesDesc": "Définissez les rôles et les autorisations accordées à chacun."
+      "rolesDesc": "Définissez les rôles et les autorisations accordées à chacun.",
+      "notificationsDesc": "Gérez les modèles de notifications et leurs traductions.",
+      "notificationLogsDesc": "Consultez l'historique des notifications envoyées, filtrez par canal et statut."
     },
     "users": {
       "title": "Gestion des utilisateurs",
@@ -919,6 +928,75 @@
         "validName": "Le nom est obligatoire.",
         "cancel": "Annuler",
         "submit": "Enregistrer les modifications"
+      }
+    },
+    "notifications": {
+      "title": "Modèles de notifications",
+      "subtitle": "Gérez les modèles utilisés pour envoyer des notifications sur les différents canaux.",
+      "allTemplates": "Modèles",
+      "allTemplatesDesc": "Tous les modèles de notifications configurés pour ce locataire.",
+      "searchPlaceholder": "Rechercher des modèles…",
+      "newTemplate": "Nouveau modèle",
+      "colTemplate": "Modèle",
+      "colSubject": "Sujet",
+      "colUpdated": "Mis à jour",
+      "editTemplate": "Modifier le modèle",
+      "deleteTemplate": "Supprimer le modèle",
+      "noTemplatesFound": "Aucun modèle trouvé",
+      "noTemplatesHint": "Créez un modèle pour commencer.",
+      "deleteConfirm": "Supprimer <strong>{{name}}</strong> ? Cette action est irréversible.",
+      "keep": "Conserver",
+      "yesDelete": "Oui, supprimer",
+      "loadError": "Échec du chargement des modèles de notifications. Veuillez réessayer.",
+      "loadOneError": "Échec du chargement de ce modèle. Veuillez réessayer.",
+      "deleteError": "Échec de la suppression du modèle. Veuillez réessayer.",
+      "logsTitle": "Journaux de notifications",
+      "logsDesc": "Parcourez l'historique des notifications envoyées, filtrez par canal et statut.",
+      "editSubtitle": "Modifiez le contenu et les traductions de ce modèle de notification.",
+      "back": "Retour",
+      "sectionCore": "Général",
+      "sectionDefault": "Contenu par défaut",
+      "sectionDefaultDesc": "Utilisé lorsqu'aucune traduction correspondante n'est trouvée pour la langue du destinataire.",
+      "sectionTranslations": "Traductions",
+      "sectionTranslationsDesc": "Remplacez le sujet et le corps pour des langues spécifiques.",
+      "fieldName": "Nom",
+      "fieldDescription": "Description",
+      "fieldSubject": "Sujet",
+      "fieldBody": "Corps",
+      "fieldLanguage": "Langue",
+      "placeholderName": "ex. : confirmation-visiteur",
+      "placeholderDescription": "À quoi sert ce modèle",
+      "placeholderSubject": "ex. : Votre visite est confirmée",
+      "placeholderBody": "Corps du modèle — prend en charge les {{variables}}",
+      "fieldRequired": "Ce champ est obligatoire.",
+      "addTranslation": "Ajouter une traduction",
+      "noTranslations": "Aucune traduction ajoutée pour l'instant.",
+      "save": "Enregistrer les modifications",
+      "create": "Créer un modèle",
+      "saved": "Modifications enregistrées.",
+      "logs": {
+        "title": "Journaux de notifications",
+        "subtitle": "Consultez l'historique de toutes les notifications envoyées sur les différents canaux.",
+        "filters": "Filtres",
+        "filterChannel": "Canal",
+        "filterStatus": "Statut",
+        "filterFrom": "Du",
+        "filterTo": "Au",
+        "allChannels": "Tous les canaux",
+        "allStatuses": "Tous les statuts",
+        "clearFilters": "Effacer les filtres",
+        "results": "Entrées du journal",
+        "refresh": "Actualiser",
+        "retry": "Réessayer",
+        "colTemplate": "Modèle",
+        "colChannel": "Canal",
+        "colRecipient": "Destinataire",
+        "colStatus": "Statut",
+        "colSent": "Envoyé le",
+        "noLogs": "Aucune entrée de journal trouvée",
+        "noLogsHint": "Les notifications envoyées via ce système apparaîtront ici.",
+        "loadError": "Échec du chargement des journaux de notifications. Veuillez réessayer.",
+        "pageReport": "Affichage de {first} à {last} sur {totalRecords} entrées"
       }
     }
   }
