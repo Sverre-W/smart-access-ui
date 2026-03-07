@@ -51,6 +51,10 @@ export class SettingsNotifications implements OnInit {
     this.permissions.hasPermission('Notifications Server', 'Edit Templates')
   );
 
+  readonly canSeeLogs = computed(() =>
+    this.permissions.hasPermission('Notifications Server', 'View Notifications Log')
+  );
+
   // ── Data ────────────────────────────────────────────────────────────────────
 
   readonly allTemplates = signal<NotificationTemplateDto[]>([]);

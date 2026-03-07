@@ -62,7 +62,6 @@ const APP_NAV: Record<string, NavItemDef[]> = {
     { navKey: 'tenants',         icon: 'pi pi-building', route: '/settings/tenants',        requiredApp: 'Settings Server',       requiredPermissions: ['tenants.read'], rootTenantOnly: true },
     { navKey: 'roles',           icon: 'pi pi-shield',   route: '/settings/roles',          requiredApp: 'Settings Server',       requiredPermissions: ['roles.read']   },
     { navKey: 'notifications',   icon: 'pi pi-bell',     route: '/settings/notifications',  requiredApp: 'Notifications Server',  requiredPermissions: ['View Templates'] },
-    { navKey: 'notificationLogs', icon: 'pi pi-list',   route: '/settings/notifications/logs', requiredApp: 'Notifications Server', requiredPermissions: ['View Notifications Log'] },
   ],
 };
 

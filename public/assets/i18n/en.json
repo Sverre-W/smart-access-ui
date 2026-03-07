@@ -948,6 +948,8 @@
       "loadError": "Failed to load notification templates. Please try again.",
       "loadOneError": "Failed to load this template. Please try again.",
       "deleteError": "Failed to delete the template. Please try again.",
+      "logsTitle": "Notification Logs",
+      "logsDesc": "Browse sent notification history, filter by channel and status.",
       "editSubtitle": "Edit the content and translations for this notification template.",
       "back": "Back",
       "sectionCore": "General",
