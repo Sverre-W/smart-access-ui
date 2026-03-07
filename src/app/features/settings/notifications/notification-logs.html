@@ -42,7 +42,7 @@
           optionLabel="label"
           optionValue="value"
           [ngModel]="filters().channel"
-          (ngModelChange)="filters.update(f => ({ ...f, channel: $event })); onFilterChange()"
+          (ngModelChange)="setChannel($event)"
           [placeholder]="'settings.notifications.logs.allChannels' | translate"
           styleClass="text-sm w-full"
         />
@@ -56,7 +56,7 @@
           optionLabel="label"
           optionValue="value"
           [ngModel]="filters().status"
-          (ngModelChange)="filters.update(f => ({ ...f, status: $event })); onFilterChange()"
+          (ngModelChange)="setStatus($event)"
           [showClear]="true"
           [placeholder]="'settings.notifications.logs.allStatuses' | translate"
           styleClass="text-sm w-full"
@@ -69,7 +69,7 @@
         <input
           type="date"
           [ngModel]="filters().from"
-          (ngModelChange)="filters.update(f => ({ ...f, from: $event })); onFilterChange()"
+          (ngModelChange)="setFrom($event)"
           class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
         />
       </div>
@@ -80,7 +80,7 @@
         <input
           type="date"
           [ngModel]="filters().to"
-          (ngModelChange)="filters.update(f => ({ ...f, to: $event })); onFilterChange()"
+          (ngModelChange)="setTo($event)"
           class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
         />
       </div>

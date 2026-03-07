@@ -6,6 +6,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
@@ -38,7 +39,7 @@ function extractApiError(err: unknown): string {
 @Component({
   selector: 'app-settings-notifications',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslateModule, ButtonModule, IconField, InputIcon, InputTextModule],
+  imports: [RouterLink, TranslateModule, ButtonModule, IconField, InputIcon, InputTextModule, DatePipe],
   templateUrl: './notifications.html',
 })
 export class SettingsNotifications implements OnInit {

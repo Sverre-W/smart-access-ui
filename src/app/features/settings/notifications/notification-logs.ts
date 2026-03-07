@@ -138,6 +138,26 @@ export class NotificationLogs implements OnInit {
 
   // ── Filter actions ────────────────────────────────────────────────────────────
 
+  setChannel(value: string | null): void {
+    this.filters.update(f => ({ ...f, channel: value }));
+    this.loadPage(0);
+  }
+
+  setStatus(value: string | null): void {
+    this.filters.update(f => ({ ...f, status: value }));
+    this.loadPage(0);
+  }
+
+  setFrom(value: string | null): void {
+    this.filters.update(f => ({ ...f, from: value }));
+    this.loadPage(0);
+  }
+
+  setTo(value: string | null): void {
+    this.filters.update(f => ({ ...f, to: value }));
+    this.loadPage(0);
+  }
+
   applyFilters(): void {
     this.loadPage(0);
   }
