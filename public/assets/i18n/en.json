@@ -28,7 +28,8 @@
       "arrivals": "Arrivals",
       "guidedOnboarding": "Guided Onboarding",
       "onboardingTemplates": "Onboarding Templates",
-      "userManagement": "User Management"
+      "userManagement": "User Management",
+      "notifications": "Notifications"
     }
   },
   "home": {
@@ -291,8 +292,6 @@
     "settings": {
       "title": "Settings",
       "subtitle": "Configure Univisit preferences and integrations.",
-      "notifications": "Notifications",
-      "notificationsDesc": "Configure email and notification actions for visitor events.",
       "notifyOnConfirmation": "Notify organizer when visitor confirmed",
       "notifyOnArrival": "Notify organizer when visitor has arrived",
       "sendConfirmationEmail": "Send confirmation email after QR token is available",
@@ -736,7 +735,8 @@
       "subtitle": "Manage users, roles, tenants and platform configuration.",
       "userManagementDesc": "Manage users, groups and their role assignments.",
       "tenantsDesc": "Configure tenant identity providers and feature flags.",
-      "rolesDesc": "Define roles and the permissions granted to each."
+      "rolesDesc": "Define roles and the permissions granted to each.",
+      "notificationsDesc": "Manage notification templates and translations."
     },
     "users": {
       "title": "User Management",
@@ -925,6 +925,49 @@
         "cancel": "Cancel",
         "submit": "Save Changes"
       }
+    },
+    "notifications": {
+      "title": "Notification Templates",
+      "subtitle": "Manage the templates used to send notifications across channels.",
+      "allTemplates": "Templates",
+      "allTemplatesDesc": "All notification templates configured for this tenant.",
+      "searchPlaceholder": "Search templates…",
+      "newTemplate": "New Template",
+      "colTemplate": "Template",
+      "colSubject": "Subject",
+      "colUpdated": "Updated",
+      "editTemplate": "Edit template",
+      "deleteTemplate": "Delete template",
+      "noTemplatesFound": "No templates found",
+      "noTemplatesHint": "Create a template to get started.",
+      "deleteConfirm": "Delete <strong>{{name}}</strong>? This cannot be undone.",
+      "keep": "Keep",
+      "yesDelete": "Yes, delete",
+      "loadError": "Failed to load notification templates. Please try again.",
+      "loadOneError": "Failed to load this template. Please try again.",
+      "deleteError": "Failed to delete the template. Please try again.",
+      "editSubtitle": "Edit the content and translations for this notification template.",
+      "back": "Back",
+      "sectionCore": "General",
+      "sectionDefault": "Default Content",
+      "sectionDefaultDesc": "Used when no matching translation is found for the recipient's language.",
+      "sectionTranslations": "Translations",
+      "sectionTranslationsDesc": "Override subject and body for specific languages.",
+      "fieldName": "Name",
+      "fieldDescription": "Description",
+      "fieldSubject": "Subject",
+      "fieldBody": "Body",
+      "fieldLanguage": "Language",
+      "placeholderName": "e.g. visitor-confirmation",
+      "placeholderDescription": "What this template is used for",
+      "placeholderSubject": "e.g. Your visit is confirmed",
+      "placeholderBody": "Template body — supports {{variables}}",
+      "fieldRequired": "This field is required.",
+      "addTranslation": "Add Translation",
+      "noTranslations": "No translations added yet.",
+      "save": "Save Changes",
+      "create": "Create Template",
+      "saved": "Changes saved."
     }
   }
 }

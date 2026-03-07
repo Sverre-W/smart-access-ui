@@ -27,4 +27,8 @@ export class SettingsDashboard {
   readonly canSeeRoles = computed(() =>
     this.permissions.hasAnyPermission('Settings Server', 'roles.read')
   );
+
+  readonly canSeeNotifications = computed(() =>
+    this.permissions.hasAnyPermission('Notifications Server', 'View Templates')
+  );
 }

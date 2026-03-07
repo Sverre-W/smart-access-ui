@@ -33,4 +33,12 @@ export const settingsRoutes: Routes = [
     path: 'tenants/:tenantId',
     loadComponent: () => import('./tenants/edit-tenant').then(m => m.EditTenant),
   },
+  {
+    path: 'notifications',
+    loadComponent: () => import('./notifications/notifications').then(m => m.SettingsNotifications),
+  },
+  {
+    path: 'notifications/:id',
+    loadComponent: () => import('./notifications/edit-notification').then(m => m.EditNotification),
+  },
 ];

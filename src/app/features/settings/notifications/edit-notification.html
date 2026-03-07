@@ -1,0 +1,224 @@
+<div class="p-4 sm:p-8">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <div class="mb-6 flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-semibold text-zinc-800">
+        @if (isNew()) {
+          {{ 'settings.notifications.newTemplate' | translate }}
+        } @else {
+          {{ template()?.name || ('settings.notifications.editTemplate' | translate) }}
+        }
+      </h1>
+      <p class="text-sm text-zinc-500 mt-1">{{ 'settings.notifications.editSubtitle' | translate }}</p>
+    </div>
+    <p-button
+      icon="pi pi-arrow-left"
+      [label]="'settings.notifications.back' | translate"
+      severity="secondary"
+      size="small"
+      (click)="goBack()"
+    />
+  </div>
+
+  <!-- ── Load error ────────────────────────────────────────────────────────── -->
+  @if (loadError()) {
+    <div class="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ loadError() | translate }}</span>
+    </div>
+  }
+
+  <!-- ── Skeleton ───────────────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div class="space-y-4 animate-pulse">
+      <div class="h-5 w-32 rounded bg-zinc-100"></div>
+      <div class="h-10 w-full rounded bg-zinc-100"></div>
+      <div class="h-5 w-32 rounded bg-zinc-100"></div>
+      <div class="h-10 w-full rounded bg-zinc-100"></div>
+    </div>
+  } @else if (!loadError()) {
+
+    <form [formGroup]="form" class="space-y-6">
+
+      <!-- ── Core fields ──────────────────────────────────────────────────── -->
+      <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+        <div class="px-6 py-4 border-b border-zinc-100">
+          <p class="text-sm font-semibold text-zinc-700">{{ 'settings.notifications.sectionCore' | translate }}</p>
+        </div>
+        <div class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+          <!-- Name -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.notifications.fieldName' | translate }}
+              <span class="text-red-400">*</span>
+            </label>
+            <input
+              pInputText
+              type="text"
+              formControlName="name"
+              [placeholder]="'settings.notifications.placeholderName' | translate"
+              [fluid]="true"
+              [invalid]="form.controls.name.invalid && form.controls.name.touched"
+            />
+            @if (form.controls.name.invalid && form.controls.name.touched) {
+              <p class="text-xs text-red-500">{{ 'settings.notifications.fieldRequired' | translate }}</p>
+            }
+          </div>
+
+          <!-- Description -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">
+              {{ 'settings.notifications.fieldDescription' | translate }}
+            </label>
+            <input
+              pInputText
+              type="text"
+              formControlName="description"
+              [placeholder]="'settings.notifications.placeholderDescription' | translate"
+              [fluid]="true"
+            />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Default content ─────────────────────────────────────────────── -->
+      <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+        <div class="px-6 py-4 border-b border-zinc-100">
+          <p class="text-sm font-semibold text-zinc-700">{{ 'settings.notifications.sectionDefault' | translate }}</p>
+          <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.notifications.sectionDefaultDesc' | translate }}</p>
+        </div>
+        <div class="px-6 py-5 space-y-5">
+
+          <!-- Subject -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">{{ 'settings.notifications.fieldSubject' | translate }}</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="subject"
+              [placeholder]="'settings.notifications.placeholderSubject' | translate"
+              [fluid]="true"
+            />
+          </div>
+
+          <!-- Body -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-zinc-700">{{ 'settings.notifications.fieldBody' | translate }}</label>
+            <textarea
+              pTextarea
+              formControlName="body"
+              [rows]="8"
+              [fluid]="true"
+              [placeholder]="'settings.notifications.placeholderBody' | translate"
+              class="font-mono text-xs"
+            ></textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Translations ────────────────────────────────────────────────── -->
+      <div class="rounded-xl border border-zinc-200 bg-white shadow-xs">
+        <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-zinc-700">{{ 'settings.notifications.sectionTranslations' | translate }}</p>
+            <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.notifications.sectionTranslationsDesc' | translate }}</p>
+          </div>
+          @if (canEdit()) {
+            <p-button
+              icon="pi pi-plus"
+              [label]="'settings.notifications.addTranslation' | translate"
+              severity="secondary"
+              size="small"
+              type="button"
+              (click)="addTranslation()"
+            />
+          }
+        </div>
+
+        <div class="px-6 py-5">
+          @if (translations.length === 0) {
+            <p class="text-sm text-zinc-400">{{ 'settings.notifications.noTranslations' | translate }}</p>
+          } @else {
+            <div formArrayName="translations" class="space-y-5">
+              @for (group of translations.controls; track $index; let i = $index) {
+                <div [formGroupName]="i" class="rounded-lg border border-zinc-100 bg-zinc-50 p-4 space-y-4">
+
+                  <div class="flex items-center justify-between gap-4">
+                    <div class="flex flex-col gap-1.5 flex-1 max-w-[160px]">
+                      <label class="text-xs font-medium text-zinc-600">{{ 'settings.notifications.fieldLanguage' | translate }} <span class="text-red-400">*</span></label>
+                      <input
+                        pInputText
+                        type="text"
+                        formControlName="language"
+                        placeholder="en, fr, nb…"
+                        [fluid]="true"
+                        class="text-sm"
+                      />
+                    </div>
+                    @if (canEdit()) {
+                      <p-button
+                        icon="pi pi-trash"
+                        severity="danger" [text]="true" [rounded]="true"
+                        size="small" type="button"
+                        class="mt-5"
+                        (click)="removeTranslation(i)"
+                      />
+                    }
+                  </div>
+
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-medium text-zinc-600">{{ 'settings.notifications.fieldSubject' | translate }}</label>
+                    <input pInputText type="text" formControlName="subject" [fluid]="true" class="text-sm" />
+                  </div>
+
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-medium text-zinc-600">{{ 'settings.notifications.fieldBody' | translate }}</label>
+                    <textarea
+                      pTextarea
+                      formControlName="body"
+                      [rows]="6"
+                      [fluid]="true"
+                      class="font-mono text-xs"
+                    ></textarea>
+                  </div>
+
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ── Save bar ────────────────────────────────────────────────────── -->
+      @if (canEdit()) {
+        <div class="flex items-center justify-between gap-4 rounded-xl border border-zinc-200 bg-white px-6 py-4 shadow-xs">
+          <div class="text-sm">
+            @if (saveSuccess()) {
+              <span class="text-green-600 flex items-center gap-1.5">
+                <i class="pi pi-check-circle"></i> {{ 'settings.notifications.saved' | translate }}
+              </span>
+            } @else if (saveError()) {
+              <span class="text-red-500">{{ saveError() }}</span>
+            }
+          </div>
+          <p-button
+            type="button"
+            icon="pi pi-save"
+            [label]="isNew() ? ('settings.notifications.create' | translate) : ('settings.notifications.save' | translate)"
+            [loading]="saving()"
+            [disabled]="saving()"
+            loadingIcon="pi pi-spin pi-spinner"
+            (click)="save()"
+          />
+        </div>
+      }
+
+    </form>
+
+  }
+
+</div>

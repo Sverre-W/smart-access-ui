@@ -1,0 +1,275 @@
+<div class="p-4 sm:p-8">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-semibold text-zinc-800">{{ 'settings.notifications.title' | translate }}</h1>
+    <p class="text-sm text-zinc-500 mt-1">{{ 'settings.notifications.subtitle' | translate }}</p>
+  </div>
+
+  <!-- ── Load error ────────────────────────────────────────────────────────── -->
+  @if (error()) {
+    <div class="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- ── Templates card ────────────────────────────────────────────────────── -->
+  <div class="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-visible">
+
+    <!-- Card header -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 border-b border-zinc-100">
+      <div>
+        <h2 class="text-sm font-semibold text-zinc-700">
+          {{ 'settings.notifications.allTemplates' | translate }}
+          @if (!loading()) {
+            <span class="ml-1.5 text-xs font-normal text-zinc-400">({{ allTemplates().length }})</span>
+          }
+        </h2>
+        <p class="text-xs text-zinc-400 mt-0.5">{{ 'settings.notifications.allTemplatesDesc' | translate }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-iconfield>
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            pInputText
+            type="text"
+            (input)="onSearchInput($event)"
+            [placeholder]="'settings.notifications.searchPlaceholder' | translate"
+            class="text-sm w-full sm:w-52"
+          />
+        </p-iconfield>
+        @if (canEdit()) {
+          <p-button
+            icon="pi pi-plus"
+            [label]="'settings.notifications.newTemplate' | translate"
+            size="small"
+            [routerLink]="['/settings/notifications/new']"
+          />
+        }
+      </div>
+    </div>
+
+    <!-- Delete error banner -->
+    @if (deleteError()) {
+      <div class="mx-4 sm:mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 flex items-center gap-2">
+        <i class="pi pi-exclamation-circle shrink-0"></i>{{ deleteError() }}
+      </div>
+    }
+
+    <!-- ── Desktop table ────────────────────────────────────────────────────── -->
+    <div class="hidden sm:block">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100 bg-zinc-50/60">
+            <th class="text-left px-6 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'settings.notifications.colTemplate' | translate }}</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'settings.notifications.colSubject' | translate }}</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">{{ 'settings.notifications.colUpdated' | translate }}</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (loading()) {
+            @for (i of [1, 2, 3, 4]; track i) {
+              <tr class="border-b border-zinc-100">
+                <td class="px-6 py-4"><div class="h-4 w-48 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-40 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"><div class="h-4 w-24 rounded bg-zinc-100 animate-pulse"></div></td>
+                <td class="px-4 py-4"></td>
+              </tr>
+            }
+          } @else if (!hasTemplates()) {
+            <tr>
+              <td colspan="4" class="px-6 py-16 text-center">
+                <i class="pi pi-bell text-3xl text-zinc-300 mb-3 block"></i>
+                <p class="text-sm font-medium text-zinc-500">{{ 'settings.notifications.noTemplatesFound' | translate }}</p>
+                <p class="text-xs text-zinc-400 mt-1">{{ 'settings.notifications.noTemplatesHint' | translate }}</p>
+              </td>
+            </tr>
+          } @else {
+            @for (template of filteredTemplates(); track template.id) {
+
+              <tr class="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors">
+
+                <!-- Identity -->
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                      <i class="pi pi-bell text-xs text-blue-500"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <span class="font-semibold text-zinc-800 truncate block">{{ template.name }}</span>
+                      @if (template.description) {
+                        <p class="text-xs text-zinc-400 truncate">{{ template.description }}</p>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Subject -->
+                <td class="px-4 py-4">
+                  <span class="text-xs text-zinc-500 truncate block max-w-[260px]">{{ template.subject || '—' }}</span>
+                </td>
+
+                <!-- Updated -->
+                <td class="px-4 py-4">
+                  <span class="text-xs text-zinc-400">{{ template.updatedAt | date:'dd MMM yyyy' }}</span>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-1 justify-end">
+                    <p-button
+                      icon="pi pi-pen-to-square"
+                      severity="secondary" [text]="true" [rounded]="true"
+                      size="small"
+                      [title]="'settings.notifications.editTemplate' | translate"
+                      [routerLink]="['/settings/notifications', template.id]"
+                    />
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger" [text]="true" [rounded]="true"
+                      size="small"
+                      [title]="'settings.notifications.deleteTemplate' | translate"
+                      [disabled]="!canEdit()"
+                      (click)="confirmDelete(template.id)"
+                    />
+                  </div>
+                </td>
+
+              </tr>
+
+              <!-- Delete confirmation row -->
+              @if (deleteConfirmingId() === template.id) {
+                <tr class="border-b border-zinc-100 bg-red-50">
+                  <td colspan="4" class="px-6 py-3">
+                    <div class="flex items-center justify-between gap-4">
+                      <p class="text-sm text-red-700 font-medium">
+                        <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                        <span [innerHTML]="'settings.notifications.deleteConfirm' | translate: { name: template.name }"></span>
+                      </p>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <p-button
+                          type="button"
+                          [label]="'settings.notifications.keep' | translate"
+                          severity="secondary" size="small"
+                          (click)="abortDelete()"
+                        />
+                        <p-button
+                          type="button"
+                          [label]="'settings.notifications.yesDelete' | translate"
+                          severity="danger" size="small"
+                          [loading]="deleteInProgressId() === template.id"
+                          [disabled]="deleteInProgressId() === template.id"
+                          loadingIcon="pi pi-spin pi-spinner"
+                          (click)="executeDelete(template)"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Mobile list ───────────────────────────────────────────────────────── -->
+    <div class="sm:hidden divide-y divide-zinc-100">
+
+      @if (loading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="px-4 py-4 flex items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-zinc-100 shrink-0"></div>
+              <div class="space-y-1.5">
+                <div class="h-3.5 w-36 rounded bg-zinc-100"></div>
+                <div class="h-3 w-24 rounded bg-zinc-50"></div>
+              </div>
+            </div>
+            <div class="h-4 w-8 rounded bg-zinc-100"></div>
+          </div>
+        }
+      } @else if (!hasTemplates()) {
+        <div class="px-4 py-14 text-center">
+          <i class="pi pi-bell text-3xl text-zinc-300 mb-3 block"></i>
+          <p class="text-sm font-medium text-zinc-500">{{ 'settings.notifications.noTemplatesFound' | translate }}</p>
+        </div>
+      } @else {
+        @for (template of filteredTemplates(); track template.id) {
+
+          <div class="px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                  <i class="pi pi-bell text-xs text-blue-500"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-semibold text-zinc-800 truncate">{{ template.name }}</p>
+                  @if (template.description) {
+                    <p class="text-xs text-zinc-400 truncate">{{ template.description }}</p>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <p-button
+                  icon="pi pi-pen-to-square"
+                  severity="secondary" [text]="true" [rounded]="true"
+                  size="small"
+                  [routerLink]="['/settings/notifications', template.id]"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger" [text]="true" [rounded]="true"
+                  size="small"
+                  [disabled]="!canEdit()"
+                  (click)="confirmDelete(template.id)"
+                />
+              </div>
+            </div>
+            @if (template.subject) {
+              <p class="text-xs text-zinc-400 mt-1 ml-10 truncate">{{ template.subject }}</p>
+            }
+          </div>
+
+          <!-- Delete confirmation (mobile) -->
+          @if (deleteConfirmingId() === template.id) {
+            <div class="bg-red-50 px-4 py-3 border-t border-red-100">
+              <p class="text-sm text-red-700 font-medium mb-2">
+                <i class="pi pi-exclamation-triangle mr-1.5"></i>
+                <span [innerHTML]="'settings.notifications.deleteConfirm' | translate: { name: template.name }"></span>
+              </p>
+              <div class="flex items-center gap-2">
+                <p-button
+                  type="button"
+                  [label]="'settings.notifications.keep' | translate"
+                  severity="secondary" size="small"
+                  (click)="abortDelete()"
+                />
+                <p-button
+                  type="button"
+                  [label]="'settings.notifications.yesDelete' | translate"
+                  severity="danger" size="small"
+                  [loading]="deleteInProgressId() === template.id"
+                  [disabled]="deleteInProgressId() === template.id"
+                  loadingIcon="pi pi-spin pi-spinner"
+                  (click)="executeDelete(template)"
+                />
+              </div>
+            </div>
+          }
+
+        }
+      }
+
+    </div>
+
+  </div>
+
+</div>
