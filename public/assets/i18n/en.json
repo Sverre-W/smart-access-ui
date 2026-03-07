@@ -688,7 +688,11 @@
       "timeoutSeconds": "Timeout (s)",
       "noDependencies": "No dependencies configured.",
       "dependenciesHint": "Dependencies are managed via the API and shown here read-only.",
-      "parametersHint": "JSON configuration blob for this step type. Edit with care."
+      "parametersHint": "Configure the step parameters below. Fields are derived from the step type's schema.",
+      "sectionTrigger": "Trigger",
+      "triggerType": "Trigger Type",
+      "triggerEvent": "Trigger Event",
+      "triggerEventPlaceholder": "Select an event…"
     }
   },
   "reception": {

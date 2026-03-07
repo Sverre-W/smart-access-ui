@@ -514,6 +514,14 @@
                                 {{ step.retryPolicy.maxAttempts }}×
                               </span>
                             }
+                            @if (step.trigger) {
+                              <span class="text-xs text-indigo-600 bg-indigo-50 rounded-full px-2 py-0.5">
+                                {{ step.trigger.type }}
+                                @if (step.trigger.eventType) {
+                                  : {{ step.trigger.eventType }}
+                                }
+                              </span>
+                            }
                             @if (step.dependencies?.length) {
                               <span class="text-xs text-purple-600 bg-purple-50 rounded-full px-2 py-0.5">
                                 {{ step.dependencies.length }} dep
@@ -645,6 +653,40 @@
                             </div>
                           </div>
 
+                          <!-- ── Trigger ───────────────────────────── -->
+                          <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-3">
+                            {{ 'facility.onboardingTemplateDetail.sectionTrigger' | translate }}
+                          </p>
+                          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                            <div class="flex flex-col gap-1.5">
+                              <label class="text-sm font-medium text-zinc-700">
+                                {{ 'facility.onboardingTemplateDetail.triggerType' | translate }}
+                              </label>
+                              <p-select
+                                formControlName="triggerType"
+                                [options]="triggerTypeOptionsForStep(step.id)"
+                                optionLabel="label"
+                                optionValue="value"
+                                [fluid]="true"
+                              />
+                            </div>
+                            @if (editStepForm.controls.triggerType.value === TriggerType.Event) {
+                              <div class="flex flex-col gap-1.5">
+                                <label class="text-sm font-medium text-zinc-700">
+                                  {{ 'facility.onboardingTemplateDetail.triggerEvent' | translate }}
+                                </label>
+                                <p-select
+                                  formControlName="triggerEventType"
+                                  [options]="triggerEventOptionsForStep(step.id)"
+                                  optionLabel="label"
+                                  optionValue="value"
+                                  [fluid]="true"
+                                  [placeholder]="'facility.onboardingTemplateDetail.triggerEventPlaceholder' | translate"
+                                />
+                              </div>
+                            }
+                          </div>
+
                           <!-- ── Retry policy ────────────────────── -->
                           <p class="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-3">
                             {{ 'facility.onboardingTemplateDetail.sectionRetry' | translate }}
@@ -758,16 +800,15 @@
                             {{ 'facility.onboardingTemplateDetail.sectionParameters' | translate }}
                           </p>
                           <div class="mb-6">
-                            <p class="text-xs text-zinc-400 mb-2">
+                            <p class="text-xs text-zinc-400 mb-3">
                               {{ 'facility.onboardingTemplateDetail.parametersHint' | translate }}
                             </p>
-                            <textarea
-                              pTextarea
-                              formControlName="parameters"
-                              [fluid]="true"
-                              rows="5"
-                              class="font-mono text-xs"
-                            ></textarea>
+                            <app-schema-form
+                              [schema]="schemaForEditStep(step.id)"
+                              [value]="editStepForm.controls.parameters.value"
+                              [readonly]="!canWrite()"
+                              (valueChange)="editStepForm.controls.parameters.setValue($event)"
+                            />
                           </div>
 
                         </div>

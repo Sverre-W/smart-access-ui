@@ -10,6 +10,7 @@ import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { PermissionsService } from '../../../core/services/permissions-service';
+import { SchemaForm } from '../../../shared/components/schema-form/schema-form';
 import {
   OnboardingService,
   OnboardingTemplateDto,
@@ -18,6 +19,7 @@ import {
   AvailableStepDto,
   PhaseType,
   TriggerType,
+  StepTriggerEvent,
   OnboardingStepType,
   RetryStrategy,
   AddPhaseRequest,
@@ -43,6 +45,27 @@ const RETRY_STRATEGY_OPTIONS: { label: string; value: RetryStrategy }[] = [
   { label: 'Exponential Backoff', value: RetryStrategy.ExponentialBackoff },
 ];
 
+// ── Trigger type options ───────────────────────────────────────────────────────
+
+const TRIGGER_TYPE_OPTIONS: { label: string; value: TriggerType }[] = [
+  { label: 'Manual', value: TriggerType.Manual },
+  { label: 'Event', value: TriggerType.Event },
+  { label: 'Time', value: TriggerType.Time },
+  { label: 'Conditional', value: TriggerType.Conditional },
+];
+
+// ── Step trigger event labels ──────────────────────────────────────────────────
+
+const TRIGGER_EVENT_LABELS: Record<StepTriggerEvent, string> = {
+  [StepTriggerEvent.SessionCreated]: 'Session Created',
+  [StepTriggerEvent.VisitorConfirmed]: 'Visitor Confirmed',
+  [StepTriggerEvent.CheckInCompleted]: 'Check-In Completed',
+  [StepTriggerEvent.CheckOutCompleted]: 'Check-Out Completed',
+  [StepTriggerEvent.SessionCancelled]: 'Session Cancelled',
+  [StepTriggerEvent.Manual]: 'Manual',
+  [StepTriggerEvent.Scheduled]: 'Scheduled',
+};
+
 @Component({
   selector: 'app-onboarding-template-detail',
   standalone: true,
@@ -56,6 +79,7 @@ const RETRY_STRATEGY_OPTIONS: { label: string; value: RetryStrategy }[] = [
     TagModule,
     TextareaModule,
     CheckboxModule,
+    SchemaForm,
   ],
   templateUrl: './onboarding-template-detail.html',
 })
@@ -75,6 +99,7 @@ export class OnboardingTemplateDetail implements OnInit {
 
   readonly phaseTypeOptions = PHASE_TYPE_OPTIONS;
   readonly retryStrategyOptions = RETRY_STRATEGY_OPTIONS;
+  readonly triggerTypeOptions = TRIGGER_TYPE_OPTIONS;
 
   // ── Page state ────────────────────────────────────────────────────────────
 
@@ -159,6 +184,8 @@ export class OnboardingTemplateDetail implements OnInit {
     displayName: [''],
     isOptional: [false],
     isEnabled: [true],
+    triggerType: [TriggerType.Manual as TriggerType],
+    triggerEventType: [null as StepTriggerEvent | null],
     maxRetries: [0, [Validators.min(0), Validators.max(20)]],
     retryStrategy: [RetryStrategy.None as RetryStrategy],
     initialDelaySeconds: [0, [Validators.min(0)]],
@@ -522,6 +549,8 @@ export class OnboardingTemplateDetail implements OnInit {
       displayName: step.displayName ?? '',
       isOptional: step.isOptional,
       isEnabled: step.isEnabled,
+      triggerType: step.trigger?.type ?? TriggerType.Manual,
+      triggerEventType: step.trigger?.eventType ?? null,
       maxRetries: step.retryPolicy?.maxAttempts ?? 0,
       retryStrategy: step.retryPolicy?.strategy ?? RetryStrategy.None,
       initialDelaySeconds: step.retryPolicy?.initialDelaySeconds ?? 0,
@@ -550,6 +579,8 @@ export class OnboardingTemplateDetail implements OnInit {
       displayName,
       isOptional,
       isEnabled,
+      triggerType,
+      triggerEventType,
       maxRetries,
       retryStrategy,
       initialDelaySeconds,
@@ -560,9 +591,11 @@ export class OnboardingTemplateDetail implements OnInit {
       parameters,
     } = this.editStepForm.getRawValue();
 
+    const trigger = this.buildTrigger(triggerType, triggerEventType);
+
     try {
       await this.service.updateStep(t.id, phase.id, step.id, {
-        trigger: step.trigger,
+        trigger,
         order: step.order,
         displayName: displayName || null,
         isOptional,
@@ -595,6 +628,52 @@ export class OnboardingTemplateDetail implements OnInit {
   dependencyLabel(phase: OnboardingPhaseDto, depStepId: string): string {
     const s = phase.steps?.find(x => x.id === depStepId);
     return s ? (s.displayName ?? this.stepTypeLabel(s.stepType)) : depStepId;
+  }
+
+  /** Returns the JSON Schema string for the step currently open in the edit panel. */
+  schemaForEditStep(stepId: string): string | null {
+    const step = this.currentEditStep(stepId);
+    const available = this.availableSteps().find(s => step && s.stepType === step.stepType);
+    return available?.schema ?? null;
+  }
+
+  /** Trigger event options filtered to those supported by the currently edited step. */
+  triggerEventOptionsForStep(stepId: string): { label: string; value: StepTriggerEvent }[] {
+    const step = this.currentEditStep(stepId);
+    const available = this.availableSteps().find(s => step && s.stepType === step.stepType);
+    const supported = available?.supportedTriggerEvents ?? Object.values(StepTriggerEvent);
+    return supported.map(e => ({ label: TRIGGER_EVENT_LABELS[e] ?? e, value: e }));
+  }
+
+  /** Trigger type options filtered to those relevant for the currently edited step. */
+  triggerTypeOptionsForStep(stepId: string): { label: string; value: TriggerType }[] {
+    const step = this.currentEditStep(stepId);
+    const available = this.availableSteps().find(s => step && s.stepType === step.stepType);
+    const hasEvents = (available?.supportedTriggerEvents?.length ?? 0) > 0;
+    return TRIGGER_TYPE_OPTIONS.filter(o => o.value !== TriggerType.Event || hasEvents);
+  }
+
+  readonly TriggerType = TriggerType;
+
+  private currentEditStep(stepId: string): StepConfigurationDto | undefined {
+    for (const phase of this.template()?.phases ?? []) {
+      const found = phase.steps?.find(s => s.id === stepId);
+      if (found) return found;
+    }
+    return undefined;
+  }
+
+  private buildTrigger(
+    type: TriggerType,
+    eventType: StepTriggerEvent | null,
+  ) {
+    return {
+      type,
+      eventType: type === TriggerType.Event ? eventType : null,
+      relativeTime: null,
+      allowedRoles: null,
+      conditionExpression: null,
+    };
   }
 
   // ── Error helper ──────────────────────────────────────────────────────────
