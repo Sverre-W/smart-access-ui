@@ -4,13 +4,19 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+export interface MailTemplateOption {
+  label: string;
+  value: string;
+}
+
 interface SchemaProperty {
   key: string;
-  type: 'boolean' | 'integer' | 'string';
+  type: 'boolean' | 'integer' | 'string' | 'mail-template';
   description: string;
   default: unknown;
 }
@@ -30,7 +36,12 @@ function parseSchema(schemaJson: string | null): ParsedSchema | null {
       raw.properties as Record<string, { type?: string; description?: string; default?: unknown }>,
     ).map(([key, def]) => ({
       key,
-      type: (def.type === 'boolean' || def.type === 'integer' ? def.type : 'string') as SchemaProperty['type'],
+      type: (
+        def.type === 'boolean' ? 'boolean' :
+        def.type === 'integer' ? 'integer' :
+        def.type === 'mail-template' ? 'mail-template' :
+        'string'
+      ) as SchemaProperty['type'],
       description: def.description ?? '',
       default: def.default ?? null,
     }));
@@ -57,7 +68,9 @@ function serializeValues(values: Record<string, unknown>): string {
 function defaultValuesFor(schema: ParsedSchema): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const prop of schema.properties) {
-    out[prop.key] = prop.default ?? (prop.type === 'boolean' ? false : prop.type === 'integer' ? 0 : '');
+    out[prop.key] =
+      prop.default ??
+      (prop.type === 'boolean' ? false : prop.type === 'integer' ? 0 : '');
   }
   return out;
 }
@@ -67,13 +80,14 @@ function defaultValuesFor(schema: ParsedSchema): Record<string, unknown> {
 @Component({
   selector: 'app-schema-form',
   standalone: true,
-  imports: [FormsModule, TranslateModule, CheckboxModule, InputNumberModule, InputTextModule, TextareaModule],
+  imports: [FormsModule, TranslateModule, CheckboxModule, InputNumberModule, InputTextModule, SelectModule, TextareaModule],
   templateUrl: './schema-form.html',
 })
 export class SchemaForm {
   readonly schema = input<string | null>(null);
   readonly value = input<string>('');
   readonly readonly = input(false);
+  readonly mailTemplates = input<MailTemplateOption[]>([]);
 
   readonly valueChange = output<string>();
 

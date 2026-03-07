@@ -46,6 +46,23 @@
           }
         }
 
+        @if (prop.type === 'mail-template') {
+          <label class="text-sm font-medium text-zinc-700">{{ prop.key }}</label>
+          <p-select
+            [ngModel]="stringValue(prop.key)"
+            [options]="mailTemplates()"
+            [disabled]="readonly()"
+            [fluid]="true"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select a mail template"
+            (ngModelChange)="onStringChange(prop.key, $event)"
+          />
+          @if (prop.description) {
+            <p class="text-xs text-zinc-400">{{ prop.description }}</p>
+          }
+        }
+
       </div>
     }
   </div>
